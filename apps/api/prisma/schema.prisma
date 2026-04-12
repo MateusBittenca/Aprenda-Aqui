@@ -1,0 +1,148 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String   @id @default(cuid())
+  email            String   @unique
+  passwordHash     String
+  displayName      String
+  timezone         String   @default("UTC")
+  xpTotal          Int      @default(0)
+  level            Int      @default(1)
+  gems             Int      @default(0)
+  currentStreak    Int      @default(0)
+  longestStreak    Int      @default(0)
+  lastActivityDate DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  lessonProgress   UserLessonProgress[]
+  exerciseProgress UserExerciseProgress[]
+  exerciseAttempts UserExerciseAttempt[]
+}
+
+model Track {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String?  @db.Text
+  orderIndex  Int      @default(0)
+  courses     Course[]
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  trackId     String
+  track       Track    @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  slug        String
+  title       String
+  description String?  @db.Text
+  orderIndex  Int      @default(0)
+  modules     Module[]
+
+  @@unique([trackId, slug])
+  @@index([trackId])
+}
+
+model Module {
+  id         String   @id @default(cuid())
+  courseId   String
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  slug       String
+  title      String
+  orderIndex Int      @default(0)
+  lessons    Lesson[]
+
+  @@unique([courseId, slug])
+  @@index([courseId])
+}
+
+model Lesson {
+  id               String   @id @default(cuid())
+  moduleId         String
+  module           Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  slug             String
+  title            String
+  objective        String?  @db.Text
+  contentMd        String   @db.Text
+  estimatedMinutes Int      @default(3)
+  orderIndex       Int      @default(0)
+  exercises        Exercise[]
+  userProgress     UserLessonProgress[]
+
+  @@unique([moduleId, slug])
+  @@index([moduleId])
+}
+
+model Exercise {
+  id          String       @id @default(cuid())
+  lessonId    String
+  lesson      Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  type        ExerciseType
+  title       String
+  prompt      String       @db.Text
+  explanation String       @db.Text
+  payload     Json
+  xpReward    Int          @default(10)
+  gemReward   Int          @default(1)
+  orderIndex  Int          @default(0)
+  attempts    UserExerciseAttempt[]
+  progress    UserExerciseProgress[]
+
+  @@index([lessonId])
+}
+
+enum ExerciseType {
+  MULTIPLE_CHOICE
+  CODE_FILL
+  CODE_EDITOR
+}
+
+model UserLessonProgress {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId    String
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  completed   Boolean  @default(false)
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+}
+
+model UserExerciseProgress {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exerciseId String
+  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  solved     Boolean  @default(false)
+  solvedAt   DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, exerciseId])
+  @@index([userId])
+}
+
+model UserExerciseAttempt {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exerciseId String
+  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  correct    Boolean
+  answer     Json?
+  createdAt  DateTime @default(now())
+
+  @@index([userId, exerciseId])
+}

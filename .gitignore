@@ -1,0 +1,75 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# Build / output
+dist/
+build/
+out/
+.next/
+.nuxt/
+.vite/
+*.tsbuildinfo
+
+# Environment (nunca commitar segredos)
+.env
+.env.*
+!.env.example
+!.env*.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Test / coverage
+coverage/
+.nyc_output/
+*.lcov
+
+# Prisma (cliente gerado fica em node_modules; não ignorar prisma/migrations nem schema)
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editors / IDE
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# VS Code (descomente ! para versionar extensões recomendadas)
+.vscode/*
+!.vscode/extensions.json
+
+# Debug
+*.pem
+debug.log
+
+# Misc
+*.local
+.cache/
+.turbo/
+temp/
+tmp/
+
+# Docker (opcional: descomente se gerar override local)
+# docker-compose.override.yml

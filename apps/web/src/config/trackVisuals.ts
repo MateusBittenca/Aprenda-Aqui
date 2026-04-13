@@ -3,6 +3,8 @@ import { Database, LayoutTemplate, Server } from 'lucide-react';
 
 /** Metadados visuais por slug de trilha (ícones, cores, dicas rápidas). Sem gradientes — paleta flat. */
 export type TrackVisual = {
+  /** Fallback de imagem hero na landing quando `coverImageUrl` não veio do banco. */
+  heroCover?: string;
   Icon: LucideIcon;
   /** Classes Tailwind para fundo do ícone */
   iconBg: string;
@@ -31,6 +33,8 @@ const defaultVisual: TrackVisual = {
 
 const map: Record<string, TrackVisual> = {
   frontend: {
+    heroCover:
+      'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1600&q=80&auto=format&fit=crop',
     Icon: LayoutTemplate,
     iconBg: 'bg-fuchsia-600',
     iconColor: 'text-white',
@@ -45,6 +49,8 @@ const map: Record<string, TrackVisual> = {
     ],
   },
   backend: {
+    heroCover:
+      'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1600&q=80&auto=format&fit=crop',
     Icon: Server,
     iconBg: 'bg-violet-600',
     iconColor: 'text-white',
@@ -59,6 +65,8 @@ const map: Record<string, TrackVisual> = {
     ],
   },
   dados: {
+    heroCover:
+      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1600&q=80&auto=format&fit=crop',
     Icon: Database,
     iconBg: 'bg-emerald-600',
     iconColor: 'text-white',

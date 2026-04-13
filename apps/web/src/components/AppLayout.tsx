@@ -89,8 +89,8 @@ export function AppLayout() {
         </div>
         <nav className="mx-auto flex max-w-5xl gap-1 border-t border-slate-100 px-2 pb-2 pt-1" aria-label="Principal">
           <AppNavLink to="/app" end icon={<LayoutDashboard className="h-4 w-4" />} label="Início" />
-          <AppNavLink to="/app/tracks" end={false} icon={<ShoppingBag className="h-4 w-4" />} label="Trilhas" />
           <AppNavLink to="/app/my-tracks" end={false} icon={<Map className="h-4 w-4" />} label="Minhas trilhas" />
+          <AppNavLink to="/app/tracks" end={false} icon={<ShoppingBag className="h-4 w-4" />} label="Trilhas" />
           <AppNavLink to="/app/ranking" icon={<Medal className="h-4 w-4" />} label="Ranking" />
           <AppNavLink to="/app/community" icon={<Users className="h-4 w-4" />} label="Comunidade" />
           <AppNavLink to="/app/me" icon={<User className="h-4 w-4" />} label="Perfil" />

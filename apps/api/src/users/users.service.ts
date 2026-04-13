@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { withTrackPresentation } from '../catalog/track-detail.util';
 import { xpToNextLevel } from '../gamification/level.util';
 import { UpdateMeDto } from './dto/update-me.dto';
 
@@ -11,6 +12,7 @@ const trackCourseDetailInclude = {
     title: true,
     description: true,
     orderIndex: true,
+    isFree: true,
     modules: {
       orderBy: { orderIndex: 'asc' as const },
       select: {
@@ -160,7 +162,7 @@ export class UsersService {
 
   /** Catálogo: todas as trilhas + flag se o usuário já se matriculou na trilha. */
   async listCatalogTracks(userId: string) {
-    const [tracks, mine] = await Promise.all([
+    const [tracks, mine, courses] = await Promise.all([
       this.prisma.track.findMany({
         orderBy: { orderIndex: 'asc' },
         select: {
@@ -177,12 +179,26 @@ export class UsersService {
         where: { userId },
         select: { trackId: true },
       }),
+      this.prisma.course.findMany({ select: { trackId: true, isFree: true } }),
     ]);
     const enrolledSet = new Set(mine.map((m) => m.trackId));
-    return tracks.map((t) => ({
-      ...t,
-      enrolled: enrolledSet.has(t.id),
-    }));
+    const countsByTrack = new Map<string, { free: number; paid: number }>();
+    for (const c of courses) {
+      const cur = countsByTrack.get(c.trackId) ?? { free: 0, paid: 0 };
+      if (c.isFree) cur.free += 1;
+      else cur.paid += 1;
+      countsByTrack.set(c.trackId, cur);
+    }
+    return tracks.map((t) => {
+      const { free, paid } = countsByTrack.get(t.id) ?? { free: 0, paid: 0 };
+      return {
+        ...t,
+        enrolled: enrolledSet.has(t.id),
+        freeCourseCount: free,
+        paidCourseCount: paid,
+        canEnrollInTrack: free > 0,
+      };
+    });
   }
 
   /** Minhas trilhas: só matrícula explícita na trilha (`UserTrackEnrollment`). */
@@ -248,13 +264,30 @@ export class UsersService {
     const track = await this.prisma.track.findUnique({
       where: { id: trackRef.id },
       include: {
+        _count: { select: { enrollments: true } },
         courses: {
           ...trackCourseDetailInclude,
         },
       },
     });
     if (!track) throw new NotFoundException('Trilha não encontrada');
-    return track;
+
+    const courseIds = track.courses.map((c) => c.id);
+    const courseEnrolls = await this.prisma.userCourseEnrollment.findMany({
+      where: { userId, courseId: { in: courseIds } },
+      select: { courseId: true },
+    });
+    const enrolledCourseIds = new Set(courseEnrolls.map((e) => e.courseId));
+
+    const presented = withTrackPresentation(track);
+
+    return {
+      ...presented,
+      courses: presented.courses.map((c) => ({
+        ...c,
+        accessible: c.isFree || enrolledCourseIds.has(c.id),
+      })),
+    };
   }
 
   async getProfile(userId: string) {

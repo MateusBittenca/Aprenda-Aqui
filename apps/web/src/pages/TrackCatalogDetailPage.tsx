@@ -16,10 +16,19 @@ import { toast } from 'sonner';
 import { apiFetch, ApiError } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
 import type { TrackCatalogItem, TrackDetail } from '../types/catalog';
+import { courseAccessible } from '../lib/courseAccess';
 import { getTrackVisual } from '../config/trackVisuals';
 import { ErrorState } from '../components/ui/ErrorState';
 import { PageLoader } from '../components/ui/PageLoader';
 import { useProgress } from '../hooks/useProgress';
+import { TrackCatalogLanding } from '../components/TrackCatalogLanding';
+
+function fallbackOverviewMarkdown(data: TrackDetail): string {
+  const desc =
+    data.description?.trim() ||
+    'Explore o programa abaixo e matricule-se para liberar as aulas e os exercícios.';
+  return `## Visão geral\n\n${desc}\n\n`;
+}
 
 export function TrackCatalogDetailPage() {
   const { trackId } = useParams<{ trackId: string }>();
@@ -27,18 +36,28 @@ export function TrackCatalogDetailPage() {
   const userId = useAuthStore((s) => s.user?.id);
   const queryClient = useQueryClient();
 
-  const { data: catalog } = useQuery({
+  const { data: catalog, isLoading: catalogLoading } = useQuery({
     queryKey: ['me', userId ?? '', 'tracks', 'catalog'],
     queryFn: () => apiFetch<TrackCatalogItem[]>('/me/tracks/catalog', { token: token! }),
     enabled: !!token && !!userId,
   });
 
-  const enrolled = catalog?.find((t) => t.slug === trackId || t.id === trackId)?.enrolled ?? false;
+  const catalogEntry = catalog?.find((t) => t.slug === trackId || t.id === trackId);
+  const enrolled = catalogEntry?.enrolled ?? false;
+  const canEnrollInTrack = catalogEntry?.canEnrollInTrack !== false;
+
+  const useAuthenticatedTrack = !!token && !!userId && enrolled;
 
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['catalog', 'track', 'preview', trackId],
-    queryFn: () => apiFetch<TrackDetail>(`/tracks/${trackId}`),
-    enabled: !!trackId,
+    queryKey: ['track-detail', trackId, useAuthenticatedTrack ? 'me' : 'pub', userId ?? ''],
+    queryFn: () =>
+      useAuthenticatedTrack
+        ? apiFetch<TrackDetail>(`/me/tracks/${trackId}`, { token: token! })
+        : apiFetch<TrackDetail>(`/tracks/${trackId}`),
+    enabled:
+      !!trackId &&
+      (!token || !userId || !catalogLoading) &&
+      (useAuthenticatedTrack ? !!token : true),
   });
 
   const { completedLessonIds } = useProgress();
@@ -51,10 +70,13 @@ export function TrackCatalogDetailPage() {
       });
     },
     onSuccess: (res) => {
-      queryClient.invalidateQueries({ queryKey: ['me', 'tracks', 'catalog'] });
-      queryClient.invalidateQueries({ queryKey: ['me', 'tracks'] });
-      queryClient.invalidateQueries({ queryKey: ['me', 'track'] });
-      queryClient.invalidateQueries({ queryKey: ['me', 'enrolled-courses'] });
+      if (userId) {
+        queryClient.invalidateQueries({ queryKey: ['me', userId, 'tracks', 'catalog'] });
+        queryClient.invalidateQueries({ queryKey: ['me', userId, 'tracks'] });
+        queryClient.invalidateQueries({ queryKey: ['me', userId, 'track', trackId] });
+        queryClient.invalidateQueries({ queryKey: ['me', userId, 'enrolled-courses'] });
+      }
+      queryClient.invalidateQueries({ queryKey: ['track-detail', trackId] });
       toast.success(res.message);
     },
   });
@@ -73,11 +95,196 @@ export function TrackCatalogDetailPage() {
 
   const visual = getTrackVisual(data.slug);
   const TrackIcon = visual.Icon;
+  const progressLessons = enrolled
+    ? data.courses
+        .filter((c) => courseAccessible(c))
+        .flatMap((c) => c.modules.flatMap((m) => m.lessons))
+    : [];
   const allLessons = data.courses.flatMap((c) => c.modules.flatMap((m) => m.lessons));
-  const completedCount = enrolled ? allLessons.filter((l) => completedLessonIds.has(l.id)).length : 0;
-  const totalLessons = allLessons.length;
+  const completedCount = enrolled
+    ? progressLessons.filter((l) => completedLessonIds.has(l.id)).length
+    : 0;
+  const totalLessons = enrolled ? progressLessons.length : allLessons.length;
   const trackPct = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
   const totalCourses = data.courses.length;
+
+  const heroImage = data.coverImageUrl || visual.heroCover || null;
+  const overviewMd = data.overviewMd?.trim() || fallbackOverviewMarkdown(data);
+
+  const enrollBlock =
+    !token ? (
+      <p className="text-center text-sm leading-relaxed text-white/85">
+        Entre na sua conta para se matricular e acompanhar o progresso.
+      </p>
+    ) : !canEnrollInTrack ? (
+      <p className="text-center text-sm font-medium leading-relaxed text-amber-100">
+        Não há cursos gratuitos abertos para matrícula nesta trilha no momento.
+      </p>
+    ) : (
+      <button
+        type="button"
+        disabled={enroll.isPending}
+        onClick={() =>
+          enroll.mutate(undefined, {
+            onError: (e) => {
+              const msg =
+                e instanceof ApiError ? e.message : 'Não foi possível concluir a matrícula.';
+              toast.error(msg);
+            },
+          })
+        }
+        className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-900/25 transition hover:bg-indigo-700 disabled:opacity-60"
+      >
+        {enroll.isPending ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+            Matriculando…
+          </>
+        ) : (
+          <>
+            <BookOpen className="h-4 w-4" aria-hidden />
+            Matricular-me nesta trilha
+          </>
+        )}
+      </button>
+    );
+
+  const courseSections = data.courses.map((course, courseIdx) => (
+    <section
+      key={course.id}
+      className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-slate-50 p-1 shadow-xl shadow-slate-200/40"
+    >
+      <div className={`absolute left-0 top-0 h-full w-1.5 rounded-l-3xl ${visual.accentBar}`} />
+      <div className="rounded-[1.35rem] bg-white/95 px-5 py-6 sm:px-8 sm:py-8">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              Curso {courseIdx + 1}
+            </span>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <h2 className="text-xl font-black text-slate-900 sm:text-2xl">{course.title}</h2>
+              {course.isFree ? (
+                <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-800">
+                  Incluído na matrícula
+                </span>
+              ) : (
+                <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-700">
+                  Conteúdo adicional
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+        {course.description && (
+          <p className="mt-3 max-w-prose text-sm leading-relaxed text-slate-600">{course.description}</p>
+        )}
+
+        <div className="mt-8 space-y-10">
+          {course.modules.map((mod, modIdx) => (
+            <div key={mod.id}>
+              <div className="flex items-center gap-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-slate-800 text-xs font-black text-white shadow-md">
+                  {modIdx + 1}
+                </span>
+                <h3 className="text-sm font-bold uppercase tracking-[0.12em] text-slate-600">{mod.title}</h3>
+              </div>
+              <ul className="mt-4 space-y-3">
+                {mod.lessons.map((lesson) => {
+                  const canOpen = enrolled && courseAccessible(course);
+                  const done = canOpen && completedLessonIds.has(lesson.id);
+                  const titleRow = (
+                    <span className="flex min-w-0 items-center gap-3">
+                      {!enrolled || !canOpen ? (
+                        <Lock className="h-4 w-4 shrink-0 text-slate-400" aria-hidden />
+                      ) : done ? (
+                        <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-500" aria-hidden />
+                      ) : (
+                        <span
+                          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 border-slate-300 bg-white ${visual.accentBar}`}
+                          aria-hidden
+                        />
+                      )}
+                      <span
+                        className={done ? 'font-semibold text-emerald-900' : 'font-semibold text-slate-900'}
+                      >
+                        {lesson.title}
+                      </span>
+                    </span>
+                  );
+                  const meta = (
+                    <span className="flex shrink-0 flex-wrap items-center justify-end gap-2 text-xs text-slate-500 sm:gap-3">
+                      {lesson._count.exercises > 0 && (
+                        <span className="rounded-lg bg-slate-100 px-2 py-0.5 font-semibold text-slate-700">
+                          {lesson._count.exercises} ex.
+                        </span>
+                      )}
+                      <span className="inline-flex items-center gap-1 font-medium text-slate-500">
+                        <Clock className="h-3.5 w-3.5" aria-hidden />
+                        {lesson.estimatedMinutes} min
+                      </span>
+                      {canOpen ? (
+                        <ChevronRight className="h-4 w-4 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-indigo-500" />
+                      ) : null}
+                    </span>
+                  );
+
+                  return (
+                    <li key={lesson.id}>
+                      {canOpen ? (
+                        <Link
+                          to={`/app/lessons/${lesson.id}`}
+                          className={[
+                            'group flex items-center justify-between gap-3 rounded-2xl border px-4 py-4 text-left transition',
+                            done
+                              ? 'border-emerald-200 bg-emerald-50/90 hover:border-emerald-300'
+                              : 'border-slate-200/80 bg-white shadow-sm hover:-translate-y-0.5 hover:border-indigo-300 hover:shadow-md',
+                          ].join(' ')}
+                        >
+                          {titleRow}
+                          {meta}
+                        </Link>
+                      ) : (
+                        <div className="flex items-center justify-between gap-3 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/90 px-4 py-4 text-slate-500">
+                          {titleRow}
+                          {meta}
+                        </div>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  ));
+
+  if (!enrolled) {
+    return (
+      <div className="space-y-12">
+        <TrackCatalogLanding
+          data={data}
+          visual={visual}
+          heroImage={heroImage}
+          catalogEntry={catalogEntry}
+          overviewMd={overviewMd}
+          enrollBlock={enrollBlock}
+        />
+        <section id="programa" className="scroll-mt-4">
+          <div className="mb-6 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="text-2xl font-black text-slate-900">Programa do curso</h2>
+              <p className="mt-1 text-sm text-slate-600">
+                Prévia do conteúdo. As aulas abrem após a matrícula.
+              </p>
+            </div>
+          </div>
+          <div className="space-y-12">{courseSections}</div>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-12">
@@ -101,7 +308,7 @@ export function TrackCatalogDetailPage() {
               <div className="min-w-0 flex-1">
                 <p className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">
                   <span className="h-px w-6 bg-slate-300" aria-hidden />
-                  Prévia do catálogo
+                  Continuando a trilha
                 </p>
                 <h1 className="mt-2 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl md:text-[2.35rem] md:leading-tight">
                   {data.title}
@@ -125,48 +332,26 @@ export function TrackCatalogDetailPage() {
                   <Clock className="h-3.5 w-3.5 text-violet-500" aria-hidden />
                   {totalLessons} aula{totalLessons !== 1 ? 's' : ''}
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-800">
-                  <Zap className="h-3.5 w-3.5" aria-hidden />
-                  Gratuito
-                </span>
+                {catalogEntry && catalogEntry.paidCourseCount > 0 ? (
+                  <span className="inline-flex items-center gap-1 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-900">
+                    <Zap className="h-3.5 w-3.5" aria-hidden />
+                    {catalogEntry.freeCourseCount} grátis · {catalogEntry.paidCourseCount} extra
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-800">
+                    <Zap className="h-3.5 w-3.5" aria-hidden />
+                    Gratuito
+                  </span>
+                )}
               </div>
 
-              {enrolled ? (
-                <Link
-                  to={`/app/my-tracks/${data.slug}`}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-900/20 transition hover:bg-emerald-700 sm:w-auto"
-                >
-                  <Map className="h-4 w-4" aria-hidden />
-                  Abrir em Minhas trilhas
-                </Link>
-              ) : (
-                <button
-                  type="button"
-                  disabled={enroll.isPending}
-                  onClick={() =>
-                    enroll.mutate(undefined, {
-                      onError: (e) => {
-                        const msg =
-                          e instanceof ApiError ? e.message : 'Não foi possível concluir a matrícula.';
-                        toast.error(msg);
-                      },
-                    })
-                  }
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-900/25 transition hover:bg-indigo-700 disabled:opacity-60 sm:w-auto"
-                >
-                  {enroll.isPending ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                      Matriculando…
-                    </>
-                  ) : (
-                    <>
-                      <BookOpen className="h-4 w-4" aria-hidden />
-                      Matricular-me nesta trilha
-                    </>
-                  )}
-                </button>
-              )}
+              <Link
+                to={`/app/my-tracks/${data.slug}`}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-900/20 transition hover:bg-emerald-700 sm:w-auto"
+              >
+                <Map className="h-4 w-4" aria-hidden />
+                Abrir em Minhas trilhas
+              </Link>
             </div>
           </div>
         </div>
@@ -176,7 +361,9 @@ export function TrackCatalogDetailPage() {
             <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-sm font-bold text-slate-800">Progresso nesta trilha</p>
-                <p className="text-xs text-slate-500">Aulas liberadas após a matrícula.</p>
+                <p className="text-xs text-slate-500">
+                  Progresso considera apenas cursos incluídos na sua matrícula gratuita.
+                </p>
               </div>
               <p className="text-sm font-black tabular-nums text-slate-900">
                 {completedCount}/{totalLessons} aulas · {trackPct}%
@@ -192,104 +379,7 @@ export function TrackCatalogDetailPage() {
         )}
       </section>
 
-      {data.courses.map((course, courseIdx) => (
-        <section
-          key={course.id}
-          className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-slate-50 p-1 shadow-xl shadow-slate-200/40"
-        >
-          <div className={`absolute left-0 top-0 h-full w-1.5 rounded-l-3xl ${visual.accentBar}`} />
-          <div className="rounded-[1.35rem] bg-white/95 px-5 py-6 sm:px-8 sm:py-8">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                  Curso {courseIdx + 1}
-                </span>
-                <h2 className="mt-2 text-xl font-black text-slate-900 sm:text-2xl">{course.title}</h2>
-              </div>
-            </div>
-            {course.description && (
-              <p className="mt-3 max-w-prose text-sm leading-relaxed text-slate-600">{course.description}</p>
-            )}
-
-            <div className="mt-8 space-y-10">
-              {course.modules.map((mod, modIdx) => (
-                <div key={mod.id}>
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-slate-800 text-xs font-black text-white shadow-md">
-                      {modIdx + 1}
-                    </span>
-                    <h3 className="text-sm font-bold uppercase tracking-[0.12em] text-slate-600">{mod.title}</h3>
-                  </div>
-                  <ul className="mt-4 space-y-3">
-                    {mod.lessons.map((lesson) => {
-                      const done = enrolled && completedLessonIds.has(lesson.id);
-                      const titleRow = (
-                        <span className="flex min-w-0 items-center gap-3">
-                          {!enrolled ? (
-                            <Lock className="h-4 w-4 shrink-0 text-slate-400" aria-hidden />
-                          ) : done ? (
-                            <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-500" aria-hidden />
-                          ) : (
-                            <span
-                              className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 border-slate-300 bg-white ${visual.accentBar}`}
-                              aria-hidden
-                            />
-                          )}
-                          <span
-                            className={done ? 'font-semibold text-emerald-900' : 'font-semibold text-slate-900'}
-                          >
-                            {lesson.title}
-                          </span>
-                        </span>
-                      );
-                      const meta = (
-                        <span className="flex shrink-0 flex-wrap items-center justify-end gap-2 text-xs text-slate-500 sm:gap-3">
-                          {lesson._count.exercises > 0 && (
-                            <span className="rounded-lg bg-slate-100 px-2 py-0.5 font-semibold text-slate-700">
-                              {lesson._count.exercises} ex.
-                            </span>
-                          )}
-                          <span className="inline-flex items-center gap-1 font-medium text-slate-500">
-                            <Clock className="h-3.5 w-3.5" aria-hidden />
-                            {lesson.estimatedMinutes} min
-                          </span>
-                          {enrolled ? (
-                            <ChevronRight className="h-4 w-4 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-indigo-500" />
-                          ) : null}
-                        </span>
-                      );
-
-                      return (
-                        <li key={lesson.id}>
-                          {enrolled ? (
-                            <Link
-                              to={`/app/lessons/${lesson.id}`}
-                              className={[
-                                'group flex items-center justify-between gap-3 rounded-2xl border px-4 py-4 text-left transition',
-                                done
-                                  ? 'border-emerald-200 bg-emerald-50/90 hover:border-emerald-300'
-                                  : 'border-slate-200/80 bg-white shadow-sm hover:-translate-y-0.5 hover:border-indigo-300 hover:shadow-md',
-                              ].join(' ')}
-                            >
-                              {titleRow}
-                              {meta}
-                            </Link>
-                          ) : (
-                            <div className="flex items-center justify-between gap-3 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/90 px-4 py-4 text-slate-500">
-                              {titleRow}
-                              {meta}
-                            </div>
-                          )}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      ))}
+      {courseSections}
     </div>
   );
 }

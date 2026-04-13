@@ -7,9 +7,11 @@ import {
   Clock,
   Flame,
   Layers,
+  Lock,
   Sparkles,
 } from 'lucide-react';
 import { apiFetch, ApiError } from '../lib/api';
+import { courseAccessible } from '../lib/courseAccess';
 import { useAuthHydration, useAuthStore } from '../stores/authStore';
 import type { TrackDetail } from '../types/catalog';
 import { getTrackVisual } from '../config/trackVisuals';
@@ -60,9 +62,12 @@ export function TrackDetailPage() {
   const visual = getTrackVisual(data.slug);
   const TrackIcon = visual.Icon;
 
+  const progressLessons = data.courses
+    .filter((c) => courseAccessible(c))
+    .flatMap((c) => c.modules.flatMap((m) => m.lessons));
   const allLessons = data.courses.flatMap((c) => c.modules.flatMap((m) => m.lessons));
-  const completedCount = allLessons.filter((l) => completedLessonIds.has(l.id)).length;
-  const totalLessons = allLessons.length;
+  const completedCount = progressLessons.filter((l) => completedLessonIds.has(l.id)).length;
+  const totalLessons = progressLessons.length;
   const trackPct = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
   const totalCourses = data.courses.length;
 
@@ -107,7 +112,10 @@ export function TrackDetailPage() {
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-sm">
                 <Clock className="h-3.5 w-3.5 text-violet-500" aria-hidden />
-                {totalLessons} aula{totalLessons !== 1 ? 's' : ''}
+                {allLessons.length} aula{allLessons.length !== 1 ? 's' : ''}
+                {allLessons.length !== totalLessons && (
+                  <span className="ml-1 font-normal text-slate-500">({totalLessons} no seu plano)</span>
+                )}
               </span>
               {token && totalLessons > 0 && (
                 <span className="inline-flex items-center gap-1 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-black text-indigo-900 shadow-sm">
@@ -123,7 +131,9 @@ export function TrackDetailPage() {
             <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-sm font-bold text-slate-800">Sua jornada</p>
-                <p className="text-xs text-slate-500">Cada aula concluída conta — volte quando quiser.</p>
+                <p className="text-xs text-slate-500">
+                  Progresso nas aulas incluídas na sua matrícula gratuita.
+                </p>
               </div>
               <p className="text-sm font-black tabular-nums text-slate-900">
                 {completedCount}/{totalLessons} aulas
@@ -156,7 +166,18 @@ export function TrackDetailPage() {
                 <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">
                   Curso {courseIdx + 1}
                 </span>
-                <h2 className="mt-2 text-xl font-black text-slate-900 sm:text-2xl">{course.title}</h2>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <h2 className="text-xl font-black text-slate-900 sm:text-2xl">{course.title}</h2>
+                  {course.isFree ? (
+                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-800">
+                      Incluído na matrícula
+                    </span>
+                  ) : (
+                    <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-700">
+                      Conteúdo adicional
+                    </span>
+                  )}
+                </div>
               </div>
               <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-blue-700">
                 <BookOpen className="h-3 w-3" aria-hidden />
@@ -178,51 +199,64 @@ export function TrackDetailPage() {
                   </div>
                   <ul className="mt-4 space-y-3">
                     {mod.lessons.map((lesson) => {
-                      const done = completedLessonIds.has(lesson.id);
+                      const canOpen = courseAccessible(course);
+                      const done = canOpen && completedLessonIds.has(lesson.id);
+                      const rowInner = (
+                        <>
+                          <span className="flex min-w-0 items-center gap-3">
+                            {!canOpen ? (
+                              <Lock className="h-5 w-5 shrink-0 text-slate-400" aria-hidden />
+                            ) : done ? (
+                              <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-500" aria-hidden />
+                            ) : (
+                              <span
+                                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 border-slate-300 bg-white ${visual.accentBar}`}
+                                aria-hidden
+                              />
+                            )}
+                            <span
+                              className={
+                                done ? 'font-semibold text-emerald-950' : 'font-semibold text-slate-900'
+                              }
+                            >
+                              {lesson.title}
+                            </span>
+                          </span>
+                          <span className="flex shrink-0 flex-wrap items-center justify-end gap-2 text-xs text-slate-500 sm:gap-3">
+                            {lesson._count.exercises > 0 && (
+                              <span className="rounded-lg bg-slate-100 px-2 py-0.5 font-semibold text-slate-700">
+                                {lesson._count.exercises} ex.
+                              </span>
+                            )}
+                            <span className="inline-flex items-center gap-1 font-medium">
+                              <Clock className="h-3.5 w-3.5" aria-hidden />
+                              {lesson.estimatedMinutes} min
+                            </span>
+                            {canOpen ? (
+                              <ChevronRight className="h-4 w-4 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-indigo-500" />
+                            ) : null}
+                          </span>
+                        </>
+                      );
                       return (
                         <li key={lesson.id}>
-                          <Link
-                            to={`/app/lessons/${lesson.id}`}
-                            className={[
-                              'group flex items-center justify-between gap-3 rounded-2xl border px-4 py-4 text-left transition',
-                              done
-                                ? 'border-emerald-200 bg-emerald-50/90 hover:border-emerald-300'
-                                : 'border-slate-200/80 bg-white shadow-sm hover:-translate-y-0.5 hover:border-indigo-300 hover:shadow-md',
-                            ].join(' ')}
-                          >
-                            <span className="flex min-w-0 items-center gap-3">
-                              {done ? (
-                                <CheckCircle2
-                                  className="h-5 w-5 shrink-0 text-emerald-500"
-                                  aria-hidden
-                                />
-                              ) : (
-                                <span
-                                  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 border-slate-300 bg-white ${visual.accentBar}`}
-                                  aria-hidden
-                                />
-                              )}
-                              <span
-                                className={
-                                  done ? 'font-semibold text-emerald-950' : 'font-semibold text-slate-900'
-                                }
-                              >
-                                {lesson.title}
-                              </span>
-                            </span>
-                            <span className="flex shrink-0 flex-wrap items-center justify-end gap-2 text-xs text-slate-500 sm:gap-3">
-                              {lesson._count.exercises > 0 && (
-                                <span className="rounded-lg bg-slate-100 px-2 py-0.5 font-semibold text-slate-700">
-                                  {lesson._count.exercises} ex.
-                                </span>
-                              )}
-                              <span className="inline-flex items-center gap-1 font-medium">
-                                <Clock className="h-3.5 w-3.5" aria-hidden />
-                                {lesson.estimatedMinutes} min
-                              </span>
-                              <ChevronRight className="h-4 w-4 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-indigo-500" />
-                            </span>
-                          </Link>
+                          {canOpen ? (
+                            <Link
+                              to={`/app/lessons/${lesson.id}`}
+                              className={[
+                                'group flex items-center justify-between gap-3 rounded-2xl border px-4 py-4 text-left transition',
+                                done
+                                  ? 'border-emerald-200 bg-emerald-50/90 hover:border-emerald-300'
+                                  : 'border-slate-200/80 bg-white shadow-sm hover:-translate-y-0.5 hover:border-indigo-300 hover:shadow-md',
+                              ].join(' ')}
+                            >
+                              {rowInner}
+                            </Link>
+                          ) : (
+                            <div className="flex items-center justify-between gap-3 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/90 px-4 py-4 text-slate-500">
+                              {rowInner}
+                            </div>
+                          )}
                         </li>
                       );
                     })}

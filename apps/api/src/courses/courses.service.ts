@@ -62,10 +62,10 @@ export class CoursesService {
     if (track.courses.length === 0) {
       throw new NotFoundException('Esta trilha ainda não tem cursos.');
     }
-    const nonFree = track.courses.filter((c) => !c.isFree);
-    if (nonFree.length > 0) {
+    const freeCourses = track.courses.filter((c) => c.isFree);
+    if (freeCourses.length === 0) {
       throw new ForbiddenException(
-        'Esta trilha inclui cursos que não estão disponíveis para matrícula gratuita.',
+        'Não há cursos gratuitos abertos para matrícula nesta trilha no momento.',
       );
     }
 

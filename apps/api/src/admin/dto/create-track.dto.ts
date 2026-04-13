@@ -28,4 +28,14 @@ export class CreateTrackDto {
   @IsInt()
   @Min(0)
   orderIndex?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2048)
+  coverImageUrl?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(200000)
+  overviewMd?: string | null;
 }

@@ -1,5 +1,7 @@
 import { PrismaClient, ExerciseType } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { seedNewTracks } from './seed-new-tracks';
+import { landingForTrack } from './track-landing-content';
 
 const prisma = new PrismaClient();
 
@@ -22,6 +24,7 @@ async function main() {
       description: 'HTML, CSS e fundamentos de interfaces web.',
       tagline: 'Interfaces modernas do zero ao deploy.',
       orderIndex: 0,
+      ...landingForTrack('frontend'),
     },
   });
 
@@ -200,6 +203,7 @@ body {
       description: 'Lógica de servidor e APIs com Node.js.',
       tagline: 'APIs, Node.js e persistência de dados.',
       orderIndex: 1,
+      ...landingForTrack('backend'),
     },
   });
 
@@ -356,6 +360,7 @@ SELECT nome, email FROM usuarios;
       description: 'Fundamentos de dados e boas práticas.',
       tagline: 'Organize e entenda informação como um dev.',
       orderIndex: 2,
+      ...landingForTrack('dados'),
     },
   });
 
@@ -550,6 +555,7 @@ Prefira \`const\` quando o valor não será reatribuído e \`let\` quando precis
       description: 'Git, terminal e fluxo de trabalho.',
       tagline: 'Controle de versão e produtividade.',
       orderIndex: 3,
+      ...landingForTrack('ferramentas'),
     },
   });
   const courseGit = await prisma.course.create({
@@ -595,6 +601,8 @@ Prefira \`const\` quando o valor não será reatribuído e \`let\` quando precis
       },
     },
   });
+
+  await seedNewTracks(prisma);
 
   const adminPassword = process.env.ADMIN_SEED_PASSWORD ?? 'admin123';
   const adminHash = await bcrypt.hash(adminPassword, 10);

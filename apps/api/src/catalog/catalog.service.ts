@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { withTrackPresentation } from './track-detail.util';
 
 @Injectable()
 export class CatalogService {
@@ -24,6 +25,7 @@ export class CatalogService {
     const track = await this.prisma.track.findFirst({
       where: { OR: [{ id: trackId }, { slug: trackId }] },
       include: {
+        _count: { select: { enrollments: true } },
         courses: {
           orderBy: { orderIndex: 'asc' },
           select: {
@@ -32,6 +34,7 @@ export class CatalogService {
             title: true,
             description: true,
             orderIndex: true,
+            isFree: true,
             modules: {
               orderBy: { orderIndex: 'asc' },
               select: {
@@ -57,6 +60,6 @@ export class CatalogService {
       },
     });
     if (!track) throw new NotFoundException('Trilha não encontrada');
-    return track;
+    return withTrackPresentation(track);
   }
 }

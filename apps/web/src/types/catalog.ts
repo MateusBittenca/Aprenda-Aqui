@@ -11,7 +11,12 @@ export type TrackSummary = {
 };
 
 /** Catálogo (loja): todas as trilhas + se o usuário já está matriculado. */
-export type TrackCatalogItem = TrackSummary & { enrolled: boolean };
+export type TrackCatalogItem = TrackSummary & {
+  enrolled: boolean;
+  freeCourseCount: number;
+  paidCourseCount: number;
+  canEnrollInTrack: boolean;
+};
 
 export type LessonRef = {
   id: string;
@@ -36,6 +41,10 @@ export type CourseDetail = {
   title: string;
   description: string | null;
   orderIndex: number;
+  /** Catálogo público e trilha autenticada. */
+  isFree: boolean;
+  /** Só em GET /me/tracks/:id — aulas deste curso estão liberadas para o usuário. */
+  accessible?: boolean;
   modules: ModuleDetail[];
 };
 
@@ -47,6 +56,17 @@ export type TrackDetail = {
   tagline: string | null;
   orderIndex: number;
   courses: CourseDetail[];
+  /** URL de capa para hero da landing (catálogo). */
+  coverImageUrl?: string | null;
+  /** Markdown longo: visão geral antes da matrícula. */
+  overviewMd?: string | null;
+  /** Matrículas na trilha (público). */
+  enrollmentCount?: number;
+  stats?: {
+    lessonCount: number;
+    totalMinutes: number;
+    exerciseCount: number;
+  };
 };
 
 export type CourseCatalogItem = {

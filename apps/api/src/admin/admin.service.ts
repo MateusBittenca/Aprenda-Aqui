@@ -89,6 +89,8 @@ export class AdminService {
         title: dto.title,
         description: dto.description ?? null,
         tagline: dto.tagline ?? null,
+        coverImageUrl: dto.coverImageUrl ?? null,
+        overviewMd: dto.overviewMd ?? null,
         orderIndex,
       },
     });
@@ -106,6 +108,8 @@ export class AdminService {
         ...(dto.description !== undefined && { description: dto.description }),
         ...(dto.tagline !== undefined && { tagline: dto.tagline }),
         ...(dto.orderIndex !== undefined && { orderIndex: dto.orderIndex }),
+        ...(dto.coverImageUrl !== undefined && { coverImageUrl: dto.coverImageUrl }),
+        ...(dto.overviewMd !== undefined && { overviewMd: dto.overviewMd }),
       },
     });
   }

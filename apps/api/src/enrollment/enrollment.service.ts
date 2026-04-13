@@ -13,7 +13,7 @@ export class EnrollmentService {
 
     const course = await this.prisma.course.findUnique({
       where: { id: courseId },
-      select: { trackId: true },
+      select: { trackId: true, isFree: true },
     });
     if (!course) {
       throw new ForbiddenException('Matricule-se na trilha ou no curso para acessar este conteúdo.');
@@ -22,7 +22,12 @@ export class EnrollmentService {
     const byTrack = await this.prisma.userTrackEnrollment.findUnique({
       where: { userId_trackId: { userId, trackId: course.trackId } },
     });
-    if (byTrack) return;
+    if (byTrack) {
+      if (course.isFree) return;
+      throw new ForbiddenException(
+        'Este curso faz parte de um conteúdo adicional. Matricule-se no curso quando estiver disponível.',
+      );
+    }
 
     throw new ForbiddenException('Matricule-se na trilha para acessar este conteúdo.');
   }

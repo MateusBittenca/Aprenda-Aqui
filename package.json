@@ -4,6 +4,9 @@
   "workspaces": [
     "apps/*"
   ],
+  "dependencies": {
+    "@nestjs/platform-express": "^10.4.22"
+  },
   "scripts": {
     "dev:api": "npm run start:dev -w apps/api",
     "dev:web": "npm run dev -w apps/web",

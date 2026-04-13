@@ -1,10 +1,14 @@
+import { useEffect, useState } from 'react';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import type { UserRole } from '../types/user';
 
+export type { UserRole };
 export type AuthUser = {
   id: string;
   email: string;
   displayName: string;
+  role: UserRole;
   xpTotal: number;
   level: number;
   gems: number;
@@ -33,3 +37,16 @@ export const useAuthStore = create<AuthState>()(
     { name: 'codepath-auth' },
   ),
 );
+
+/** Evita ler `token` antes do persist reidratar (localStorage), o que quebrava queries com `enabled: !!token`. */
+export function useAuthHydration(): boolean {
+  const [hydrated, setHydrated] = useState(() => useAuthStore.persist.hasHydrated());
+
+  useEffect(() => {
+    if (useAuthStore.persist.hasHydrated()) setHydrated(true);
+    const unsub = useAuthStore.persist.onFinishHydration(() => setHydrated(true));
+    return unsub;
+  }, []);
+
+  return hydrated;
+}

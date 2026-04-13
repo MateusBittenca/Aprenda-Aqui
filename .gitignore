@@ -1,4 +1,4 @@
-# Dependencies
+# ─── Dependências ─────────────────────────────────────────────
 node_modules/
 .pnp
 .pnp.js
@@ -6,23 +6,30 @@ node_modules/
 .yarn/unplugged
 .yarn/build-state.yml
 .yarn/install-state.gz
+.pnpm-store/
 
-# Build / output
+# ─── Build / artefatos ────────────────────────────────────────
 dist/
 build/
 out/
 .next/
 .nuxt/
+.output/
 .vite/
+.turbo/
+.parcel-cache/
+.swc/
+storybook-static/
 *.tsbuildinfo
+*.js.map
 
-# Environment (nunca commitar segredos)
+# ─── Variáveis de ambiente (nunca commitar segredos) ───────────
 .env
 .env.*
 !.env.example
 !.env*.example
 
-# Logs
+# ─── Logs ─────────────────────────────────────────────────────
 logs/
 *.log
 npm-debug.log*
@@ -31,19 +38,38 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Test / coverage
+# ─── Testes & cobertura ───────────────────────────────────────
 coverage/
 .nyc_output/
 *.lcov
+.vitest/
+playwright-report/
+test-results/
+cypress/videos/
+cypress/screenshots/
 
-# Prisma (cliente gerado fica em node_modules; não ignorar prisma/migrations nem schema)
+# ─── Prisma ───────────────────────────────────────────────────
+# Cliente gerado fica em node_modules; migrations e schema versionados.
+*.db
+*.db-journal
 
-# OS
+# ─── Ferramentas / cache local ────────────────────────────────
+.cache/
+.eslintcache
+.stylelintcache
+*.local
+temp/
+tmp/
+*.pem
+
+# ─── Sistema operacional ──────────────────────────────────────
 .DS_Store
 Thumbs.db
+ehthumbs.db
 Desktop.ini
+$RECYCLE.BIN/
 
-# Editors / IDE
+# ─── Editores / IDE ───────────────────────────────────────────
 .idea/
 *.swp
 *.swo
@@ -55,21 +81,15 @@ Desktop.ini
 *.ntvs*
 *.njsproj
 *.sln
+*.orig
 
-# VS Code (descomente ! para versionar extensões recomendadas)
+# VS Code — descomente ! para versionar extensões recomendadas
 .vscode/*
 !.vscode/extensions.json
 
-# Debug
-*.pem
-debug.log
+# ─── Deploy / hosts ───────────────────────────────────────────
+.vercel/
+.netlify/
 
-# Misc
-*.local
-.cache/
-.turbo/
-temp/
-tmp/
-
-# Docker (opcional: descomente se gerar override local)
+# ─── Docker (descomente se usar override só na máquina local) ─
 # docker-compose.override.yml

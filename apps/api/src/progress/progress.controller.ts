@@ -1,14 +1,14 @@
 import { Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser, JwtUser } from '../common/decorators/current-user.decorator';
 import { ProgressService } from './progress.service';
 
-@Controller()
-@UseGuards(AuthGuard('jwt'))
+@Controller('progress')
+@UseGuards(JwtAuthGuard)
 export class ProgressController {
   constructor(private readonly progress: ProgressService) {}
 
-  @Get('me/progress')
+  @Get()
   myProgress(@CurrentUser() user: JwtUser) {
     return this.progress.getProgress(user.userId);
   }

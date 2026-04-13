@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { levelFromTotalXp } from './level.util';
 
@@ -45,10 +45,11 @@ export class GamificationService {
     userId: string,
     xp: number,
     gems: number,
-  ): Promise<{ xpGained: number; gemsGained: number; level: number; xpTotal: number }> {
+  ): Promise<{ xpGained: number; gemsGained: number; level: number; xpTotal: number; previousLevel: number; leveledUp: boolean }> {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user) throw new Error('User not found');
+    if (!user) throw new NotFoundException('Usuário não encontrado');
 
+    const previousLevel = user.level;
     const xpTotal = user.xpTotal + xp;
     const gemsTotal = user.gems + gems;
     const level = levelFromTotalXp(xpTotal);
@@ -60,7 +61,7 @@ export class GamificationService {
 
     await this.recordDailyActivity(userId);
 
-    return { xpGained: xp, gemsGained: gems, level, xpTotal };
+    return { xpGained: xp, gemsGained: gems, level, xpTotal, previousLevel, leveledUp: level > previousLevel };
   }
 
   private startOfUtcDay(d: Date): Date {

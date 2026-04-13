@@ -55,6 +55,8 @@ npm run dev:web
 
 Abra o app, **crie uma conta** e navegue em **Trilhas** → aula → exercícios (múltipla escolha, preencher código, editor JavaScript com validação no servidor).
 
+**Progresso (API):** `GET /api/v1/progress` e `POST /api/v1/progress/lessons/:lessonId/complete` (antes eram `me/progress` e `lessons/.../complete` na raiz do prefixo).
+
 ## Build de produção
 
 ```bash
@@ -77,3 +79,11 @@ npm run build
 | `CORS_ORIGIN`  | Origem do front (padrão Vite 5173) |
 
 O frontend usa por padrão o proxy do Vite (`/api` → `localhost:3000`). Para outro host de API, defina `VITE_API_BASE` no build do web (por exemplo `https://api.exemplo.com/api/v1`).
+
+## Segurança e limitações (MVP)
+
+- **Rate limiting:** os endpoints `POST /auth/login` e `POST /auth/register` compartilham um limite por IP (Throttler no controller de auth). Ajuste em [`apps/api/src/auth/auth.controller.ts`](apps/api/src/auth/auth.controller.ts) se necessário.
+- **Helmet:** cabeçalhos HTTP básicos são aplicados em [`apps/api/src/main.ts`](apps/api/src/main.ts) (`crossOriginResourcePolicy` liberado para o SPA em dev).
+- **Conteúdo pago:** matrícula em cursos com `isFree: false` é bloqueada na API; o catálogo ainda pode listá-los — use política de exibição no front se for o caso.
+- **Aulas e exercícios:** exige matrícula no curso da aula. No login/registro, a API matricula o usuário automaticamente em todos os cursos gratuitos existentes (e preenche lacunas em logins futuros).
+- **Execução de código (exercícios JS):** a avaliação usa `vm` do Node com timeout curto; **não é sandbox de produção forte**. Para ambiente público agressivo, avalie isolamento adicional (worker, serviço externo, etc.).

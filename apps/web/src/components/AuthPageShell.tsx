@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { BrandLogo } from './BrandLogo';
 
 export function AuthPageShell({ children }: { children: React.ReactNode }) {
   return (
@@ -8,9 +9,7 @@ export function AuthPageShell({ children }: { children: React.ReactNode }) {
           <Link to="/" className="text-sm font-semibold text-slate-600 transition hover:text-blue-600">
             Voltar ao início
           </Link>
-          <Link to="/" className="text-lg font-bold text-slate-900">
-            Aprenda aqui<span className="text-blue-600">!</span>
-          </Link>
+          <BrandLogo size="sm" linkTo="/" />
         </div>
       </header>
       <div className="flex flex-1 flex-col items-center justify-center px-4 py-10">{children}</div>

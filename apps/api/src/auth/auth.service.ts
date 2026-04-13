@@ -1,5 +1,6 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { UserRole } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
@@ -50,6 +51,7 @@ export class AuthService {
     id: string;
     email: string;
     displayName: string;
+    role: UserRole;
     xpTotal: number;
     level: number;
     gems: number;
@@ -60,6 +62,7 @@ export class AuthService {
       id: user.id,
       email: user.email,
       displayName: user.displayName,
+      role: user.role,
       xpTotal: user.xpTotal,
       level: user.level,
       gems: user.gems,

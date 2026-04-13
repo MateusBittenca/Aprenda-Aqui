@@ -1,10 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ExerciseType } from '@prisma/client';
+import { EnrollmentService } from '../enrollment/enrollment.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class LessonsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly enrollment: EnrollmentService,
+  ) {}
 
   async getLesson(lessonId: string, userId?: string) {
     const lesson = await this.prisma.lesson.findUnique({
@@ -20,6 +24,10 @@ export class LessonsService {
     });
     if (!lesson) {
       throw new NotFoundException('Aula não encontrada');
+    }
+
+    if (userId) {
+      await this.enrollment.assertEnrolledInCourse(userId, lesson.module.courseId);
     }
 
     let exerciseStates: Record<string, boolean> = {};

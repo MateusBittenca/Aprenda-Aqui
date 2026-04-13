@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { EnrollmentService } from '../enrollment/enrollment.service';
 import { GamificationService } from '../gamification/gamification.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 const LESSON_COMPLETE_XP = 25;
 const LESSON_COMPLETE_GEMS = 3;
@@ -10,6 +11,7 @@ export class ProgressService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly gamification: GamificationService,
+    private readonly enrollment: EnrollmentService,
   ) {}
 
   async getProgress(userId: string) {
@@ -32,9 +34,11 @@ export class ProgressService {
   async completeLesson(userId: string, lessonId: string) {
     const lesson = await this.prisma.lesson.findUnique({
       where: { id: lessonId },
-      include: { exercises: true },
+      include: { exercises: true, module: true },
     });
     if (!lesson) throw new NotFoundException('Aula não encontrada');
+
+    await this.enrollment.assertEnrolledInCourse(userId, lesson.module.courseId);
 
     if (lesson.exercises.length > 0) {
       const solved = await this.prisma.userExerciseProgress.findMany({
@@ -52,13 +56,13 @@ export class ProgressService {
     return this.markLessonComplete(userId, lessonId);
   }
 
-  /** Chamado após acerto de exercício: verifica se a aula pode ser concluída. */
-  async tryCompleteLesson(userId: string, lessonId: string) {
+  /** Chamado após acerto de exercício: verifica se a aula pode ser concluída. Retorna se foi completada agora. */
+  async tryCompleteLesson(userId: string, lessonId: string): Promise<{ justCompleted: boolean }> {
     const lesson = await this.prisma.lesson.findUnique({
       where: { id: lessonId },
       include: { exercises: true },
     });
-    if (!lesson || !lesson.exercises.length) return;
+    if (!lesson || !lesson.exercises.length) return { justCompleted: false };
 
     const solvedCount = await this.prisma.userExerciseProgress.count({
       where: {
@@ -67,9 +71,10 @@ export class ProgressService {
         solved: true,
       },
     });
-    if (solvedCount < lesson.exercises.length) return;
+    if (solvedCount < lesson.exercises.length) return { justCompleted: false };
 
-    await this.markLessonComplete(userId, lessonId);
+    const result = await this.markLessonComplete(userId, lessonId);
+    return { justCompleted: result.completed && !result.alreadyCompleted };
   }
 
   private async markLessonComplete(userId: string, lessonId: string) {

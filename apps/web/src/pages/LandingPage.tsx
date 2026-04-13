@@ -1,35 +1,7 @@
 import { Link } from 'react-router-dom';
-import { twMerge } from 'tailwind-merge';
 import { useAuthStore } from '../stores/authStore';
-import {
-  BookOpen,
-  Check,
-  Clock,
-  Code2,
-  Flame,
-  Gem,
-  Sparkles,
-  Trophy,
-  Zap,
-} from 'lucide-react';
-
-function LogoTile({ className = '' }: { className?: string }) {
-  return (
-    <div
-      className={twMerge(
-        'flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-xl shadow-slate-300/40 ring-1 ring-slate-100',
-        className,
-      )}
-    >
-      <span className="grid grid-cols-2 gap-1">
-        <span className="h-2 w-2 rounded-full bg-blue-500" />
-        <span className="h-2 w-2 rounded-full bg-slate-300" />
-        <span className="h-2 w-2 rounded-full bg-slate-300" />
-        <span className="h-2 w-2 rounded-full bg-slate-800" />
-      </span>
-    </div>
-  );
-}
+import { BrandLogo } from '../components/BrandLogo';
+import { BookOpen, Check, Clock, Code2, Flame, Gem, Sparkles, Trophy, Zap } from 'lucide-react';
 
 export function LandingPage() {
   const token = useAuthStore((s) => s.token);
@@ -38,12 +10,7 @@ export function LandingPage() {
     <div className="min-h-dvh bg-slate-50 dot-grid text-slate-900">
       <header className="fixed left-0 right-0 top-0 z-50 border-b border-slate-200/60 bg-white/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
-          <Link to="/" className="flex items-center gap-2 text-lg font-bold tracking-tight text-slate-900">
-            <LogoTile className="h-10 w-10 shadow-lg" />
-            <span>
-              Aprenda aqui<span className="text-blue-600">!</span>
-            </span>
-          </Link>
+          <BrandLogo size="md" linkTo="/" />
           <nav className="hidden items-center gap-8 text-sm font-medium text-slate-600 md:flex">
             <a href="#recursos" className="transition hover:text-slate-900">
               Recursos
@@ -91,9 +58,10 @@ export function LandingPage() {
                 <Flame className="m-1.5 h-5 w-5 text-orange-500" />
               </div>
               <div className="rounded-2xl bg-white p-4 shadow-xl shadow-slate-300/35 ring-1 ring-slate-100">
-                <p className="text-xs font-semibold text-slate-500">Sequência</p>
-                <p className="mt-1 text-2xl font-bold text-slate-900">7 dias</p>
-                <p className="text-xs text-emerald-600">Continue firme!</p>
+                <p className="text-xs font-semibold text-slate-400">Ilustração</p>
+                <p className="text-xs font-semibold text-slate-500">Sequência de estudos</p>
+                <p className="mt-1 text-lg font-bold text-slate-900">Um dia de cada vez</p>
+                <p className="text-xs text-emerald-600">Constância conta mais que velocidade</p>
               </div>
             </div>
           </div>
@@ -111,24 +79,23 @@ export function LandingPage() {
 
           <div className="absolute bottom-[18%] left-[6%] animate-float-slow">
             <div className="w-64 rounded-2xl bg-white p-4 shadow-xl shadow-slate-300/35 ring-1 ring-slate-100">
-              <p className="text-xs font-semibold text-slate-500">Progresso da trilha</p>
-              <div className="mt-3 space-y-2">
+              <p className="text-xs font-semibold text-slate-400">Ilustração</p>
+              <p className="text-xs font-semibold text-slate-500">Acompanhe várias trilhas</p>
+              <div className="mt-3 space-y-3">
                 <div>
                   <div className="mb-1 flex justify-between text-xs text-slate-600">
-                    <span>Frontend</span>
-                    <span>68%</span>
+                    <span>Ex.: Frontend</span>
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-                    <div className="h-full w-[68%] rounded-full bg-blue-500" />
+                    <div className="h-full w-3/5 rounded-full bg-blue-500" />
                   </div>
                 </div>
                 <div>
                   <div className="mb-1 flex justify-between text-xs text-slate-600">
-                    <span>Backend</span>
-                    <span>32%</span>
+                    <span>Ex.: Backend</span>
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-                    <div className="h-full w-[32%] rounded-full bg-violet-400" />
+                    <div className="h-full w-2/5 rounded-full bg-violet-400" />
                   </div>
                 </div>
               </div>
@@ -149,21 +116,22 @@ export function LandingPage() {
                   {'</>'}
                 </span>
               </div>
-              <p className="mt-2 text-xs text-slate-500">+ trilhas novas toda temporada</p>
+              <p className="mt-2 text-xs text-slate-500">Conteúdo pensado para quem estuda com pouco tempo</p>
             </div>
           </div>
         </div>
 
         <section className="relative z-10 mx-auto max-w-3xl px-4 pb-20 text-center">
           <div className="mb-8 flex justify-center">
-            <LogoTile />
+            <BrandLogo size="lg" />
           </div>
           <h1 className="text-4xl font-bold leading-tight tracking-tight text-slate-900 sm:text-5xl md:text-6xl">
-            Aprenda, pratique e evolua
-            <span className="block text-slate-500">tudo em um só lugar</span>
+            Domine programação com aulas práticas
+            <span className="block text-slate-500">em blocos de poucos minutos</span>
           </h1>
           <p className="mx-auto mt-6 max-w-xl text-lg text-slate-600">
-            Microaulas de programação, exercícios interativos e gamificação que mantém você voltando todos os dias.
+            Leia, codifique e receba feedback na hora. Exercícios interativos e um painel simples para acompanhar seu
+            ritmo — sem enrolação.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
@@ -185,9 +153,17 @@ export function LandingPage() {
           <h2 className="text-center text-2xl font-bold text-slate-900">Por que Aprenda aqui?</h2>
           <div className="mt-10 grid gap-6 sm:grid-cols-3">
             {[
-              { icon: Zap, title: 'Microaulas rápidas', desc: 'Lições de 2 a 5 minutos para caber na sua rotina.' },
-              { icon: Trophy, title: 'XP e sequência', desc: 'Ganhe recompensas e mantenha o hábito de estudar.' },
-              { icon: Code2, title: 'Código de verdade', desc: 'Exercícios com editor e feedback na hora.' },
+              {
+                icon: Zap,
+                title: 'Microaulas rápidas',
+                desc: 'Lições curtas para encaixar entre uma tarefa e outra.',
+              },
+              { icon: Trophy, title: 'XP e sequência', desc: 'Veja evolução no painel e mantenha o hábito.' },
+              {
+                icon: Code2,
+                title: 'Exercícios com feedback',
+                desc: 'Múltipla escolha, lacunas e editor — com correção ao enviar.',
+              },
             ].map(({ icon: Icon, title, desc }) => (
               <div
                 key={title}
@@ -210,7 +186,7 @@ export function LandingPage() {
               {[
                 'Escolha uma trilha (Frontend, Backend e mais).',
                 'Siga as aulas na ordem e complete os exercícios.',
-                'Acumule XP, gemas e aumente sua sequência de dias.',
+                'Ganhe XP e gemas ao acertar; acompanhe nível e sequência no painel.',
               ].map((step, i) => (
                 <li key={step} className="flex gap-4 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-sm font-bold text-white">
@@ -242,8 +218,9 @@ export function LandingPage() {
             <div className="rounded-2xl bg-white p-4 shadow-lg ring-1 ring-slate-100">
               <div className="flex items-center gap-2">
                 <Flame className="h-5 w-5 text-orange-500" />
-                <span className="font-semibold text-slate-900">7 dias de sequência</span>
+                <span className="font-semibold text-slate-900">Sequência de estudos</span>
               </div>
+              <p className="mt-1 text-xs text-slate-500">Volte em dias seguidos para fortalecer o hábito</p>
             </div>
             <div className="rounded-2xl bg-white p-4 shadow-lg ring-1 ring-slate-100">
               <div className="flex items-center gap-2 text-sm text-slate-600">
@@ -254,7 +231,7 @@ export function LandingPage() {
             <div className="rounded-2xl bg-white p-4 shadow-lg ring-1 ring-slate-100">
               <div className="flex items-center gap-2 text-sm text-slate-600">
                 <Gem className="h-5 w-5 text-sky-500" />
-                Gemas e níveis para desbloquear o futuro
+                Gemas e níveis no seu perfil
               </div>
             </div>
           </div>
@@ -263,10 +240,13 @@ export function LandingPage() {
         <footer className="border-t border-slate-200/80 bg-white/80 py-8 text-center text-sm text-slate-500">
           <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 sm:flex-row">
             <span className="flex items-center gap-2 font-semibold text-slate-700">
-              <BookOpen className="h-4 w-4" />
+              <BookOpen className="h-4 w-4" aria-hidden />
               Aprenda aqui!
             </span>
             <span>Aprenda programação de forma leve e consistente.</span>
+            <Link to="/admin/login" className="text-slate-400 hover:text-amber-800 hover:underline">
+              Área da equipe
+            </Link>
           </div>
         </footer>
       </main>

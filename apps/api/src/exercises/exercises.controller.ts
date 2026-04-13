@@ -1,11 +1,11 @@
 import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser, JwtUser } from '../common/decorators/current-user.decorator';
 import { SubmitExerciseDto } from './dto/submit-exercise.dto';
 import { ExercisesService } from './exercises.service';
 
 @Controller('exercises')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(JwtAuthGuard)
 export class ExercisesController {
   constructor(private readonly exercises: ExercisesService) {}
 

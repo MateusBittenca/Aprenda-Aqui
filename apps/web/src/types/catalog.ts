@@ -3,9 +3,15 @@ export type TrackSummary = {
   slug: string;
   title: string;
   description: string | null;
+  tagline: string | null;
   orderIndex: number;
-  _count: { courses: number };
+  _count: { courses: number; lessons?: number };
+  /** Só em GET /me/tracks — todas as aulas da trilha concluídas. */
+  completed?: boolean;
 };
+
+/** Catálogo (loja): todas as trilhas + se o usuário já está matriculado. */
+export type TrackCatalogItem = TrackSummary & { enrolled: boolean };
 
 export type LessonRef = {
   id: string;
@@ -38,8 +44,24 @@ export type TrackDetail = {
   slug: string;
   title: string;
   description: string | null;
+  tagline: string | null;
   orderIndex: number;
   courses: CourseDetail[];
+};
+
+export type CourseCatalogItem = {
+  id: string;
+  slug: string;
+  title: string;
+  description: string | null;
+  isFree: boolean;
+  moduleCount: number;
+  lessonCount: number;
+  track: { id: string; title: string; slug: string; orderIndex: number };
+  /** Matrícula na trilha inteira (libera todos os cursos gratuitos). */
+  trackEnrolled: boolean;
+  enrolled: boolean;
+  enrolledAt: string | null;
 };
 
 export type ExerciseType = 'MULTIPLE_CHOICE' | 'CODE_FILL' | 'CODE_EDITOR';

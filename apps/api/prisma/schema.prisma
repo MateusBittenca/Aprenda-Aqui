@@ -7,12 +7,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
 model User {
   id               String   @id @default(cuid())
   email            String   @unique
   passwordHash     String
   displayName      String
+  role             UserRole @default(USER)
   timezone         String   @default("UTC")
+  bio              String?  @db.VarChar(280)
+  showInSearch     Boolean  @default(true)
   xpTotal          Int      @default(0)
   level            Int      @default(1)
   gems             Int      @default(0)
@@ -25,6 +33,23 @@ model User {
   lessonProgress   UserLessonProgress[]
   exerciseProgress UserExerciseProgress[]
   exerciseAttempts UserExerciseAttempt[]
+  courseEnrollments UserCourseEnrollment[]
+  trackEnrollments  UserTrackEnrollment[]
+  followingLinks    UserFollow[] @relation("FollowerSide")
+  followerLinks     UserFollow[] @relation("FollowingSide")
+}
+
+/// A segue B: followerId = A, followingId = B
+model UserFollow {
+  followerId  String
+  follower    User     @relation("FollowerSide", fields: [followerId], references: [id], onDelete: Cascade)
+  followingId String
+  following   User     @relation("FollowingSide", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@id([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
 }
 
 model Track {
@@ -32,8 +57,10 @@ model Track {
   slug        String   @unique
   title       String
   description String?  @db.Text
+  tagline     String?  @db.VarChar(160)
   orderIndex  Int      @default(0)
   courses     Course[]
+  enrollments UserTrackEnrollment[]
 }
 
 model Course {
@@ -44,10 +71,38 @@ model Course {
   title       String
   description String?  @db.Text
   orderIndex  Int      @default(0)
+  isFree      Boolean  @default(true)
+  /// Se true, novos logins e cadastros são matriculados automaticamente neste curso (quando isFree).
+  autoEnrollOnAuth Boolean @default(true)
   modules     Module[]
+  enrollments UserCourseEnrollment[]
 
   @@unique([trackId, slug])
   @@index([trackId])
+}
+
+model UserCourseEnrollment {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId   String
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  enrolledAt DateTime @default(now())
+
+  @@unique([userId, courseId])
+  @@index([userId])
+}
+
+model UserTrackEnrollment {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trackId    String
+  track      Track    @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  enrolledAt DateTime @default(now())
+
+  @@unique([userId, trackId])
+  @@index([userId])
 }
 
 model Module {

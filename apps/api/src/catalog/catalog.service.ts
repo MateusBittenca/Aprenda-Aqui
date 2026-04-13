@@ -13,6 +13,7 @@ export class CatalogService {
         slug: true,
         title: true,
         description: true,
+        tagline: true,
         orderIndex: true,
         _count: { select: { courses: true } },
       },

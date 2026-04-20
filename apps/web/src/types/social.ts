@@ -44,3 +44,19 @@ export type FollowListUser = {
   xpTotal: number;
   viewerFollowsThem: boolean;
 };
+
+/** GET /users/online */
+export type OnlineUser = {
+  id: string;
+  displayName: string;
+  avatarColorKey: string;
+  level: number;
+  xpTotal: number;
+  lastSeenAt: string;
+  isSelf: boolean;
+};
+
+export type OnlineUsersPayload = {
+  users: OnlineUser[];
+  windowMinutes: number;
+};

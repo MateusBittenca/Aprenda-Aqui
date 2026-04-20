@@ -43,10 +43,10 @@ export function LandingPage() {
   }, [mobileNavOpen]);
 
   return (
-    <div className="min-h-dvh bg-surface dot-grid text-on-surface">
+    <div className="min-h-dvh min-w-0 overflow-x-clip bg-surface dot-grid text-on-surface">
       <header className="fixed left-0 right-0 top-0 z-50 border-b border-surface-container-high/80 bg-surface-container-lowest/90 shadow-sm backdrop-blur-md">
         <div className="mx-auto flex min-w-0 max-w-6xl items-center justify-between gap-3 px-[max(1rem,env(safe-area-inset-left))] py-3 pr-[max(1rem,env(safe-area-inset-right))] sm:gap-4 sm:py-4 wide:max-w-7xl">
-          <BrandLogo size="md" linkTo="/" />
+          <BrandLogo size="md" linkTo="/" alwaysShowText />
           <nav
             className="hidden items-center gap-6 text-sm font-medium text-on-surface-variant md:flex lg:gap-8"
             aria-label="Seções da página"
@@ -217,7 +217,7 @@ export function LandingPage() {
 
         <section className="relative z-10 mx-auto max-w-3xl px-4 pb-20 text-center">
           <div className="mb-8 flex justify-center">
-            <BrandLogo size="lg" />
+            <BrandLogo size="lg" alwaysShowText />
           </div>
           {/* Título fluido: um único clamp evita saltos entre breakpoints sm/md */}
           <h1 className="font-bold leading-[1.12] tracking-tight text-slate-900 [font-size:clamp(1.75rem,0.9rem+4.2vw,3.75rem)]">

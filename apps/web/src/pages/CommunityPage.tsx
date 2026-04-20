@@ -1,14 +1,49 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { ChevronRight, Search, Sparkles, UserCircle2, Users, Zap } from 'lucide-react';
+import { ChevronRight, Radio, Search, Sparkles, UserCircle2, Users, Zap } from 'lucide-react';
 import { apiFetch, requireToken } from '../lib/api';
 import { useAuthHydration, useAuthStore } from '../stores/authStore';
-import type { FollowListUser, UserSearchHit } from '../types/social';
+import type { FollowListUser, OnlineUser, UserSearchHit } from '../types/social';
 import { useMe } from '../hooks/useMe';
+import { useOnlineUsers } from '../hooks/useOnlineUsers';
 import { Avatar } from '../components/Avatar';
 import { ErrorState } from '../components/ui/ErrorState';
 import { PageLoader } from '../components/ui/PageLoader';
+
+function OnlineRow({ u }: { u: OnlineUser }) {
+  return (
+    <li>
+      <Link
+        to={`/app/users/${u.id}`}
+        className="group flex items-center gap-3 rounded-xl px-3 py-2.5 transition hover:bg-emerald-50/80"
+      >
+        <span className="relative shrink-0">
+          <Avatar userId={u.id} displayName={u.displayName} colorKey={u.avatarColorKey} size="sm" />
+          <span
+            className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-emerald-500"
+            title="Online"
+            aria-hidden
+          />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold text-slate-900 group-hover:text-emerald-900">
+            {u.displayName}
+            {u.isSelf ? (
+              <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-800">
+                Você
+              </span>
+            ) : null}
+          </p>
+          <p className="text-xs text-slate-500">
+            Nv. {u.level} · {u.xpTotal.toLocaleString('pt-BR')} XP
+          </p>
+        </div>
+        <ChevronRight className="h-4 w-4 shrink-0 text-slate-400 transition group-hover:text-emerald-600" aria-hidden />
+      </Link>
+    </li>
+  );
+}
 
 function FollowingRow({ u }: { u: FollowListUser }) {
   return (
@@ -43,6 +78,8 @@ export function CommunityPage() {
     queryFn: () => apiFetch<UserSearchHit[]>(`/users/search?q=${encodeURIComponent(q)}`, { token: requireToken(token) }),
     enabled: hydrated && !!token && q.trim().length >= 2,
   });
+
+  const online = useOnlineUsers();
 
   const following = useQuery({
     queryKey: ['users', user?.id, 'following'],
@@ -92,6 +129,42 @@ export function CommunityPage() {
           </Link>
         </div>
       </header>
+
+      {/* Presença em tempo quase real (heartbeat no app) */}
+      <section className="relative mb-10 overflow-hidden rounded-[1.35rem] border border-emerald-200/80 bg-gradient-to-br from-emerald-50/50 via-white to-teal-50/40 p-5 shadow-[0_20px_40px_rgba(16,185,129,0.08)] sm:p-6">
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-md">
+              <Radio className="h-5 w-5" aria-hidden />
+              <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-white bg-emerald-300" aria-hidden />
+            </div>
+            <div>
+              <h2 className="font-headline text-lg font-bold text-slate-900">Online agora</h2>
+              <p className="text-sm text-slate-600">
+                Quem teve o app aberto nos últimos{' '}
+                <strong>{online.data?.windowMinutes ?? 3} minutos</strong> e permite aparecer na comunidade.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {online.isLoading && <p className="py-4 text-center text-sm text-slate-500">Carregando…</p>}
+        {!online.isLoading && online.data && online.data.users.length === 0 && (
+          <div className="rounded-xl border border-dashed border-emerald-200/90 bg-white/70 px-4 py-8 text-center">
+            <p className="text-sm font-medium text-slate-700">Ninguém na lista no momento.</p>
+            <p className="mt-2 text-sm text-slate-600">
+              Com o app aberto você aparece aqui (se a busca na comunidade estiver ativa nas configurações).
+            </p>
+          </div>
+        )}
+        {!online.isLoading && online.data && online.data.users.length > 0 && (
+          <ul className="divide-y divide-emerald-100/80 rounded-xl border border-emerald-100/70 bg-white/90">
+            {online.data.users.map((u) => (
+              <OnlineRow key={u.id} u={u} />
+            ))}
+          </ul>
+        )}
+      </section>
 
       {/* Busca */}
       <section className="relative mb-10">

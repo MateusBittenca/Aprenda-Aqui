@@ -1,4 +1,4 @@
-import { ValidationPipe } from '@nestjs/common';
+import { RequestMethod, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
@@ -6,7 +6,12 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix('api/v1', {
+    exclude: [
+      { path: '/', method: RequestMethod.GET },
+      { path: 'health', method: RequestMethod.GET },
+    ],
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

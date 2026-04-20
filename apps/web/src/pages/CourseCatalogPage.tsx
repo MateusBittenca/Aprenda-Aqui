@@ -107,7 +107,7 @@ export function CourseCatalogPage() {
             const v = getCourseVisual(c.slug);
             const modCount = c._count.modules;
             return (
-              <li key={c.id} className="flex min-h-[min(280px,70vh)]">
+              <li key={c.id} className="flex min-h-[300px]">
                 <CatalogCourseCard
                   to={`/app/courses/${c.slug}`}
                   slug={c.slug}

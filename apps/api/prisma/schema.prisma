@@ -29,6 +29,8 @@ model User {
   currentStreak    Int      @default(0)
   longestStreak    Int      @default(0)
   lastActivityDate DateTime?
+  /** Atualizado pelo heartbeat do app; usado para “online agora”. */
+  lastSeenAt       DateTime?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -38,6 +40,8 @@ model User {
   courseEnrollments UserCourseEnrollment[]
   followingLinks    UserFollow[] @relation("FollowerSide")
   followerLinks     UserFollow[] @relation("FollowingSide")
+
+  @@index([lastSeenAt])
 }
 
 /// A segue B: followerId = A, followingId = B

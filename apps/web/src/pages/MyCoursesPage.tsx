@@ -105,7 +105,7 @@ export function MyCoursesPage() {
           {data.map((c) => {
             const v = getCourseVisual(c.slug);
             return (
-              <li key={c.id} className="flex min-h-[280px]">
+              <li key={c.id} className="flex min-h-[300px]">
                 <MyCourseCard
                   to={`/app/my-courses/${c.slug}`}
                   slug={c.slug}

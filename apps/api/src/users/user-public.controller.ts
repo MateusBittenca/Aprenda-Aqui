@@ -24,6 +24,11 @@ export class UserPublicController {
     return this.social.searchUsers(user.userId, q ?? '');
   }
 
+  @Get('online')
+  online(@CurrentUser() user: JwtUser) {
+    return this.social.listOnlineUsers(user.userId);
+  }
+
   @Get(':userId/compare')
   compare(@CurrentUser() user: JwtUser, @Param('userId') userId: string) {
     return this.social.compareUsers(user.userId, userId);

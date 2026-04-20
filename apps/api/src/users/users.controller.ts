@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CatalogService } from '../catalog/catalog.service';
 import {
@@ -6,6 +15,7 @@ import {
   JwtUser,
 } from '../common/decorators/current-user.decorator';
 import { UpdateMeDto } from './dto/update-me.dto';
+import { SocialService } from './social.service';
 import { UsersService } from './users.service';
 
 @Controller('me')
@@ -14,6 +24,7 @@ export class UsersController {
   constructor(
     private readonly users: UsersService,
     private readonly catalog: CatalogService,
+    private readonly social: SocialService,
   ) {}
 
   @Get()
@@ -24,6 +35,13 @@ export class UsersController {
   @Patch()
   patchMe(@CurrentUser() user: JwtUser, @Body() dto: UpdateMeDto) {
     return this.users.updateMe(user.userId, dto);
+  }
+
+  /** Heartbeat de presença (chamar periodicamente com o app aberto). */
+  @Post('presence')
+  @HttpCode(204)
+  async presence(@CurrentUser() user: JwtUser) {
+    await this.social.touchPresence(user.userId);
   }
 
   @Get('enrolled-courses')

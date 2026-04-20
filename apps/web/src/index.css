@@ -11,6 +11,7 @@
     font-size: clamp(0.875rem, 0.82rem + 0.25vw, 1rem);
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    overflow-x: clip;
   }
 
   /**
@@ -26,6 +27,9 @@
 
   body {
     @apply font-sans text-on-surface antialiased;
+    /* Evita faixa branca lateral quando algum filho estoura a largura (~320–428px) */
+    overflow-x: clip;
+    overflow-wrap: anywhere;
   }
 
   h1,
@@ -85,4 +89,7 @@ body {
 
 #root {
   min-height: 100dvh;
+  min-width: 0;
+  width: 100%;
+  overflow-x: clip;
 }

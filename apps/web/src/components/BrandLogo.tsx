@@ -32,12 +32,15 @@ function LogoMark({ size, className }: { size: Size; className?: string }) {
 export function BrandLogo({
   size = 'md',
   showText = true,
+  /** Se true, mantém o texto em telas estreitas (ex.: landing). Padrão: texto só a partir de `sm` no header do app. */
+  alwaysShowText = false,
   className,
   linkTo,
   variant = 'light',
 }: {
   size?: Size;
   showText?: boolean;
+  alwaysShowText?: boolean;
   className?: string;
   linkTo?: string;
   /** `dark`: fundo escuro (área admin). */
@@ -54,6 +57,7 @@ export function BrandLogo({
         <span
           className={twMerge(
             'font-bold tracking-tight',
+            !alwaysShowText && 'hidden sm:inline',
             variant === 'dark' ? 'text-white' : 'text-slate-900',
             s.text,
           )}
@@ -73,7 +77,11 @@ export function BrandLogo({
 
   if (linkTo) {
     return (
-      <Link to={linkTo} className={wrapClass}>
+      <Link
+        to={linkTo}
+        className={wrapClass}
+        aria-label={showText ? 'Aprenda aqui — início' : undefined}
+      >
         {inner}
       </Link>
     );

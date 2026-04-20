@@ -3,16 +3,21 @@ import { BrandLogo } from './BrandLogo';
 
 export function AuthPageShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-dvh flex-col bg-surface dot-grid text-on-surface">
-      <header className="border-b border-surface-container-high/80 bg-surface-container-lowest/90 px-4 py-4 shadow-sm backdrop-blur-md">
-        <div className="mx-auto flex max-w-md items-center justify-between">
-          <Link to="/" className="text-sm font-semibold text-on-surface-variant transition hover:text-primary">
+    <div className="flex min-h-dvh min-w-0 flex-col overflow-x-clip bg-surface dot-grid text-on-surface">
+      <header className="border-b border-surface-container-high/80 bg-surface-container-lowest/90 px-[max(1rem,env(safe-area-inset-left))] py-4 pr-[max(1rem,env(safe-area-inset-right))] shadow-sm backdrop-blur-md">
+        <div className="mx-auto flex min-w-0 max-w-md items-center justify-between gap-3">
+          <Link
+            to="/"
+            className="min-w-0 text-sm font-semibold text-on-surface-variant transition hover:text-primary"
+          >
             Voltar ao início
           </Link>
-          <BrandLogo size="sm" linkTo="/" />
+          <BrandLogo size="sm" linkTo="/" alwaysShowText />
         </div>
       </header>
-      <div className="flex flex-1 flex-col items-center justify-center px-4 py-10">{children}</div>
+      <div className="flex min-w-0 flex-1 flex-col items-center justify-center px-[max(1rem,env(safe-area-inset-left))] py-10 pr-[max(1rem,env(safe-area-inset-right))]">
+        {children}
+      </div>
     </div>
   );
 }

@@ -19,6 +19,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useMe } from '../hooks/useMe';
 import { getRankForLevel } from '../lib/levelTitles';
 import { useUiPreferences } from '../stores/uiPreferencesStore';
+import { usePresenceHeartbeat } from '../hooks/usePresenceHeartbeat';
 
 function StreakBadge({ streak, weekDays }: { streak: number; weekDays?: boolean[] }) {
   const color =
@@ -71,6 +72,7 @@ function StreakBadge({ streak, weekDays }: { streak: number; weekDays?: boolean[
 }
 
 export function AppLayout() {
+  usePresenceHeartbeat();
   const { user, logout } = useAuth();
   const { data: me } = useMe({ syncStore: true });
   const pathname = useLocation().pathname;
@@ -82,7 +84,7 @@ export function AppLayout() {
   }, [reduceMotion]);
 
   return (
-    <div className="min-h-dvh bg-surface text-on-surface dot-grid">
+    <div className="min-h-dvh min-w-0 overflow-x-clip bg-surface text-on-surface dot-grid">
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:left-[max(1rem,env(safe-area-inset-left))] focus:top-[max(1rem,env(safe-area-inset-top))] focus:z-[60] focus:rounded-xl focus:bg-surface-container-lowest focus:px-4 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-primary focus:shadow-elevated focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
@@ -90,10 +92,13 @@ export function AppLayout() {
         Ir para o conteúdo
       </a>
       <header className="sticky top-0 z-40 border-b border-surface-container-high/80 bg-surface-container-lowest/85 shadow-elevated backdrop-blur-md">
-        <div className="mx-auto flex min-w-0 max-w-7xl items-center justify-between gap-3 px-[max(1rem,env(safe-area-inset-left))] py-3 pr-[max(1rem,env(safe-area-inset-right))] sm:gap-4 sm:px-8">
-          <BrandLogo size="sm" linkTo="/app" />
+        <div className="mx-auto flex min-w-0 max-w-7xl items-center justify-between gap-2 px-[max(1rem,env(safe-area-inset-left))] py-3 pr-[max(1rem,env(safe-area-inset-right))] sm:gap-4 sm:px-8">
+          <div className="min-w-0 shrink-0">
+            <BrandLogo size="sm" linkTo="/app" />
+          </div>
           {user && (
-            <div className="flex min-w-0 flex-wrap items-center justify-end gap-2 text-sm">
+            <div className="nav-tabs-scroll flex min-w-0 max-w-full flex-1 items-center justify-end overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] sm:max-w-none sm:overflow-visible">
+              <div className="flex flex-nowrap items-center justify-end gap-1.5 text-sm sm:gap-2">
               {user.role === 'ADMIN' && (
                 <Link
                   to="/admin"
@@ -146,6 +151,7 @@ export function AppLayout() {
                   className="ring-2 ring-white hover:ring-blue-400 transition"
                 />
               </Link>
+              </div>
             </div>
           )}
         </div>
@@ -164,7 +170,7 @@ export function AppLayout() {
       </header>
       <main
         id="main-content"
-        className="mx-auto w-full min-w-0 max-w-7xl px-4 py-8 sm:px-8 lg:px-12"
+        className="mx-auto w-full min-w-0 max-w-7xl px-[max(1rem,env(safe-area-inset-left))] py-6 pr-[max(1rem,env(safe-area-inset-right))] sm:px-8 sm:py-8 lg:px-12 lg:py-10"
         tabIndex={-1}
       >
         <Outlet />

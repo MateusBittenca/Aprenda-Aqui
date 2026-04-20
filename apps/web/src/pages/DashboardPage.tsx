@@ -16,6 +16,7 @@ import {
   Target,
   Trophy,
   Zap,
+  Radio,
 } from 'lucide-react';
 import { XpTrajectoryModal } from '../components/XpTrajectoryModal';
 import { getNextRankThreshold, getRankForLevel } from '../lib/levelTitles';
@@ -26,6 +27,7 @@ import { useMe } from '../hooks/useMe';
 import { useProgress } from '../hooks/useProgress';
 import { useEnrolledCourses } from '../hooks/useEnrolledCourses';
 import { useLeaderboard } from '../hooks/useLeaderboard';
+import { useOnlineUsers } from '../hooks/useOnlineUsers';
 import { computeBadges, RARITY_STYLE } from '../lib/badges';
 import type { MeProfile } from '../types/user';
 import type { UserProgress } from '../hooks/useProgress';
@@ -109,12 +111,46 @@ export function DashboardPage() {
   return (
     <div className="min-w-0 space-y-6 overflow-x-hidden">
       <HeroSection data={data} />
+      <OnlinePresenceCard />
       <XPSection data={data} />
       <StatsRow data={data} progress={progress} />
       <GoalsSection progress={progress} />
       <CoursesSection enrolled={enrolled ?? []} loading={enrolledLoading} />
       <BottomGrid data={data} progress={progress} lb={lb} />
     </div>
+  );
+}
+
+function OnlinePresenceCard() {
+  const { data, isLoading } = useOnlineUsers();
+  const windowM = data?.windowMinutes ?? 3;
+  const users = data?.users ?? [];
+  const others = users.filter((u) => !u.isSelf).length;
+
+  const subtitle = (() => {
+    if (isLoading) return 'Carregando…';
+    if (users.length === 0) return 'Ninguém com perfil visível nos últimos minutos';
+    if (others === 0) return `Só você aparece agora (últimos ${windowM} min)`;
+    return `${others} ${others === 1 ? 'pessoa' : 'pessoas'} com o app aberto agora`;
+  })();
+
+  return (
+    <Link
+      to="/app/community"
+      className="flex items-center justify-between gap-3 rounded-2xl border border-emerald-200/70 bg-gradient-to-r from-emerald-50/90 to-teal-50/50 px-4 py-3 shadow-sm transition hover:border-emerald-300 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+    >
+      <div className="flex min-w-0 items-center gap-3">
+        <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-md">
+          <Radio className="h-5 w-5" aria-hidden />
+          <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-400" aria-hidden />
+        </span>
+        <div className="min-w-0">
+          <p className="text-sm font-bold text-emerald-950">Quem está online</p>
+          <p className="text-xs text-emerald-800/80">{subtitle}</p>
+        </div>
+      </div>
+      <span className="shrink-0 text-xs font-semibold text-emerald-700">Comunidade →</span>
+    </Link>
   );
 }
 
@@ -135,7 +171,7 @@ function HeroSection({ data }: { data: MeProfile }) {
           <h1 className="font-headline mt-0.5 truncate text-2xl font-black tracking-tight text-on-surface sm:text-3xl">
             {firstName}!
           </h1>
-          <p className="mt-1 text-sm text-on-surface-variant">{streakMessage(data.currentStreak)}</p>
+          <p className="mt-1 break-words text-sm text-on-surface-variant">{streakMessage(data.currentStreak)}</p>
           <StreakWeekStrip days={data.streakWeekDays} />
         </div>
         {data.currentStreak >= 3 && (
@@ -168,20 +204,21 @@ function XPSection({ data }: { data: MeProfile }) {
         onClick={() => setTrajOpen(true)}
         className="w-full rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-5 text-left shadow-elevated transition hover:border-primary/25 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 sm:p-6"
       >
-        <div className="flex items-end justify-between gap-3">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-3">
           <div className="min-w-0">
             <p className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide text-primary">
               <Sparkles className="h-3.5 w-3.5 shrink-0" aria-hidden /> Nível {data.level}
             </p>
             <p className="mt-1 text-sm font-semibold text-indigo-800">{rank.name}</p>
-            <p className="mt-1.5 text-3xl font-black tabular-nums text-slate-900">
+            <p className="mt-1.5 text-2xl font-black tabular-nums text-slate-900 sm:text-3xl">
               {data.xpProgress.currentBandXp}
-              <span className="ml-1 text-lg font-bold text-slate-400">/ {data.xpProgress.bandSize} XP</span>
+              <span className="ml-1 text-base font-bold text-slate-400 sm:text-lg">
+                / {data.xpProgress.bandSize} XP
+              </span>
             </p>
           </div>
-          <p className="shrink-0 text-right text-sm font-semibold text-slate-500">
-            {pct}% para<br />
-            <span className="text-slate-900">Nível {data.level + 1}</span>
+          <p className="shrink-0 text-sm font-semibold text-slate-500 sm:text-right">
+            {pct}% para <span className="text-slate-900">nível {data.level + 1}</span>
           </p>
         </div>
         <div className="mt-4 h-3.5 overflow-hidden rounded-full bg-slate-100">

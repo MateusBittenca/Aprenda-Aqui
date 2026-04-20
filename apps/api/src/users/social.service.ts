@@ -214,4 +214,45 @@ export class SocialService {
       viewerFollowsThem: followingSet.has(r.followingId),
     }));
   }
+
+  /** Heartbeat do app autenticado — mantém lastSeenAt para lista “online agora”. */
+  async touchPresence(userId: string) {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { lastSeenAt: new Date() },
+    });
+  }
+
+  /**
+   * Usuários considerados online: lastSeenAt nos últimos `windowMinutes` minutos.
+   * Só perfis com busca na comunidade ativa; apenas papel USER.
+   */
+  async listOnlineUsers(viewerId: string, windowMinutes = 3) {
+    const threshold = new Date(Date.now() - windowMinutes * 60 * 1000);
+    const rows = await this.prisma.user.findMany({
+      where: {
+        role: 'USER',
+        showInSearch: true,
+        lastSeenAt: { gte: threshold },
+      },
+      select: {
+        id: true,
+        displayName: true,
+        avatarColorKey: true,
+        level: true,
+        xpTotal: true,
+        lastSeenAt: true,
+      },
+      orderBy: [{ lastSeenAt: 'desc' }, { displayName: 'asc' }],
+      take: 60,
+    });
+    return {
+      users: rows.map((r) => ({
+        ...r,
+        lastSeenAt: r.lastSeenAt!.toISOString(),
+        isSelf: r.id === viewerId,
+      })),
+      windowMinutes,
+    };
+  }
 }

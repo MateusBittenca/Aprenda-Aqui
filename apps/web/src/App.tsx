@@ -46,7 +46,13 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <ScrollToTop />
-        <Toaster richColors position="top-center" closeButton duration={4500} />
+        <Toaster
+          richColors
+          position="top-center"
+          closeButton
+          duration={4500}
+          offset="max(1rem, env(safe-area-inset-top, 0px))"
+        />
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />

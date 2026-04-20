@@ -64,6 +64,7 @@ tmp/
 
 # ─── Sistema operacional ──────────────────────────────────────
 .DS_Store
+*.bat
 Thumbs.db
 ehthumbs.db
 Desktop.ini

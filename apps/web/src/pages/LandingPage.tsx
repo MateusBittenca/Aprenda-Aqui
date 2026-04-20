@@ -1,32 +1,82 @@
+import { useEffect, useId, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { FocusTrap } from 'focus-trap-react';
 import { useAuthStore } from '../stores/authStore';
 import { BrandLogo } from '../components/BrandLogo';
-import { BookOpen, Check, Clock, Code2, Flame, Gem, Sparkles, Trophy, Zap } from 'lucide-react';
+import {
+  BookOpen,
+  Check,
+  Clock,
+  Code2,
+  Flame,
+  Gem,
+  Menu,
+  Sparkles,
+  Trophy,
+  X,
+  Zap,
+} from 'lucide-react';
+
+const LANDING_ANCHORS = [
+  { href: '#recursos', label: 'Recursos' },
+  { href: '#como-funciona', label: 'Como funciona' },
+  { href: '#cursos', label: 'Cursos' },
+] as const;
 
 export function LandingPage() {
   const token = useAuthStore((s) => s.token);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const mobileNavTitleId = useId();
+
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileNavOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [mobileNavOpen]);
 
   return (
     <div className="min-h-dvh bg-surface dot-grid text-on-surface">
       <header className="fixed left-0 right-0 top-0 z-50 border-b border-surface-container-high/80 bg-surface-container-lowest/90 shadow-sm backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
+        <div className="mx-auto flex min-w-0 max-w-6xl items-center justify-between gap-3 px-[max(1rem,env(safe-area-inset-left))] py-3 pr-[max(1rem,env(safe-area-inset-right))] sm:gap-4 sm:py-4 wide:max-w-7xl">
           <BrandLogo size="md" linkTo="/" />
-          <nav className="hidden items-center gap-8 text-sm font-medium text-on-surface-variant md:flex">
-            <a href="#recursos" className="transition hover:text-on-surface">
-              Recursos
-            </a>
-            <a href="#como-funciona" className="transition hover:text-on-surface">
-              Como funciona
-            </a>
-            <a href="#cursos" className="transition hover:text-on-surface">
-              Cursos
-            </a>
+          <nav
+            className="hidden items-center gap-6 text-sm font-medium text-on-surface-variant md:flex lg:gap-8"
+            aria-label="Seções da página"
+          >
+            {LANDING_ANCHORS.map(({ href, label }) => (
+              <a key={href} href={href} className="rounded-lg px-2 py-2 transition hover:text-on-surface">
+                {label}
+              </a>
+            ))}
           </nav>
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex min-w-0 shrink-0 items-center gap-2 sm:gap-3">
+            {/* Menu âncoras em mobile: desktop replica a nav acima */}
+            <button
+              type="button"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-slate-200/90 bg-white/90 text-on-surface shadow-sm md:hidden"
+              aria-expanded={mobileNavOpen}
+              aria-controls="landing-mobile-nav"
+              onClick={() => setMobileNavOpen((o) => !o)}
+            >
+              {mobileNavOpen ? (
+                <X className="h-6 w-6" aria-hidden />
+              ) : (
+                <Menu className="h-6 w-6" aria-hidden />
+              )}
+              <span className="sr-only">{mobileNavOpen ? 'Fechar menu' : 'Abrir menu de seções'}</span>
+            </button>
             {token ? (
               <Link
                 to="/app"
-                className="rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/30 transition hover:bg-primary-dim"
+                className="inline-flex min-h-11 max-w-full items-center justify-center rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/30 transition hover:bg-primary-dim"
               >
                 Ir para o painel
               </Link>
@@ -34,13 +84,13 @@ export function LandingPage() {
               <>
                 <Link
                   to="/login"
-                  className="rounded-full px-3 py-2 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low"
+                  className="inline-flex min-h-11 items-center justify-center rounded-full px-3 py-2 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low"
                 >
                   Entrar
                 </Link>
                 <Link
                   to="/register"
-                  className="rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/30 transition hover:bg-primary-dim"
+                  className="inline-flex min-h-11 items-center justify-center rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/30 transition hover:bg-primary-dim"
                 >
                   Começar grátis
                 </Link>
@@ -50,7 +100,51 @@ export function LandingPage() {
         </div>
       </header>
 
-      <main className="relative overflow-hidden pt-28">
+      {mobileNavOpen ? (
+        <FocusTrap
+          focusTrapOptions={{
+            initialFocus: false,
+            clickOutsideDeactivates: true,
+            onDeactivate: () => setMobileNavOpen(false),
+          }}
+        >
+          <div className="fixed inset-0 z-40 md:hidden" id="landing-mobile-nav">
+            <button
+              type="button"
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+              aria-label="Fechar menu"
+              onClick={() => setMobileNavOpen(false)}
+            />
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby={mobileNavTitleId}
+              className="absolute inset-y-0 right-0 flex w-[min(100%,20rem)] flex-col border-l border-slate-200/90 bg-surface-container-lowest shadow-2xl will-change-transform"
+              style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
+            >
+              <div className="border-b border-slate-200/80 px-4 py-3">
+                <p id={mobileNavTitleId} className="text-sm font-semibold text-on-surface">
+                  Navegação
+                </p>
+              </div>
+              <nav className="flex flex-col p-2" aria-label="Seções da página">
+                {LANDING_ANCHORS.map(({ href, label }) => (
+                  <a
+                    key={href}
+                    href={href}
+                    className="min-h-11 rounded-xl px-4 py-3 text-base font-medium text-on-surface-variant transition hover:bg-surface-container-low hover:text-on-surface"
+                    onClick={() => setMobileNavOpen(false)}
+                  >
+                    {label}
+                  </a>
+                ))}
+              </nav>
+            </div>
+          </div>
+        </FocusTrap>
+      ) : null}
+
+      <main className="relative overflow-x-hidden overflow-y-visible pt-24 sm:pt-28">
         <div className="pointer-events-none absolute inset-0 hidden lg:block">
           <div className="absolute left-[8%] top-[12%] animate-float">
             <div className="relative">
@@ -125,11 +219,14 @@ export function LandingPage() {
           <div className="mb-8 flex justify-center">
             <BrandLogo size="lg" />
           </div>
-          <h1 className="text-4xl font-bold leading-tight tracking-tight text-slate-900 sm:text-5xl md:text-6xl">
+          {/* Título fluido: um único clamp evita saltos entre breakpoints sm/md */}
+          <h1 className="font-bold leading-[1.12] tracking-tight text-slate-900 [font-size:clamp(1.75rem,0.9rem+4.2vw,3.75rem)]">
             Domine programação com aulas práticas
-            <span className="block text-slate-500">em blocos de poucos minutos</span>
+            <span className="mt-1 block text-slate-500 [font-size:clamp(1.1rem,0.7rem+2vw,2.25rem)]">
+              em blocos de poucos minutos
+            </span>
           </h1>
-          <p className="mx-auto mt-6 max-w-xl text-lg text-slate-600">
+          <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
             Leia, codifique e receba feedback na hora. Exercícios interativos e um painel simples para acompanhar seu
             ritmo — sem enrolação.
           </p>

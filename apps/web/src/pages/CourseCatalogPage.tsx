@@ -51,9 +51,9 @@ export function CourseCatalogPage() {
         aria-hidden
       />
 
-      <header className="relative mb-8 flex flex-col gap-6 md:mb-10 md:flex-row md:items-end md:justify-between">
-        <div className="max-w-2xl">
-          <h1 className="font-headline text-3xl font-extrabold tracking-tight text-indigo-950 sm:text-4xl md:text-[2.75rem] md:leading-tight">
+      <header className="relative mb-8 flex min-w-0 flex-col gap-6 md:mb-10 md:flex-row md:items-end md:justify-between">
+        <div className="min-w-0 max-w-2xl">
+          <h1 className="font-headline font-extrabold tracking-tight text-indigo-950 [font-size:clamp(1.75rem,1.1rem+2.8vw,2.75rem)] md:leading-tight">
             Cursos
           </h1>
           <p className="mt-3 text-base leading-relaxed text-slate-500 sm:text-lg">
@@ -71,7 +71,7 @@ export function CourseCatalogPage() {
           </p>
         </div>
         <div
-          className="flex shrink-0 items-center gap-2 rounded-2xl border border-white/60 bg-white/80 px-5 py-3 shadow-[0_40px_40px_-10px_rgba(30,27,75,0.06)] backdrop-blur-xl md:px-6"
+          className="flex min-h-11 shrink-0 items-center gap-2 rounded-2xl border border-white/60 bg-white/80 px-5 py-3 shadow-[0_40px_40px_-10px_rgba(30,27,75,0.06)] backdrop-blur-xl md:px-6"
           aria-live="polite"
         >
           <span className="min-w-[2ch] text-2xl font-bold tabular-nums text-indigo-600">{enrolledCount}</span>
@@ -92,7 +92,7 @@ export function CourseCatalogPage() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Buscar por nome ou tema…"
-          className="w-full rounded-2xl border border-slate-200/90 bg-white/85 py-3.5 pl-12 pr-4 text-sm font-medium text-slate-800 shadow-[0_40px_40px_-10px_rgba(30,27,75,0.06)] backdrop-blur-xl outline-none ring-0 transition placeholder:text-slate-400 focus:border-indigo-300 focus:ring-2 focus:ring-indigo-400/25"
+          className="min-h-11 w-full rounded-2xl border border-slate-200/90 bg-white/85 py-3 pl-12 pr-4 text-base font-medium text-slate-800 shadow-[0_40px_40px_-10px_rgba(30,27,75,0.06)] backdrop-blur-xl outline-none ring-0 transition placeholder:text-slate-400 focus:border-indigo-300 focus:ring-2 focus:ring-indigo-400/25 sm:text-sm"
         />
       </div>
 
@@ -102,12 +102,12 @@ export function CourseCatalogPage() {
           <p className="mt-1 text-xs text-slate-500">Ajuste o termo ou limpe o campo.</p>
         </div>
       ) : (
-        <ul className="relative grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <ul className="relative grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 wide:gap-8">
           {filtered.map((c) => {
             const v = getCourseVisual(c.slug);
             const modCount = c._count.modules;
             return (
-              <li key={c.id} className="flex min-h-[280px]">
+              <li key={c.id} className="flex min-h-[min(280px,70vh)]">
                 <CatalogCourseCard
                   to={`/app/courses/${c.slug}`}
                   slug={c.slug}

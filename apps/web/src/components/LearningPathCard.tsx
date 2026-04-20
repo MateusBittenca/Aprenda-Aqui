@@ -80,7 +80,7 @@ export function LearningPathCard({
                 </span>
               </div>
               {footer.completed && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-emerald-800 ring-1 ring-emerald-100/90">
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-emerald-800 ring-1 ring-emerald-100/90">
                   <CheckCircle2 className="h-3 w-3" aria-hidden />
                   Concluído
                 </span>
@@ -177,12 +177,12 @@ export function LearningPathCard({
               {catalog ? (
                 <div className="flex flex-col items-end gap-1">
                   {catalog.enrolled && (
-                    <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-800 ring-1 ring-emerald-100/80">
+                    <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide text-emerald-800 ring-1 ring-emerald-100/80">
                       Na sua lista
                     </span>
                   )}
                   {!catalog.canEnroll ? (
-                    <span className="text-[10px] font-bold uppercase tracking-wide text-amber-800">Indisponível</span>
+                    <span className="text-xs font-bold uppercase tracking-wide text-amber-800">Indisponível</span>
                   ) : (
                     <span className="text-xs font-semibold tabular-nums text-slate-500">
                       {catalog.moduleCount} módulo{catalog.moduleCount !== 1 ? 's' : ''}
@@ -192,7 +192,7 @@ export function LearningPathCard({
               ) : progress ? (
                 <div className="flex flex-col items-end gap-1">
                   {footer.completed && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-800 ring-1 ring-emerald-100/80">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide text-emerald-800 ring-1 ring-emerald-100/80">
                       <CheckCircle2 className="h-3 w-3" aria-hidden />
                       Concluído
                     </span>
@@ -217,7 +217,7 @@ export function LearningPathCard({
 
           {!catalog && progress && progress.total > 0 && (
             <div className="mt-4">
-              <div className="mb-1.5 flex items-center justify-between gap-2 text-[11px] font-semibold">
+              <div className="mb-1.5 flex items-center justify-between gap-2 text-xs font-semibold">
                 <span className="text-slate-500">Progresso</span>
                 <span className="tabular-nums text-slate-800">{progress.pct}%</span>
               </div>

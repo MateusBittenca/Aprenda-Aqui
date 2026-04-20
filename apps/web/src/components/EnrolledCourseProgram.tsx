@@ -106,7 +106,7 @@ export function EnrolledCourseProgram({ modules, completedLessonIds, visual }: P
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
                   {modulePct === 100 ? (
-                    <span className="hidden rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-emerald-800 sm:inline">
+                    <span className="hidden rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-emerald-800 sm:inline">
                       Módulo feito
                     </span>
                   ) : null}
@@ -155,7 +155,7 @@ export function EnrolledCourseProgram({ modules, completedLessonIds, visual }: P
                       ) : null}
                     </div>
                     <div className="mt-4">
-                      <div className="mb-1 flex justify-between text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                      <div className="mb-1 flex justify-between text-xs font-semibold uppercase tracking-wide text-slate-400">
                         <span>Progresso no módulo</span>
                         <span className="tabular-nums text-indigo-700">{modulePct}%</span>
                       </div>
@@ -211,7 +211,7 @@ export function EnrolledCourseProgram({ modules, completedLessonIds, visual }: P
                               <div className="flex flex-wrap items-center gap-2">
                                 <h4 className="font-headline text-base font-bold text-indigo-950">{lesson.title}</h4>
                                 {isNext ? (
-                                  <span className="rounded-full bg-indigo-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                                  <span className="rounded-full bg-indigo-600 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-white">
                                     Próxima aula
                                   </span>
                                 ) : null}

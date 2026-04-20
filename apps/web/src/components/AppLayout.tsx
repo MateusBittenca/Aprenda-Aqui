@@ -85,31 +85,31 @@ export function AppLayout() {
     <div className="min-h-dvh bg-surface text-on-surface dot-grid">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-xl focus:bg-surface-container-lowest focus:px-4 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-primary focus:shadow-elevated focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-[max(1rem,env(safe-area-inset-left))] focus:top-[max(1rem,env(safe-area-inset-top))] focus:z-[60] focus:rounded-xl focus:bg-surface-container-lowest focus:px-4 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-primary focus:shadow-elevated focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
       >
         Ir para o conteúdo
       </a>
       <header className="sticky top-0 z-40 border-b border-surface-container-high/80 bg-surface-container-lowest/85 shadow-elevated backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-8">
+        <div className="mx-auto flex min-w-0 max-w-7xl items-center justify-between gap-3 px-[max(1rem,env(safe-area-inset-left))] py-3 pr-[max(1rem,env(safe-area-inset-right))] sm:gap-4 sm:px-8">
           <BrandLogo size="sm" linkTo="/app" />
           {user && (
-            <div className="flex flex-wrap items-center justify-end gap-2 text-sm">
+            <div className="flex min-w-0 flex-wrap items-center justify-end gap-2 text-sm">
               {user.role === 'ADMIN' && (
                 <Link
                   to="/admin"
-                  className="hidden items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 font-medium text-amber-900 transition hover:bg-amber-100 sm:inline-flex"
+                  className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 font-medium text-amber-900 transition hover:bg-amber-100 sm:min-h-0 sm:min-w-0 sm:px-3 sm:py-2"
                 >
-                  <Settings2 className="h-4 w-4" aria-hidden />
-                  Admin
+                  <Settings2 className="h-4 w-4 shrink-0" aria-hidden />
+                  <span className="sr-only sm:not-sr-only">Admin</span>
                 </Link>
               )}
               <button
                 type="button"
                 onClick={logout}
-                className="inline-flex items-center gap-1 rounded-full border border-slate-200 px-2 py-0.5 text-slate-600 transition hover:bg-slate-100"
+                className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1 rounded-full border border-slate-200 px-2 text-slate-600 transition hover:bg-slate-100 sm:min-h-11 sm:min-w-0 sm:px-3"
               >
-                <LogOut className="h-4 w-4" aria-hidden />
-                <span className="hidden sm:inline">Sair</span>
+                <LogOut className="h-4 w-4 shrink-0" aria-hidden />
+                <span className="sr-only sm:not-sr-only">Sair</span>
               </button>
               {!hideGlobalStats && (
                 <>
@@ -123,10 +123,10 @@ export function AppLayout() {
                   </span>
                   <span
                     title={getRankForLevel(user.level).description}
-                    className="hidden flex-col items-end rounded-full bg-blue-50 px-2.5 py-0.5 sm:flex"
+                    className="hidden min-h-11 flex-col justify-center rounded-full bg-blue-50 px-2.5 py-1 sm:flex"
                   >
                     <span className="text-xs font-semibold leading-tight text-blue-700">Nv. {user.level}</span>
-                    <span className="max-w-[7rem] truncate text-[10px] font-medium leading-tight text-blue-600/90">
+                    <span className="max-w-[7rem] truncate text-xs font-medium leading-tight text-blue-600/90">
                       {getRankForLevel(user.level).name}
                     </span>
                   </span>
@@ -136,7 +136,7 @@ export function AppLayout() {
                 to="/app/me"
                 title="Ver perfil"
                 aria-label="Abrir perfil"
-                className="rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
               >
                 <Avatar
                   userId={user.id}
@@ -149,7 +149,10 @@ export function AppLayout() {
             </div>
           )}
         </div>
-        <nav className="mx-auto flex max-w-7xl flex-wrap gap-1 border-t border-surface-container-high/80 px-2 pb-2 pt-1 sm:px-6" aria-label="Principal">
+        <nav
+          className="nav-tabs-scroll mx-auto flex max-w-7xl flex-nowrap gap-3 overflow-x-auto border-t border-surface-container-high/80 px-3 py-1 sm:gap-4 sm:px-6 lg:flex-wrap lg:gap-3 lg:overflow-x-visible"
+          aria-label="Principal"
+        >
           <AppNavLink to="/app" end icon={<LayoutDashboard className="h-4 w-4" />} label="Início" />
           <AppNavLink to="/app/my-courses" end={false} icon={<Map className="h-4 w-4" />} label="Meus cursos" />
           <AppNavLink to="/app/courses" end={false} icon={<ShoppingBag className="h-4 w-4" />} label="Cursos" />
@@ -159,7 +162,11 @@ export function AppLayout() {
           <AppNavLink to="/app/settings" icon={<Settings2 className="h-4 w-4" />} label="Configurações" />
         </nav>
       </header>
-      <main id="main-content" className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-8 lg:px-12" tabIndex={-1}>
+      <main
+        id="main-content"
+        className="mx-auto w-full min-w-0 max-w-7xl px-4 py-8 sm:px-8 lg:px-12"
+        tabIndex={-1}
+      >
         <Outlet />
       </main>
     </div>
@@ -181,16 +188,21 @@ function AppNavLink({
     <NavLink
       to={to}
       end={end}
+      title={label}
+      aria-label={label}
       className={({ isActive }) =>
         [
-          'inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition',
+          /* Até lg: só ícone; texto só no nome acessível (aria-label) + a partir de lg na própria linha */
+          'inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition max-lg:justify-center max-lg:px-3.5 lg:px-3',
           'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
           isActive ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface',
         ].join(' ')
       }
     >
       {icon}
-      {label}
+      <span className="hidden lg:inline" aria-hidden="true">
+        {label}
+      </span>
     </NavLink>
   );
 }

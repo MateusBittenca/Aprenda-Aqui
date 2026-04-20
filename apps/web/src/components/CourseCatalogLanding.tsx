@@ -27,7 +27,8 @@ export function CourseCatalogLanding({
             className="pointer-events-none absolute right-0 top-0 hidden h-full w-1/3 opacity-[0.09] md:block"
             aria-hidden
           >
-            <img src={heroImage} alt="" className="h-full w-full object-cover" />
+            {/* Uma única URL hoje; com variantes de densidade/largura, usar srcset + sizes */}
+            <img src={heroImage} alt="" className="h-full max-w-full object-cover" />
           </div>
         ) : null}
 

@@ -209,7 +209,7 @@ export function RankingPage() {
               </div>
               <div className="text-right">
                 <p className="font-black text-primary">{me.xpTotal.toLocaleString('pt-BR')}</p>
-                <p className="text-[10px] font-bold uppercase text-outline">XP total</p>
+                <p className="text-xs font-bold uppercase text-outline">XP total</p>
               </div>
             </div>
           </div>
@@ -226,7 +226,7 @@ export function RankingPage() {
               </div>
               <div className="min-w-0">
                 <p className="truncate text-sm font-bold">{me.displayName}</p>
-                <p className="text-[10px] font-bold uppercase text-primary">
+                <p className="text-xs font-bold uppercase text-primary">
                   {me.xpTotal.toLocaleString('pt-BR')} XP total
                 </p>
               </div>
@@ -249,7 +249,7 @@ function CountBox({ value, label }: { value: number; label: string }) {
   return (
     <div className="min-w-[3.5rem] rounded-xl bg-surface-container-high px-3 py-2 text-center">
       <span className="block text-xl font-bold text-on-surface">{String(value).padStart(2, '0')}</span>
-      <span className="text-[10px] font-bold uppercase text-outline">{label}</span>
+      <span className="text-xs font-bold uppercase text-outline">{label}</span>
     </div>
   );
 }
@@ -363,7 +363,7 @@ function RankRow({
       </div>
       <div className="text-right">
         <p className="font-black text-primary">{entry.xpTotal.toLocaleString('pt-BR')}</p>
-        <p className="text-[10px] font-bold uppercase text-outline">XP total</p>
+        <p className="text-xs font-bold uppercase text-outline">XP total</p>
       </div>
     </>
   );

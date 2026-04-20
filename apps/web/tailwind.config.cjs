@@ -1,8 +1,21 @@
-/** @type {import('tailwindcss').Config} */
+/**
+ * Breakpoints (mobile-first; prefixo min-width):
+ * - default / sm: 640px — celular amplo / “phablet” (ajustes finos sem mudar tablet)
+ * - md: 768px — tablet (alinhado a padrão da indústria)
+ * - lg: 1024px — desktop compacto
+ * - xl: 1280px — (Tailwind default)
+ * - wide: 1440px — desktop largo (extend; use wide:* para heróis e grids amplos)
+ * Faixa < 768px não exige media query nomeada “320”: estilos base cobrem telefones estreitos.
+ * @type {import('tailwindcss').Config}
+ */
 module.exports = {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      screens: {
+        /** Desktop largo — p.ex. max-width de landing e galerias */
+        wide: '1440px',
+      },
       colors: {
         surface: '#f5f7f9',
         background: '#f5f7f9',

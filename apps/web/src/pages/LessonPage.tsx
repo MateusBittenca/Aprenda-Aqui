@@ -113,41 +113,41 @@ export function LessonPage() {
   const moduleAnchor = `/app/my-courses/${lesson.course.slug}#module-${encodeURIComponent(lesson.module.id)}`;
 
   return (
-    <div className="relative space-y-8 pb-6 [background:radial-gradient(ellipse_at_top_right,rgba(99,102,241,0.08),transparent_50%),radial-gradient(ellipse_at_bottom_left,rgba(129,39,207,0.05),transparent_45%)]">
+    <div className="relative min-w-0 space-y-8 overflow-x-hidden pb-6 [background:radial-gradient(ellipse_at_top_right,rgba(99,102,241,0.08),transparent_50%),radial-gradient(ellipse_at_bottom_left,rgba(129,39,207,0.05),transparent_45%)]">
       <div
         className="pointer-events-none absolute -right-24 top-0 h-72 w-72 rounded-full bg-violet-400/12 blur-3xl"
         aria-hidden
       />
 
       <nav
-        className="flex flex-wrap items-center gap-1.5 text-[11px] font-semibold text-slate-600 sm:gap-2 sm:text-xs"
+        className="flex flex-wrap items-center gap-1.5 text-xs font-semibold text-slate-600 sm:gap-2"
         aria-label="Navegação da aula"
       >
         <Link
           to="/app/my-courses"
-          className="rounded-full border border-white/60 bg-white/80 px-3 py-1.5 shadow-sm backdrop-blur-sm transition hover:border-indigo-200 hover:bg-white hover:text-indigo-900"
+          className="inline-flex min-h-11 min-w-0 max-w-full items-center rounded-full border border-white/60 bg-white/80 px-3 py-2 shadow-sm backdrop-blur-sm transition hover:border-indigo-200 hover:bg-white hover:text-indigo-900"
         >
           Meus cursos
         </Link>
-        <ChevronRight className="h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden />
+        <ChevronRight className="h-3.5 w-3.5 shrink-0 self-center text-slate-400" aria-hidden />
         <Link
           to={`/app/my-courses/${lesson.course.slug}`}
-          className="max-w-[10rem] truncate rounded-full border border-white/60 bg-white/80 px-3 py-1.5 shadow-sm backdrop-blur-sm transition hover:border-indigo-200 hover:bg-white hover:text-indigo-900 sm:max-w-[14rem]"
+          className="inline-flex min-h-11 min-w-0 max-w-[10rem] items-center truncate rounded-full border border-white/60 bg-white/80 px-3 py-2 shadow-sm backdrop-blur-sm transition hover:border-indigo-200 hover:bg-white hover:text-indigo-900 sm:max-w-[14rem]"
           title={lesson.course.title}
         >
           {lesson.course.title}
         </Link>
-        <ChevronRight className="h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden />
+        <ChevronRight className="h-3.5 w-3.5 shrink-0 self-center text-slate-400" aria-hidden />
         <Link
           to={moduleAnchor}
-          className="max-w-[10rem] truncate rounded-full border border-indigo-100 bg-indigo-50/90 px-3 py-1.5 text-indigo-900 shadow-sm ring-1 ring-indigo-100/80 transition hover:bg-indigo-100 sm:max-w-[14rem]"
+          className="inline-flex min-h-11 min-w-0 max-w-[10rem] items-center truncate rounded-full border border-indigo-100 bg-indigo-50/90 px-3 py-2 text-indigo-900 shadow-sm ring-1 ring-indigo-100/80 transition hover:bg-indigo-100 sm:max-w-[14rem]"
           title={lesson.module.title}
         >
           {lesson.module.title}
         </Link>
-        <ChevronRight className="h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden />
+        <ChevronRight className="h-3.5 w-3.5 shrink-0 self-center text-slate-400" aria-hidden />
         <span
-          className="max-w-[12rem] truncate rounded-full bg-slate-900 px-3 py-1.5 font-bold text-white shadow-md sm:max-w-[18rem]"
+          className="inline-flex min-h-11 min-w-0 max-w-[12rem] items-center truncate rounded-full bg-slate-900 px-3 py-2 font-bold text-white shadow-md sm:max-w-[18rem]"
           title={lesson.title}
         >
           {lesson.title}
@@ -198,7 +198,7 @@ export function LessonPage() {
 
       {total > 0 && <SessionProgressBar current={solvedCount} total={total} />}
 
-      <article className="prose prose-slate prose-headings:font-bold prose-a:text-indigo-600 prose-pre:rounded-xl max-w-none rounded-[1.75rem] border border-slate-200/60 bg-white p-6 shadow-lg shadow-slate-200/30 ring-1 ring-slate-100 sm:p-8 md:p-10 prose-pre:bg-slate-900 prose-pre:text-slate-100">
+      <article className="prose prose-slate prose-headings:font-bold prose-a:text-indigo-600 prose-pre:rounded-xl max-w-none overflow-x-auto rounded-[1.75rem] border border-slate-200/60 bg-white p-6 shadow-lg shadow-slate-200/30 ring-1 ring-slate-100 sm:p-8 md:p-10 prose-pre:bg-slate-900 prose-pre:text-slate-100">
         <ReactMarkdown>{lesson.contentMd}</ReactMarkdown>
       </article>
 
@@ -225,8 +225,8 @@ export function LessonPage() {
       )}
 
       {total > 0 && (
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <div className="mb-5 flex min-w-0 flex-wrap items-center justify-between gap-3">
             <div>
               <h2 className="text-lg font-semibold text-slate-900">Desafios</h2>
               <p className="text-sm text-slate-500">Toque em um para abrir o editor</p>

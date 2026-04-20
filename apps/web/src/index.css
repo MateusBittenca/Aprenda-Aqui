@@ -3,6 +3,27 @@
 @tailwind utilities;
 
 @layer base {
+  /**
+   * Escala fluida no root: modula todo rem do Tailwind entre ~14–16px conforme a viewport,
+   * mantendo legibilidade em telefone sem saltos bruscos no tablet/desktop.
+   */
+  html {
+    font-size: clamp(0.875rem, 0.82rem + 0.25vw, 1rem);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  /**
+   * Mídia inline nunca estoura o container; height:auto preserva proporção.
+   * (Preflight do Tailwind já cobre img; reforçamos para vídeo/canvas/embed.)
+   */
+  img,
+  video,
+  canvas {
+    max-width: 100%;
+    height: auto;
+  }
+
   body {
     @apply font-sans text-on-surface antialiased;
   }
@@ -16,6 +37,18 @@
 }
 
 @layer utilities {
+  /**
+   * Barra de abas primária no app: rolagem horizontal leve se não couber,
+   * sem barra visível (evita “duas fileiras” que comem altura no mobile).
+   */
+  .nav-tabs-scroll {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .nav-tabs-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
   /* Fundo neutro + grade discreta (tokens alinhados ao app shell) */
   .dot-grid {
     background-color: theme('colors.surface');

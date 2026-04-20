@@ -182,13 +182,13 @@ function CodeFillView({
   }
 
   const footer = (
-    <div className="flex items-center justify-between gap-3 border-t border-black/[0.08] bg-[#f0f0f0] px-3 py-2.5">
-      <span className="text-[11px] text-slate-500">Preencha e envie</span>
+    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-black/[0.08] bg-[#f0f0f0] px-3 py-2.5">
+      <span className="text-xs text-slate-500">Preencha e envie</span>
       <button
         type="button"
         disabled={loading}
         onClick={() => onSubmit(values)}
-        className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-4 py-1.5 text-[13px] font-medium text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-50"
+        className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-50"
       >
         {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden /> : <Play className="h-3.5 w-3.5" aria-hidden />}
         {loading ? 'Verificando…' : 'Verificar'}
@@ -201,7 +201,7 @@ function CodeFillView({
       <div className="border-b border-slate-200/90 bg-slate-50 px-4 py-3">
         <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700">{exercise.prompt}</p>
       </div>
-      <div className="flex flex-wrap items-center gap-x-0 gap-y-1.5 bg-[#1e1e1e] px-4 py-3.5">
+      <div className="flex min-w-0 flex-wrap items-center gap-x-0 gap-y-1.5 overflow-x-auto bg-[#1e1e1e] px-4 py-3.5">
         {parts}
       </div>
     </MacEditorChrome>
@@ -234,13 +234,13 @@ function CodeEditorView({
   }
 
   const footer = (
-    <div className="flex items-center justify-between gap-3 border-t border-black/[0.08] bg-[#f0f0f0] px-3 py-2.5">
-      <span className="text-[11px] text-slate-500">
-        <kbd className="rounded border border-slate-300 bg-white px-1 py-0.5 font-mono text-[10px] text-slate-600">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-black/[0.08] bg-[#f0f0f0] px-3 py-2.5">
+      <span className="min-w-0 text-xs text-slate-500">
+        <kbd className="rounded border border-slate-300 bg-white px-1 py-0.5 font-mono text-xs text-slate-600">
           Ctrl
         </kbd>
         <span className="mx-0.5">+</span>
-        <kbd className="rounded border border-slate-300 bg-white px-1 py-0.5 font-mono text-[10px] text-slate-600">
+        <kbd className="rounded border border-slate-300 bg-white px-1 py-0.5 font-mono text-xs text-slate-600">
           Enter
         </kbd>
         <span className="ml-1.5">para enviar</span>
@@ -249,7 +249,7 @@ function CodeEditorView({
         type="button"
         disabled={loading}
         onClick={() => onSubmit(code)}
-        className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-4 py-1.5 text-[13px] font-medium text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-50"
+        className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-50"
       >
         {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden /> : <Play className="h-3.5 w-3.5" aria-hidden />}
         {loading ? 'Executando…' : 'Executar'}
@@ -262,31 +262,34 @@ function CodeEditorView({
       <div className="border-b border-slate-200/90 bg-slate-50 px-4 py-3">
         <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700">{exercise.prompt}</p>
       </div>
-      <div className="bg-[#1e1e1e]">
-        <Editor
-          height="280px"
-          defaultLanguage="javascript"
-          theme="vs-dark"
-          value={code}
-          onChange={(v) => setCode(v ?? '')}
-          onMount={(editor, monaco) => {
-            editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
-              if (loadingRef.current) return;
-              onSubmit(editor.getValue());
-            });
-          }}
-          options={{
-            minimap: { enabled: false },
-            fontSize: 13,
-            lineNumbers: 'on',
-            scrollBeyondLastLine: false,
-            wordWrap: 'on',
-            padding: { top: 12, bottom: 12 },
-            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-            renderLineHighlight: 'line',
-            scrollbar: { verticalScrollbarSize: 8, horizontalScrollbarSize: 8 },
-          }}
-        />
+      {/* Altura fluida: menos scroll vertical no telefone, mais conforto no desktop */}
+      <div className="min-h-0 w-full min-w-0 overflow-x-auto bg-[#1e1e1e]">
+        <div className="h-[min(15rem,42vh)] min-h-[200px] sm:h-[280px] sm:min-h-[240px]">
+          <Editor
+            height="100%"
+            defaultLanguage="javascript"
+            theme="vs-dark"
+            value={code}
+            onChange={(v) => setCode(v ?? '')}
+            onMount={(editor, monaco) => {
+              editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+                if (loadingRef.current) return;
+                onSubmit(editor.getValue());
+              });
+            }}
+            options={{
+              minimap: { enabled: false },
+              fontSize: 13,
+              lineNumbers: 'on',
+              scrollBeyondLastLine: false,
+              wordWrap: 'on',
+              padding: { top: 12, bottom: 12 },
+              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+              renderLineHighlight: 'line',
+              scrollbar: { verticalScrollbarSize: 8, horizontalScrollbarSize: 8 },
+            }}
+          />
+        </div>
       </div>
     </MacEditorChrome>
   );

@@ -74,7 +74,8 @@ export function EnrolledCourseHero({
             className="pointer-events-none absolute right-0 top-0 hidden h-full w-2/5 opacity-[0.08] lg:block"
             aria-hidden
           >
-            <img src={heroImage} alt="" className="h-full w-full object-cover" />
+            {/* Uma única URL: sem srcset. Com assets @1x/@2x ou larguras distintas, prefira srcset + sizes. */}
+            <img src={heroImage} alt="" className="h-full max-w-full object-cover" />
           </div>
         ) : null}
 
@@ -169,7 +170,7 @@ export function EnrolledCourseHero({
                 <BookOpen className="h-4 w-4" aria-hidden />
               </div>
               <p className="font-headline text-lg font-bold tabular-nums text-indigo-950">{stats.lessonCount}</p>
-              <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Aulas</p>
+              <p className="mt-0.5 text-xs font-semibold uppercase tracking-wide text-slate-500">Aulas</p>
             </div>
             <div className="rounded-2xl border border-white/60 bg-white/70 p-4 text-center shadow-sm backdrop-blur-md">
               <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-700">
@@ -178,21 +179,21 @@ export function EnrolledCourseHero({
               <p className="font-headline text-base font-bold leading-tight text-indigo-950">
                 {formatMinutes(stats.totalMinutes)}
               </p>
-              <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Carga</p>
+              <p className="mt-0.5 text-xs font-semibold uppercase tracking-wide text-slate-500">Carga</p>
             </div>
             <div className="rounded-2xl border border-white/60 bg-white/70 p-4 text-center shadow-sm backdrop-blur-md">
               <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-indigo-600">
                 <Layers className="h-4 w-4" aria-hidden />
               </div>
               <p className="font-headline text-lg font-bold tabular-nums text-indigo-950">{data.modules.length}</p>
-              <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Módulos</p>
+              <p className="mt-0.5 text-xs font-semibold uppercase tracking-wide text-slate-500">Módulos</p>
             </div>
             <div className="rounded-2xl border border-white/60 bg-white/70 p-4 text-center shadow-sm backdrop-blur-md">
               <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-full bg-rose-50 text-rose-600">
                 <Code2 className="h-4 w-4" aria-hidden />
               </div>
               <p className="font-headline text-lg font-bold tabular-nums text-indigo-950">{stats.exerciseCount}</p>
-              <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">Exercícios</p>
+              <p className="mt-0.5 text-xs font-semibold uppercase tracking-wide text-slate-500">Exercícios</p>
             </div>
           </div>
         </div>

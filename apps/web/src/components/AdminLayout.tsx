@@ -39,7 +39,7 @@ export function AdminLayout() {
         {/* Sidebar */}
         <aside
           className={[
-            'fixed inset-y-0 left-0 z-50 flex w-[min(100%,280px)] flex-col border-r border-white/[0.06] bg-[#0f1419] shadow-2xl transition-transform lg:static lg:translate-x-0',
+            'fixed inset-y-0 left-0 z-50 flex w-[min(100%,280px)] flex-col border-r border-white/[0.06] bg-[#0f1419] shadow-2xl transition-transform will-change-transform lg:static lg:translate-x-0 lg:will-change-auto',
             mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
           ].join(' ')}
         >
@@ -56,7 +56,7 @@ export function AdminLayout() {
                 onClick={() => setMobileOpen(false)}
                 className={({ isActive }) =>
                   [
-                    'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition',
+                    'flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition',
                     isActive
                       ? 'bg-amber-500/15 text-amber-100 shadow-inner shadow-amber-500/10'
                       : 'text-slate-400 hover:bg-white/[0.04] hover:text-white',
@@ -77,7 +77,7 @@ export function AdminLayout() {
             <button
               type="button"
               onClick={logout}
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-white/[0.08] py-2.5 text-sm font-medium text-slate-300 transition hover:bg-white/[0.05]"
+              className="mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/[0.08] py-2.5 text-sm font-medium text-slate-300 transition hover:bg-white/[0.05]"
             >
               <LogOut className="h-4 w-4" aria-hidden />
               Sair
@@ -87,19 +87,19 @@ export function AdminLayout() {
 
         {/* Main */}
         <div className="flex min-w-0 flex-1 flex-col lg:pl-0">
-          <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b border-white/[0.06] bg-[#0b0f19]/90 px-4 backdrop-blur-md lg:h-16 lg:px-8">
-            <div className="flex items-center gap-3">
+          <header className="sticky top-0 z-30 flex min-h-14 items-center justify-between gap-3 border-b border-white/[0.06] bg-[#0b0f19]/90 px-[max(1rem,env(safe-area-inset-left))] py-2 pr-[max(1rem,env(safe-area-inset-right))] backdrop-blur-md lg:min-h-16 lg:px-8">
+            <div className="flex min-w-0 items-center gap-3">
               <button
                 type="button"
-                className="rounded-lg p-2 text-slate-400 hover:bg-white/[0.06] hover:text-white lg:hidden"
+                className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg text-slate-400 hover:bg-white/[0.06] hover:text-white lg:hidden"
                 onClick={() => setMobileOpen((o) => !o)}
                 aria-expanded={mobileOpen}
                 aria-label="Abrir menu"
               >
-                <PanelLeft className="h-5 w-5" />
+                <PanelLeft className="h-5 w-5" aria-hidden />
               </button>
               <div className="min-w-0">
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Console</p>
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Console</p>
                 <p className="truncate text-sm font-semibold text-white lg:text-base">
                   {titleForPath(location.pathname)}
                 </p>

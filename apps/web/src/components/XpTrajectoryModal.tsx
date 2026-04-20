@@ -162,14 +162,14 @@ export function XpTrajectoryModal({ open, onClose, xpTotal, level }: Props) {
                             className="relative w-full overflow-hidden rounded-xl bg-white p-6 text-left shadow-[0_20px_40px_rgba(40,43,81,0.06)] ring-1 ring-[#e0e0ff]/60 transition hover:ring-primary/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                           >
                             <div className="absolute right-0 top-0 rounded-bl-xl bg-[#7b9cff]/90 px-4 py-1.5 backdrop-blur-sm">
-                              <span className="text-[10px] font-bold uppercase tracking-widest text-[#001e5a]">
+                              <span className="text-xs font-bold uppercase tracking-widest text-[#001e5a]">
                                 Você
                               </span>
                             </div>
                             <h3 className="font-headline mb-4 pr-16 text-2xl font-bold text-[#282b51]">{rank.name}</h3>
                             <div className="space-y-2">
                               <div className="mb-1 flex items-end justify-between">
-                                <span className="text-[10px] font-bold uppercase tracking-widest text-[#71749e]">
+                                <span className="text-xs font-bold uppercase tracking-widest text-[#71749e]">
                                   XP atual
                                 </span>
                                 <span className="text-xs font-bold text-primary">
@@ -183,7 +183,7 @@ export function XpTrajectoryModal({ open, onClose, xpTotal, level }: Props) {
                                 />
                               </div>
                             </div>
-                            <p className="mt-3 text-[11px] text-[#555881]">Toque para ver detalhes deste nível</p>
+                            <p className="mt-3 text-xs text-[#555881]">Toque para ver detalhes deste nível</p>
                           </button>
                         ) : isMilestonePreview ? (
                           <button
@@ -194,12 +194,12 @@ export function XpTrajectoryModal({ open, onClose, xpTotal, level }: Props) {
                             <h3 className="font-headline mb-4 text-xl font-bold text-[#282b51]">{rank.name}</h3>
                             <div className="flex flex-wrap gap-3">
                               {unlock && (
-                                <span className="inline-flex items-center gap-2 rounded-full bg-[#69f6b8] px-4 py-2 text-[11px] font-bold uppercase tracking-tight text-[#005a3c]">
+                                <span className="inline-flex items-center gap-2 rounded-full bg-[#69f6b8] px-4 py-2 text-xs font-bold uppercase tracking-tight text-[#005a3c]">
                                   <Trophy className="h-4 w-4" aria-hidden />
                                   Novo título
                                 </span>
                               )}
-                              <span className="inline-flex items-center gap-2 rounded-full bg-[#e7e6ff] px-4 py-2 text-[11px] font-bold uppercase tracking-tight text-[#555881]">
+                              <span className="inline-flex items-center gap-2 rounded-full bg-[#e7e6ff] px-4 py-2 text-xs font-bold uppercase tracking-tight text-[#555881]">
                                 <Gift className="h-4 w-4 text-primary" aria-hidden />
                                 +{step.bandXp} XP na faixa
                               </span>
@@ -222,7 +222,7 @@ export function XpTrajectoryModal({ open, onClose, xpTotal, level }: Props) {
                             {isNextLocked && (
                               <div className="mt-4 flex items-center gap-2 opacity-60">
                                 <Lock className="h-4 w-4 text-[#555881]" aria-hidden />
-                                <span className="text-[10px] font-bold uppercase tracking-widest text-[#555881]">
+                                <span className="text-xs font-bold uppercase tracking-widest text-[#555881]">
                                   Conteúdo bloqueado
                                 </span>
                               </div>
@@ -289,7 +289,7 @@ export function XpTrajectoryModal({ open, onClose, xpTotal, level }: Props) {
               <h3 className="font-headline text-lg font-bold text-[#282b51]">
                 Nível {selectedStep.level}
                 {selectedStep.isCurrent && (
-                  <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase text-primary">
+                  <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold uppercase text-primary">
                     Atual
                   </span>
                 )}

@@ -67,7 +67,7 @@ function StreakWeekStrip({ days }: { days: boolean[] }) {
   if (days.length !== 7) return null;
   return (
     <div className="mt-3 flex items-center gap-2">
-      <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant/80">7 dias</span>
+      <span className="text-xs font-bold uppercase tracking-wider text-on-surface-variant/80">7 dias</span>
       <div className="flex gap-1" role="img" aria-label="Atividade nos últimos sete dias; o último círculo é hoje">
         {days.map((on, i) => (
           <span
@@ -107,7 +107,7 @@ export function DashboardPage() {
   if (!data) return null;
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6 overflow-x-hidden">
       <HeroSection data={data} />
       <XPSection data={data} />
       <StatsRow data={data} progress={progress} />
@@ -142,7 +142,7 @@ function HeroSection({ data }: { data: MeProfile }) {
           <div className="hidden flex-col items-center rounded-2xl border-2 border-amber-200 bg-amber-50 px-4 py-3 text-center shadow-sm sm:flex">
             <Flame className={`h-6 w-6 text-amber-500 ${data.currentStreak >= 7 ? 'animate-pulse' : ''}`} />
             <span className="mt-1 text-2xl font-black text-amber-700">{data.currentStreak}</span>
-            <span className="text-[10px] font-bold uppercase tracking-wide text-amber-600">dias</span>
+            <span className="text-xs font-bold uppercase tracking-wide text-amber-600">dias</span>
           </div>
         )}
       </div>
@@ -200,7 +200,7 @@ function XPSection({ data }: { data: MeProfile }) {
             <p className="text-xs font-medium text-amber-700">Título máximo alcançado nesta escala</p>
           )}
         </div>
-        <p className="mt-2 text-[11px] font-medium text-primary">Ver trajetória e recompensas →</p>
+        <p className="mt-2 text-xs font-medium text-primary">Ver trajetória e recompensas →</p>
       </button>
       <XpTrajectoryModal
         open={trajOpen}
@@ -534,9 +534,9 @@ function BadgesSection({ data, progress }: { data: MeProfile; progress?: UserPro
             }`}
           >
             <span className="text-2xl">{badge.icon}</span>
-            <p className="mt-1 text-[10px] font-bold leading-tight text-slate-700">{badge.name}</p>
+            <p className="mt-1 text-xs font-bold leading-tight text-slate-700">{badge.name}</p>
             {badge.progress && !badge.earned && (
-              <p className="mt-0.5 text-[9px] tabular-nums text-slate-400">
+              <p className="mt-0.5 text-xs tabular-nums text-slate-400">
                 {badge.progress.current}/{badge.progress.total}
               </p>
             )}
@@ -566,7 +566,7 @@ export function QuickActionsBar() {
           <ShoppingBag className="h-5 w-5" />
           <div>
             <p className="font-bold">Cursos</p>
-            <p className="text-[11px] text-white/80">Catálogo e matrícula</p>
+            <p className="text-xs text-white/80">Catálogo e matrícula</p>
           </div>
         </div>
         <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
@@ -579,7 +579,7 @@ export function QuickActionsBar() {
           <Map className="h-5 w-5" />
           <div>
             <p className="font-bold">Meus cursos</p>
-            <p className="text-[11px] text-violet-500">Onde estou estudando</p>
+            <p className="text-xs text-violet-500">Onde estou estudando</p>
           </div>
         </div>
         <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
@@ -592,7 +592,7 @@ export function QuickActionsBar() {
           <Medal className="h-5 w-5" />
           <div>
             <p className="font-bold">Ranking</p>
-            <p className="text-[11px] text-amber-500">Sua posição global</p>
+            <p className="text-xs text-amber-500">Sua posição global</p>
           </div>
         </div>
         <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />

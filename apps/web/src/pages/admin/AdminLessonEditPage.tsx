@@ -139,7 +139,7 @@ function AdminLessonEditForm({ data, lessonId, token, queryClient }: EditFormPro
           <ul className="space-y-1.5">
             {data.exercises.map((ex) => (
               <li key={ex.id} className="flex items-center gap-3 rounded-lg border border-white/[0.05] px-3 py-2 text-sm text-slate-300">
-                <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-400">{ex.type.replace('_', ' ')}</span>
+                <span className="rounded bg-slate-800 px-1.5 py-0.5 text-xs font-bold uppercase tracking-wide text-slate-400">{ex.type.replace('_', ' ')}</span>
                 <span className="truncate">{ex.title}</span>
               </li>
             ))}

@@ -201,19 +201,19 @@ function ProfileHeroCard({
           <div className="flex flex-col items-center justify-center rounded-xl border-b-4 border-orange-200 bg-surface-container-low p-4">
             <Flame className="mb-1 h-6 w-6 text-orange-500" aria-hidden />
             <span className="font-headline text-xl font-black text-on-surface">{data.currentStreak}</span>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Sequência</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Sequência</span>
           </div>
           <div className="flex flex-col items-center justify-center rounded-xl border-b-4 border-blue-200 bg-surface-container-low p-4">
             <Zap className="mb-1 h-6 w-6 text-primary" aria-hidden />
             <span className="font-headline text-xl font-black text-on-surface">{xpCompact}</span>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">XP total</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">XP total</span>
           </div>
           <div className="flex flex-col items-center justify-center rounded-xl border-b-4 border-tertiary-container bg-surface-container-low p-4">
             <Trophy className="mb-1 h-6 w-6 text-tertiary" aria-hidden />
             <span className="line-clamp-2 min-h-[2.25rem] text-center font-headline text-sm font-black leading-tight text-on-surface">
               {rank.name}
             </span>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Título</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Título</span>
           </div>
         </div>
       </div>
@@ -286,7 +286,7 @@ function ShowcaseBadge({ badge }: { badge: ReturnType<typeof computeBadges>[0] }
           )}
         </div>
         <span className="font-headline text-sm font-bold text-on-surface">{badge.name}</span>
-        <span className="mt-1 text-[10px] font-medium leading-tight text-on-surface-variant">{badge.description}</span>
+        <span className="mt-1 text-xs font-medium leading-tight text-on-surface-variant">{badge.description}</span>
       </div>
     </div>
   );
@@ -362,14 +362,14 @@ function FullBadge({ badge, locked }: { badge: ReturnType<typeof computeBadges>[
       }`}
     >
       <span className="text-2xl">{locked ? '🔒' : badge.icon}</span>
-      <p className="mt-1 text-[11px] font-bold leading-tight text-slate-800">{badge.name}</p>
+      <p className="mt-1 text-xs font-bold leading-tight text-slate-800">{badge.name}</p>
       {!locked && (
-        <span className="mt-1 rounded-full bg-white/70 px-1.5 py-0.5 text-[9px] font-bold uppercase text-slate-500">
+        <span className="mt-1 rounded-full bg-white/70 px-1.5 py-0.5 text-xs font-bold uppercase text-slate-500">
           {RARITY_LABEL[badge.rarity]}
         </span>
       )}
       {locked && badge.progress && (
-        <p className="mt-1 text-[9px] text-slate-400">
+        <p className="mt-1 text-xs text-slate-400">
           {badge.progress.current}/{badge.progress.total}
         </p>
       )}
@@ -424,7 +424,7 @@ function ActivityFeedCard({
                   <span className="text-on-surface-variant">está com</span>{' '}
                   <span className="font-bold text-primary">{u.xpTotal.toLocaleString('pt-BR')} XP</span> no ranking.
                 </p>
-                <p className="mt-1 text-[10px] font-medium uppercase tracking-wider text-on-surface-variant">
+                <p className="mt-1 text-xs font-medium uppercase tracking-wider text-on-surface-variant">
                   Nv. {u.level} · sequência {u.currentStreak}d
                 </p>
               </div>

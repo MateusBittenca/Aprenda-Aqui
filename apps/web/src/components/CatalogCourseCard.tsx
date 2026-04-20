@@ -42,11 +42,12 @@ export function CatalogCourseCard({
   return (
     <Link
       to={to}
-      className="group relative flex h-full min-h-[280px] flex-col outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/50 focus-visible:ring-offset-2"
+      className="group relative flex h-full min-h-[min(280px,70vh)] min-w-0 flex-col outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/50 focus-visible:ring-offset-2"
     >
       <article
         className={twMerge(
-          'flex h-full flex-1 flex-col rounded-[24px] border border-white/60 bg-white/85 p-6 shadow-[0_40px_40px_-10px_rgba(30,27,75,0.06)] backdrop-blur-xl transition duration-500 ease-out',
+          /* translateY no GPU; sombra em propriedade separada reduz reflow em mobile */
+          'flex h-full flex-1 flex-col rounded-[24px] border border-white/60 bg-white/85 p-6 shadow-[0_40px_40px_-10px_rgba(30,27,75,0.06)] backdrop-blur-xl transition-[transform,box-shadow] duration-500 ease-out motion-reduce:transform-none motion-reduce:transition-none',
           'hover:-translate-y-2 hover:border-indigo-200/80 hover:bg-white/95 hover:shadow-[0_28px_56px_-24px_rgba(79,70,229,0.22)]',
         )}
       >

@@ -153,7 +153,7 @@ function Kpi({
       <div className="relative text-amber-400/90">{icon}</div>
       <p className="relative mt-3 text-3xl font-bold tabular-nums tracking-tight text-white">{value}</p>
       <p className="relative text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
-      <p className="relative mt-1 text-[11px] text-slate-600">{hint}</p>
+      <p className="relative mt-1 text-xs text-slate-600">{hint}</p>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef } from 'react';
+import { useEffect, useId, useMemo } from 'react';
 import { FocusTrap } from 'focus-trap-react';
 import clsx from 'clsx';
 import { Gem, Star, Trophy, Zap } from 'lucide-react';
@@ -33,11 +33,16 @@ function pickMessage(arr: string[], seed: number) {
 
 export function FeedbackDrawer({ open, result, onClose }: Props) {
   const titleId = useId();
-  const seedRef = useRef(0);
+  const messageSeed = useMemo(() => {
+    if (!open || !result) return 0;
+    const s = `${result.correct}-${result.xpGained}-${result.gemsGained}-${result.lessonCompleted}-${result.leveledUp}-${result.explanation.slice(0, 80)}`;
+    let h = 0;
+    for (let i = 0; i < s.length; i++) h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+    return Math.abs(h);
+  }, [open, result]);
 
   useEffect(() => {
     if (!open || !result) return;
-    seedRef.current = Date.now();
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -57,7 +62,7 @@ export function FeedbackDrawer({ open, result, onClose }: Props) {
 
   if (!open || !result) return null;
   const ok = result.correct;
-  const seed = seedRef.current;
+  const seed = messageSeed;
 
   return (
     <FocusTrap focusTrapOptions={{ initialFocus: false, clickOutsideDeactivates: false }}>

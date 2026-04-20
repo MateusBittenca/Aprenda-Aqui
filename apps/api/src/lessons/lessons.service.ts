@@ -16,7 +16,7 @@ export class LessonsService {
       include: {
         module: {
           include: {
-            course: { include: { track: true } },
+            course: true,
           },
         },
         exercises: { orderBy: { orderIndex: 'asc' } },
@@ -27,7 +27,10 @@ export class LessonsService {
     }
 
     if (userId) {
-      await this.enrollment.assertEnrolledInCourse(userId, lesson.module.courseId);
+      await this.enrollment.assertEnrolledInCourse(
+        userId,
+        lesson.module.courseId,
+      );
     }
 
     let exerciseStates: Record<string, boolean> = {};
@@ -36,7 +39,9 @@ export class LessonsService {
       const progress = await this.prisma.userExerciseProgress.findMany({
         where: { userId, exerciseId: { in: ids } },
       });
-      exerciseStates = Object.fromEntries(progress.map((p) => [p.exerciseId, p.solved]));
+      exerciseStates = Object.fromEntries(
+        progress.map((p) => [p.exerciseId, p.solved]),
+      );
     }
 
     return {
@@ -47,11 +52,6 @@ export class LessonsService {
       contentMd: lesson.contentMd,
       estimatedMinutes: lesson.estimatedMinutes,
       orderIndex: lesson.orderIndex,
-      track: {
-        id: lesson.module.course.track.id,
-        slug: lesson.module.course.track.slug,
-        title: lesson.module.course.track.title,
-      },
       course: {
         id: lesson.module.course.id,
         slug: lesson.module.course.slug,
@@ -82,14 +82,21 @@ export class LessonsService {
       return { options: p.options };
     }
     if (type === ExerciseType.CODE_FILL) {
-      const p = payload as { template: string; blanks: { id: string; answer: string }[] };
+      const p = payload as {
+        template: string;
+        blanks: { id: string; answer: string }[];
+      };
       return {
         template: p.template,
         blanks: p.blanks.map((b) => ({ id: b.id })),
       };
     }
     if (type === ExerciseType.CODE_EDITOR) {
-      const p = payload as { language: string; starterCode?: string; tests: unknown[] };
+      const p = payload as {
+        language: string;
+        starterCode?: string;
+        tests: unknown[];
+      };
       return {
         language: p.language,
         starterCode: p.starterCode ?? '',

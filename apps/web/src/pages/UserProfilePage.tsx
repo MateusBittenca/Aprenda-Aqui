@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { GitCompare, Loader2, UserPlus, UserMinus } from 'lucide-react';
 import { toast } from 'sonner';
-import { apiFetch, ApiError } from '../lib/api';
+import { apiFetch, ApiError, requireToken } from '../lib/api';
 import { useAuthHydration, useAuthStore } from '../stores/authStore';
 import type { PublicProfile } from '../types/social';
 import { Avatar } from '../components/Avatar';
@@ -18,7 +18,7 @@ export function UserProfilePage() {
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['users', userId, 'profile'],
-    queryFn: () => apiFetch<PublicProfile>(`/users/${userId}`, { token: token! }),
+    queryFn: () => apiFetch<PublicProfile>(`/users/${userId}`, { token: requireToken(token) }),
     enabled: hydrated && !!token && !!userId,
   });
 
@@ -26,7 +26,7 @@ export function UserProfilePage() {
     mutationFn: async (action: 'follow' | 'unfollow') => {
       return apiFetch<{ following: boolean }>(`/users/${userId}/follow`, {
         method: action === 'follow' ? 'POST' : 'DELETE',
-        token: token!,
+        token: requireToken(token),
       });
     },
     onSuccess: () => {
@@ -64,7 +64,7 @@ export function UserProfilePage() {
       <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
         <div className="h-2 bg-indigo-600" />
         <div className="flex flex-col gap-4 p-6 sm:flex-row sm:items-start">
-          <Avatar userId={data.id} displayName={data.displayName} size="xl" />
+          <Avatar userId={data.id} displayName={data.displayName} colorKey={data.avatarColorKey} size="xl" />
           <div className="min-w-0 flex-1">
             <h1 className="text-2xl font-bold text-slate-900">{data.displayName}</h1>
             {data.bio && <p className="mt-2 text-sm text-slate-600">{data.bio}</p>}

@@ -1,12 +1,13 @@
 import { PrismaClient, ExerciseType } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { seedNewTracks } from './seed-new-tracks';
-import { landingForTrack } from './track-landing-content';
+import { landingForCourse } from './track-landing-content';
 
 const prisma = new PrismaClient();
 
+const ord = (t: number, c: number) => t * 100000 + c;
+
 async function main() {
-  await prisma.userTrackEnrollment.deleteMany();
   await prisma.userCourseEnrollment.deleteMany();
   await prisma.userExerciseAttempt.deleteMany();
   await prisma.userExerciseProgress.deleteMany();
@@ -15,26 +16,15 @@ async function main() {
   await prisma.lesson.deleteMany();
   await prisma.module.deleteMany();
   await prisma.course.deleteMany();
-  await prisma.track.deleteMany();
-
-  const trackFe = await prisma.track.create({
-    data: {
-      slug: 'frontend',
-      title: 'Frontend',
-      description: 'HTML, CSS e fundamentos de interfaces web.',
-      tagline: 'Interfaces modernas do zero ao deploy.',
-      orderIndex: 0,
-      ...landingForTrack('frontend'),
-    },
-  });
 
   const courseFe = await prisma.course.create({
     data: {
-      trackId: trackFe.id,
       slug: 'web-fundamentals',
       title: 'Fundamentos da Web',
       description: 'Primeiros passos no ecossistema web.',
-      orderIndex: 0,
+      orderIndex: ord(0, 0),
+      tagline: 'Interfaces modernas do zero ao deploy.',
+      ...landingForCourse('frontend'),
     },
   });
 
@@ -136,11 +126,10 @@ Use \`<!DOCTYPE html>\` para indicar HTML5.`,
 
   const courseCss = await prisma.course.create({
     data: {
-      trackId: trackFe.id,
       slug: 'css-layout',
       title: 'CSS e layout',
       description: 'Estilos, seletores e bases de layout para páginas bonitas.',
-      orderIndex: 1,
+      orderIndex: ord(0, 1),
       isFree: true,
     },
   });
@@ -196,24 +185,14 @@ body {
     },
   });
 
-  const trackBe = await prisma.track.create({
-    data: {
-      slug: 'backend',
-      title: 'Backend',
-      description: 'Lógica de servidor e APIs com Node.js.',
-      tagline: 'APIs, Node.js e persistência de dados.',
-      orderIndex: 1,
-      ...landingForTrack('backend'),
-    },
-  });
-
   const courseBe = await prisma.course.create({
     data: {
-      trackId: trackBe.id,
       slug: 'node-intro',
       title: 'Introdução ao Node.js',
       description: 'Conceitos básicos do runtime JavaScript no servidor.',
-      orderIndex: 0,
+      orderIndex: ord(1, 0),
+      tagline: 'APIs, Node.js e persistência de dados.',
+      ...landingForCourse('backend'),
     },
   });
 
@@ -300,11 +279,10 @@ console.log(sum(2, 3));
 
   const courseSql = await prisma.course.create({
     data: {
-      trackId: trackBe.id,
       slug: 'sql-basico',
       title: 'SQL na prática',
       description: 'Consultas SELECT, filtros e ordenação em bancos relacionais.',
-      orderIndex: 1,
+      orderIndex: ord(1, 1),
       isFree: true,
     },
   });
@@ -353,25 +331,15 @@ SELECT nome, email FROM usuarios;
     },
   });
 
-  const trackDados = await prisma.track.create({
-    data: {
-      slug: 'dados',
-      title: 'Dados',
-      description: 'Fundamentos de dados e boas práticas.',
-      tagline: 'Organize e entenda informação como um dev.',
-      orderIndex: 2,
-      ...landingForTrack('dados'),
-    },
-  });
-
   const courseDados = await prisma.course.create({
     data: {
-      trackId: trackDados.id,
       slug: 'modelagem-intro',
       title: 'Modelagem de dados',
       description: 'Entidades, relacionamentos e normalização em alto nível.',
-      orderIndex: 0,
+      orderIndex: ord(2, 0),
       isFree: true,
+      tagline: 'Organize e entenda informação como um dev.',
+      ...landingForCourse('dados'),
     },
   });
 
@@ -418,11 +386,10 @@ Uma **entidade** representa um objeto do mundo real (ex.: Usuário, Pedido) que 
   // Cursos extras para testar matrícula manual (gratuitos, sem matrícula automática no login)
   const courseTs = await prisma.course.create({
     data: {
-      trackId: trackFe.id,
       slug: 'typescript-fundamentos',
       title: 'TypeScript na prática',
       description: 'Tipos, interfaces e integração com JavaScript.',
-      orderIndex: 2,
+      orderIndex: ord(0, 2),
       isFree: true,
       autoEnrollOnAuth: false,
     },
@@ -462,11 +429,10 @@ O **TypeScript** é um superset do JavaScript que adiciona **tipagem estática**
 
   const courseJs = await prisma.course.create({
     data: {
-      trackId: trackFe.id,
       slug: 'javascript-moderno',
       title: 'JavaScript moderno (ES6+)',
       description: 'let/const, arrow functions, destructuring e módulos.',
-      orderIndex: 3,
+      orderIndex: ord(0, 3),
       isFree: true,
       autoEnrollOnAuth: false,
     },
@@ -506,11 +472,10 @@ Prefira \`const\` quando o valor não será reatribuído e \`let\` quando precis
 
   const courseExpress = await prisma.course.create({
     data: {
-      trackId: trackBe.id,
       slug: 'express-apis',
       title: 'Express e APIs HTTP',
       description: 'Rotas, middlewares e JSON com Express.',
-      orderIndex: 2,
+      orderIndex: ord(1, 2),
       isFree: true,
       autoEnrollOnAuth: false,
     },
@@ -548,25 +513,16 @@ Prefira \`const\` quando o valor não será reatribuído e \`let\` quando precis
     },
   });
 
-  const trackTools = await prisma.track.create({
-    data: {
-      slug: 'ferramentas',
-      title: 'Ferramentas',
-      description: 'Git, terminal e fluxo de trabalho.',
-      tagline: 'Controle de versão e produtividade.',
-      orderIndex: 3,
-      ...landingForTrack('ferramentas'),
-    },
-  });
   const courseGit = await prisma.course.create({
     data: {
-      trackId: trackTools.id,
       slug: 'git-essencial',
       title: 'Git essencial',
       description: 'Commits, branches e merge no dia a dia.',
-      orderIndex: 0,
+      orderIndex: ord(3, 0),
       isFree: true,
       autoEnrollOnAuth: false,
+      tagline: 'Controle de versão e produtividade.',
+      ...landingForCourse('ferramentas'),
     },
   });
   const modGit = await prisma.module.create({
@@ -620,7 +576,7 @@ Prefira \`const\` quando o valor não será reatribuído e \`let\` quando precis
     },
   });
 
-  console.log('Seed concluído: trilhas, cursos e aulas atualizados.');
+  console.log('Seed concluído: cursos e aulas atualizados.');
   console.log(`Conta admin: admin@aprenda.local / senha: ${adminPassword}`);
 }
 

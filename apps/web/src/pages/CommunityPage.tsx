@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, Search, Users } from 'lucide-react';
-import { apiFetch } from '../lib/api';
+import { apiFetch, requireToken } from '../lib/api';
 import { useAuthHydration, useAuthStore } from '../stores/authStore';
 import type { FollowListUser, UserSearchHit } from '../types/social';
 import { Avatar } from '../components/Avatar';
@@ -17,13 +17,17 @@ export function CommunityPage() {
 
   const search = useQuery({
     queryKey: ['users', 'search', q],
-    queryFn: () => apiFetch<UserSearchHit[]>(`/users/search?q=${encodeURIComponent(q)}`, { token: token! }),
+    queryFn: () => apiFetch<UserSearchHit[]>(`/users/search?q=${encodeURIComponent(q)}`, { token: requireToken(token) }),
     enabled: hydrated && !!token && q.trim().length >= 2,
   });
 
   const following = useQuery({
     queryKey: ['users', user?.id, 'following'],
-    queryFn: () => apiFetch<FollowListUser[]>(`/users/${user!.id}/following`, { token: token! }),
+    queryFn: () => {
+      const uid = user?.id;
+      if (!uid) throw new Error('Usuário não autenticado');
+      return apiFetch<FollowListUser[]>(`/users/${uid}/following`, { token: requireToken(token) });
+    },
     enabled: hydrated && !!token && !!user?.id,
   });
 
@@ -68,7 +72,7 @@ export function CommunityPage() {
                     to={`/app/users/${u.id}`}
                     className="flex items-center gap-3 px-4 py-3 transition hover:bg-slate-50"
                   >
-                    <Avatar userId={u.id} displayName={u.displayName} size="sm" />
+                    <Avatar userId={u.id} displayName={u.displayName} colorKey={u.avatarColorKey} size="sm" />
                     <div className="min-w-0 flex-1">
                       <p className="font-semibold text-slate-900">{u.displayName}</p>
                       <p className="text-xs text-slate-500">
@@ -103,7 +107,7 @@ export function CommunityPage() {
                   to={`/app/users/${u.id}`}
                   className="flex items-center gap-3 px-4 py-3 transition hover:bg-slate-50"
                 >
-                  <Avatar userId={u.id} displayName={u.displayName} size="sm" />
+                  <Avatar userId={u.id} displayName={u.displayName} colorKey={u.avatarColorKey} size="sm" />
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold text-slate-900">{u.displayName}</p>
                     <p className="text-xs text-slate-500">Nv. {u.level}</p>

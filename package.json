@@ -11,9 +11,13 @@
     "dev:api": "npm run start:dev -w apps/api",
     "dev:web": "npm run dev -w apps/web",
     "build": "npm run build -w apps/api && npm run build -w apps/web",
-    "lint": "npm run lint -w apps/api && npm run lint -w apps/web"
+    "lint": "npm run lint -w apps/api && npm run lint -w apps/web",
+    "stitch:fetch-screen": "node scripts/fetch-stitch-screen.mjs"
   },
   "engines": {
     "node": ">=18"
+  },
+  "devDependencies": {
+    "@google/stitch-sdk": "^0.1.0"
   }
 }

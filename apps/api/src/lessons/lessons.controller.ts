@@ -1,6 +1,9 @@
 import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CurrentUser, JwtUser } from '../common/decorators/current-user.decorator';
+import {
+  CurrentUser,
+  JwtUser,
+} from '../common/decorators/current-user.decorator';
 import { LessonsService } from './lessons.service';
 
 @Controller('lessons')

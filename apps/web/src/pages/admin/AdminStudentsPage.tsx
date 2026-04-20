@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2, Plus, Search, UserPlus } from 'lucide-react';
 import { toast } from 'sonner';
-import { ApiError, apiFetch } from '../../lib/api';
+import { ApiError, apiFetch, requireToken } from '../../lib/api';
 import { useAuthHydration, useAuthStore } from '../../stores/authStore';
 import { PageLoader } from '../../components/ui/PageLoader';
 import { ErrorState } from '../../components/ui/ErrorState';
@@ -35,7 +35,7 @@ export function AdminStudentsPage() {
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['admin', 'users'],
-    queryFn: () => apiFetch<AdminUserRow[]>('/admin/users', { token: token! }),
+    queryFn: () => apiFetch<AdminUserRow[]>('/admin/users', { token: requireToken(token) }),
     enabled: hydrated && !!token,
   });
 
@@ -43,7 +43,7 @@ export function AdminStudentsPage() {
     mutationFn: () =>
       apiFetch('/admin/users/student', {
         method: 'POST',
-        token: token!,
+        token: requireToken(token),
         body: JSON.stringify({ displayName: name.trim(), email: email.trim(), password }),
       }),
     onSuccess: () => {

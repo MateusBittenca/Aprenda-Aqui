@@ -15,7 +15,7 @@ const nav = [
   { to: '/admin', label: 'Visão geral', icon: LayoutDashboard, end: true },
   { to: '/admin/team', label: 'Equipe admin', icon: Shield, end: false },
   { to: '/admin/students', label: 'Alunos', icon: Users, end: false },
-  { to: '/admin/tracks', label: 'Catálogo', icon: BookOpen, end: false },
+  { to: '/admin/courses', label: 'Catálogo', icon: BookOpen, end: false },
 ] as const;
 
 export function AdminLayout() {
@@ -125,7 +125,7 @@ function titleForPath(pathname: string): string {
   if (pathname === '/admin') return 'Visão geral';
   if (pathname.startsWith('/admin/team')) return 'Equipe administrativa';
   if (pathname.startsWith('/admin/students')) return 'Alunos';
-  if (pathname.startsWith('/admin/tracks')) return 'Catálogo e conteúdo';
+  if (pathname.startsWith('/admin/courses')) return 'Catálogo e conteúdo';
   if (pathname.startsWith('/admin/lessons')) return 'Editor de aula';
   return 'Admin';
 }

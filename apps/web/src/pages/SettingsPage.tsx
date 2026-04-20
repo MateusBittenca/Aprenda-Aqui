@@ -1,32 +1,85 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
+  Bell,
   ChevronRight,
-  FileText,
+  CircleHelp,
   Globe2,
+  Info,
   Loader2,
   Lock,
+  LogOut,
+  Monitor,
   Settings2,
   Shield,
   UserRound,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { apiFetch, ApiError } from '../lib/api';
+import { twMerge } from 'tailwind-merge';
+import { apiFetch, ApiError, requireToken } from '../lib/api';
+import { useAuth } from '../hooks/useAuth';
 import { useMe } from '../hooks/useMe';
 import { useAuthStore } from '../stores/authStore';
+import { useUiPreferences } from '../stores/uiPreferencesStore';
 import type { MeProfile } from '../types/user';
 import { ErrorState } from '../components/ui/ErrorState';
 import { PageLoader } from '../components/ui/PageLoader';
 import { Avatar } from '../components/Avatar';
+import { AVATAR_COLOR_OPTIONS, getAvatarStyle } from '../lib/avatar';
 
 const fieldInput =
   'mt-1.5 w-full rounded-xl border border-surface-container-high bg-surface-container-lowest px-3 py-2.5 text-sm text-on-surface outline-none transition placeholder:text-on-surface-variant ring-primary/15 focus:border-primary/40 focus:ring-4';
+
+const cardInner =
+  'rounded-2xl border border-slate-200/70 bg-surface-container-lowest/80 p-5 sm:p-6';
+
+type SettingsTab = 'conta' | 'aplicativo' | 'sessao' | 'sobre';
+
+const TABS: {
+  id: SettingsTab;
+  label: string;
+  description: string;
+}[] = [
+  {
+    id: 'conta',
+    label: 'Perfil e privacidade',
+    description: 'Informações da sua conta na plataforma e quem pode encontrá-lo na comunidade.',
+  },
+  {
+    id: 'aplicativo',
+    label: 'Aplicativo',
+    description: 'Preferências só neste navegador: conforto visual e como recebe avisos hoje.',
+  },
+  {
+    id: 'sessao',
+    label: 'Sessão',
+    description: 'Encerrar login neste dispositivo.',
+  },
+  {
+    id: 'sobre',
+    label: 'Sobre',
+    description: 'Links úteis e referência rápida.',
+  },
+];
 
 export function SettingsPage() {
   const queryClient = useQueryClient();
   const patchUser = useAuthStore((s) => s.patchUser);
   const token = useAuthStore((s) => s.token);
+  const { logout } = useAuth();
   const { data, isLoading, isError, error, hydrated } = useMe({});
+  const timezoneRef = useRef<HTMLInputElement>(null);
+  const reduceMotion = useUiPreferences((s) => s.reduceMotion);
+  const setReduceMotion = useUiPreferences((s) => s.setReduceMotion);
+  const [tab, setTab] = useState<SettingsTab>('conta');
+  const [avatarColorKey, setAvatarColorKey] = useState('auto');
+
+  useEffect(() => {
+    if (data?.avatarColorKey == null) return;
+    const next = data.avatarColorKey;
+    queueMicrotask(() => setAvatarColorKey(next));
+  }, [data?.avatarColorKey]);
 
   const save = useMutation({
     mutationFn: async (body: {
@@ -34,15 +87,17 @@ export function SettingsPage() {
       timezone?: string;
       bio?: string;
       showInSearch?: boolean;
+      avatarColorKey?: string;
     }) => {
-      return apiFetch<MeProfile>('/me', { method: 'PATCH', token: token!, body: JSON.stringify(body) });
+      return apiFetch<MeProfile>('/me', { method: 'PATCH', token: requireToken(token), body: JSON.stringify(body) });
     },
     onSuccess: (profile) => {
       queryClient.invalidateQueries({ queryKey: ['me'] });
       patchUser({
         displayName: profile.displayName,
+        avatarColorKey: profile.avatarColorKey,
       });
-      toast.success('Preferências salvas.');
+      toast.success('Alterações salvas no servidor.');
     },
     onError: (e) => {
       const msg = e instanceof ApiError ? e.message : 'Não foi possível salvar.';
@@ -55,195 +110,425 @@ export function SettingsPage() {
     return <ErrorState title="Não foi possível carregar as configurações." error={error ?? new Error()} />;
   }
 
-  return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <div className="flex flex-wrap gap-2 text-sm">
-        <Link
-          to="/app/me"
-          className="rounded-full border border-surface-container-high bg-surface-container-lowest px-3 py-1.5 font-medium text-on-surface shadow-sm transition hover:border-primary/30 hover:text-primary"
-        >
-          Perfil
-        </Link>
-        <Link
-          to="/app/community"
-          className="rounded-full border border-surface-container-high bg-surface-container-lowest px-3 py-1.5 font-medium text-on-surface shadow-sm transition hover:border-primary/30 hover:text-primary"
-        >
-          Comunidade
-        </Link>
-      </div>
+  const activeMeta = TABS.find((t) => t.id === tab) ?? TABS[0];
 
-      <div className="overflow-hidden rounded-2xl border border-slate-200/60 bg-surface-container-lowest shadow-elevated">
-        <div className="flex h-1.5 overflow-hidden" aria-hidden>
-          <div className="flex-1 bg-primary" />
-          <div className="flex-1 bg-primary-container" />
-          <div className="flex-1 bg-tertiary" />
-        </div>
-        <div className="flex flex-col gap-4 p-6 sm:flex-row sm:items-start sm:justify-between sm:p-8">
-          <div className="flex min-w-0 flex-1 gap-4">
-            <div
-              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-inset ring-primary/15"
-              aria-hidden
-            >
-              <Settings2 className="h-7 w-7" strokeWidth={1.75} />
-            </div>
-            <div className="min-w-0">
-              <h1 className="font-headline text-2xl font-bold tracking-tight text-on-surface">Configurações</h1>
-              <p className="mt-1.5 text-sm leading-relaxed text-on-surface-variant">
-                Ajuste como seu nome, bio e visibilidade aparecem para outros alunos na plataforma.
-              </p>
-            </div>
+  return (
+    <div className="mx-auto max-w-3xl pb-12">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <div className="inline-flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-indigo-900">
+            <Settings2 className="h-3.5 w-3.5" aria-hidden />
+            Ajustes
           </div>
+          <h1 className="mt-3 font-headline text-2xl font-bold tracking-tight text-indigo-950 sm:text-3xl">
+            Configurações
+          </h1>
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-600">
+            Escolha uma área abaixo. Cada aba agrupa um tipo de opção — assim fica mais fácil achar o que precisa.
+          </p>
+        </div>
+        <div className="flex flex-shrink-0 flex-wrap gap-2">
           <Link
             to="/app/me"
-            className="inline-flex shrink-0 items-center gap-1 self-start text-sm font-medium text-on-surface-variant transition hover:text-primary"
+            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-indigo-200 hover:text-indigo-900"
           >
-            Ver perfil público
-            <ChevronRight className="h-4 w-4" aria-hidden />
+            Meu perfil
+          </Link>
+          <Link
+            to="/app/help"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-900 transition hover:bg-indigo-100"
+          >
+            <CircleHelp className="h-4 w-4" aria-hidden />
+            Ajuda
           </Link>
         </div>
       </div>
 
-      <form
-        className="space-y-6"
-        onSubmit={(e) => {
-          e.preventDefault();
-          const form = e.currentTarget;
-          const fd = new FormData(form);
-          const displayName = String(fd.get('displayName') ?? '').trim();
-          const timezone = String(fd.get('timezone') ?? '').trim() || 'UTC';
-          const bio = String(fd.get('bio') ?? '').trim();
-          const showInSearch = (form.querySelector('input[name="showInSearch"]') as HTMLInputElement)?.checked ?? false;
-          if (displayName.length < 2) {
-            toast.error('Nome deve ter pelo menos 2 caracteres.');
-            return;
-          }
-          save.mutate({ displayName, timezone, bio: bio || '', showInSearch });
-        }}
-      >
-        <section className="overflow-hidden rounded-2xl border border-slate-200/60 bg-surface-container-lowest shadow-elevated">
-          <div className="border-b border-surface-container-high bg-surface-container-low/90 px-6 py-4 sm:px-8">
-            <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-on-surface-variant">
-              <UserRound className="h-4 w-4 text-primary" aria-hidden />
-              Perfil público
-            </div>
-            <p className="mt-1 text-sm text-on-surface-variant">Informações exibidas no seu perfil e nas interações na comunidade.</p>
+      <div className="rounded-2xl border border-slate-200/80 bg-white/90 shadow-[0_20px_50px_-28px_rgba(30,27,75,0.18)] backdrop-blur-sm">
+        <div className="border-b border-slate-200/80 px-3 pt-3 sm:px-4 sm:pt-4">
+          <div
+            className="flex gap-1 overflow-x-auto pb-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            role="tablist"
+            aria-label="Áreas de configuração"
+          >
+            {TABS.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                role="tab"
+                aria-selected={tab === t.id}
+                id={`settings-tab-${t.id}`}
+                aria-controls={`settings-panel-${t.id}`}
+                onClick={() => setTab(t.id)}
+                className={twMerge(
+                  'shrink-0 rounded-xl px-3.5 py-2.5 text-left text-sm font-semibold transition sm:px-4',
+                  tab === t.id
+                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/25'
+                    : 'bg-slate-100/90 text-slate-600 hover:bg-slate-200/90 hover:text-slate-900',
+                )}
+              >
+                {t.label}
+              </button>
+            ))}
           </div>
+        </div>
 
-          <div className="space-y-6 p-6 sm:p-8">
-            <div className="flex flex-col gap-4 rounded-2xl border border-surface-container-high bg-surface-container-low/50 p-4 sm:flex-row sm:items-center">
-              <Avatar userId={data.id} displayName={data.displayName} size="lg" className="ring-2 ring-white shadow-sm" />
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">Pré-visualização</p>
-                <p className="mt-1 text-sm text-on-surface-variant">
-                  A foto é gerada a partir do seu nome. Altere o nome abaixo para atualizar as iniciais no avatar após salvar.
-                </p>
-              </div>
-            </div>
+        <div className="border-b border-slate-100 bg-slate-50/80 px-5 py-4 sm:px-6">
+          <p className="text-sm font-medium text-slate-800">{activeMeta.label}</p>
+          <p className="mt-1 text-sm leading-relaxed text-slate-500">{activeMeta.description}</p>
+        </div>
 
-            <div>
-              <label htmlFor="displayName" className="flex items-center gap-2 text-sm font-semibold text-slate-800">
-                <UserRound className="h-4 w-4 text-slate-400" aria-hidden />
-                Nome exibido
-              </label>
-              <p className="mt-0.5 text-xs text-slate-500">Como outros alunos veem você em ranking, comunidade e no seu perfil.</p>
-              <input
-                id="displayName"
-                name="displayName"
-                key={data.displayName}
-                defaultValue={data.displayName}
-                className={fieldInput}
-                autoComplete="nickname"
-                required
-                minLength={2}
-                maxLength={120}
-              />
-            </div>
+        <div className="p-5 sm:p-6">
+          {tab === 'conta' && (
+            <div
+              role="tabpanel"
+              id="settings-panel-conta"
+              aria-labelledby="settings-tab-conta"
+              className="space-y-6"
+            >
+              <form
+                className="space-y-6"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const form = e.currentTarget;
+                  const fd = new FormData(form);
+                  const displayName = String(fd.get('displayName') ?? '').trim();
+                  const timezone = String(fd.get('timezone') ?? '').trim() || 'UTC';
+                  const bio = String(fd.get('bio') ?? '').trim();
+                  const showInSearch =
+                    (form.querySelector('input[name="showInSearch"]') as HTMLInputElement)?.checked ?? false;
+                  if (displayName.length < 2) {
+                    toast.error('Nome deve ter pelo menos 2 caracteres.');
+                    return;
+                  }
+                  save.mutate({
+                    displayName,
+                    timezone,
+                    bio: bio || '',
+                    showInSearch,
+                    avatarColorKey,
+                  });
+                }}
+              >
+                <div className={twMerge(cardInner, 'border-indigo-100/80 bg-indigo-50/20')}>
+                  <h2 className="flex items-center gap-2 text-base font-bold text-indigo-950">
+                    <UserRound className="h-5 w-5 text-indigo-600" aria-hidden />
+                    Identidade
+                  </h2>
+                  <p className="mt-1 text-sm text-slate-600">
+                    Como você aparece para outros alunos no ranking, comunidade e perfil.
+                  </p>
+                  <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center">
+                    <Avatar
+                      userId={data.id}
+                      displayName={data.displayName}
+                      colorKey={avatarColorKey}
+                      size="lg"
+                      className="ring-2 ring-white shadow-sm"
+                    />
+                    <p className="text-sm text-slate-600">
+                      O avatar usa as iniciais do <strong className="text-slate-800">nome exibido</strong>. Depois de
+                      salvar, o menu do topo atualiza o nome.
+                    </p>
+                  </div>
+                  <div className="mt-5 space-y-3">
+                    <p className="text-sm font-semibold text-slate-800">Cor do avatar</p>
+                    <p className="text-xs text-slate-500">
+                      Automática escolhe uma cor estável a partir do seu id; ou fixe uma cor abaixo.
+                    </p>
+                    <div className="flex flex-wrap gap-2" role="group" aria-label="Cor do avatar">
+                      {AVATAR_COLOR_OPTIONS.map((opt) => {
+                        const selected = avatarColorKey === opt.key;
+                        const preview =
+                          opt.key === 'auto'
+                            ? 'bg-gradient-to-br from-slate-300 via-slate-400 to-slate-500'
+                            : getAvatarStyle(data.id, opt.key).bg;
+                        return (
+                          <button
+                            key={opt.key}
+                            type="button"
+                            onClick={() => setAvatarColorKey(opt.key)}
+                            title={opt.label}
+                            aria-pressed={selected}
+                            className={twMerge(
+                              'flex h-10 w-10 items-center justify-center rounded-xl border-2 transition',
+                              preview,
+                              selected ? 'border-indigo-600 ring-2 ring-indigo-300' : 'border-white/80 hover:border-slate-300',
+                            )}
+                          >
+                            <span className="sr-only">{opt.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <p className="mt-4 rounded-xl bg-white/80 px-3 py-2 text-xs text-slate-600 ring-1 ring-slate-200/80">
+                    E-mail da conta:{' '}
+                    <span className="font-mono font-medium text-slate-800">{data.email}</span>
+                    <span className="text-slate-500"> — não pode ser alterado aqui.</span>
+                  </p>
 
-            <div>
-              <label htmlFor="bio" className="flex items-center gap-2 text-sm font-semibold text-slate-800">
-                <FileText className="h-4 w-4 text-slate-400" aria-hidden />
-                Bio
-                <span className="font-normal text-slate-400">(opcional)</span>
-              </label>
-              <p className="mt-0.5 text-xs text-slate-500">Até 280 caracteres. Uma linha curta ajuda na comunidade.</p>
-              <textarea
-                id="bio"
-                name="bio"
-                defaultValue={data.bio ?? ''}
-                rows={4}
-                maxLength={280}
-                className={`${fieldInput} resize-none leading-relaxed`}
-                placeholder="Ex.: Estudando TypeScript e construindo projetos reais."
-              />
-            </div>
+                  <div className="mt-6 space-y-5">
+                    <div>
+                      <label htmlFor="displayName" className="text-sm font-semibold text-slate-800">
+                        Nome exibido
+                      </label>
+                      <p className="text-xs text-slate-500">Obrigatório, mínimo 2 caracteres.</p>
+                      <input
+                        id="displayName"
+                        name="displayName"
+                        key={data.displayName}
+                        defaultValue={data.displayName}
+                        className={fieldInput}
+                        autoComplete="nickname"
+                        required
+                        minLength={2}
+                        maxLength={120}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="bio" className="text-sm font-semibold text-slate-800">
+                        Bio <span className="font-normal text-slate-400">(opcional)</span>
+                      </label>
+                      <p className="text-xs text-slate-500">Até 280 caracteres.</p>
+                      <textarea
+                        id="bio"
+                        name="bio"
+                        defaultValue={data.bio ?? ''}
+                        rows={4}
+                        maxLength={280}
+                        className={`${fieldInput} resize-none leading-relaxed`}
+                        placeholder="Uma linha sobre você ou o que está estudando."
+                      />
+                    </div>
+                  </div>
+                </div>
 
-            <div>
-              <label htmlFor="timezone" className="flex items-center gap-2 text-sm font-semibold text-slate-800">
-                <Globe2 className="h-4 w-4 text-slate-400" aria-hidden />
-                Fuso horário
-              </label>
-              <p className="mt-0.5 text-xs text-slate-500">
-                Use um identificador IANA (ex.: <code className="rounded bg-slate-100 px-1 py-0.5 font-mono text-[11px] text-slate-700">America/Sao_Paulo</code>,{' '}
-                <code className="rounded bg-slate-100 px-1 py-0.5 font-mono text-[11px] text-slate-700">UTC</code>) para datas e lembretes consistentes.
-              </p>
-              <input
-                id="timezone"
-                name="timezone"
-                defaultValue={data.timezone}
-                className={`${fieldInput} font-mono text-sm`}
-                placeholder="UTC"
-                autoComplete="off"
-              />
-            </div>
-          </div>
-        </section>
-
-        <section className="overflow-hidden rounded-2xl border border-slate-200/60 bg-surface-container-lowest shadow-elevated">
-          <div className="border-b border-surface-container-high bg-surface-container-low/90 px-6 py-4 sm:px-8">
-            <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-on-surface-variant">
-              <Shield className="h-4 w-4 text-emerald-600" aria-hidden />
-              Privacidade
-            </div>
-            <p className="mt-1 text-sm text-on-surface-variant">Controle se o seu perfil pode ser encontrado por outros na busca da comunidade.</p>
-          </div>
-
-          <div className="p-6 sm:p-8">
-            <label className="group flex cursor-pointer gap-4 rounded-2xl border border-surface-container-high bg-surface-container-lowest p-4 transition hover:border-primary/25 hover:bg-primary/5">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-container-low text-on-surface-variant transition group-hover:bg-surface-container-lowest group-hover:text-primary">
-                <Lock className="h-5 w-5" aria-hidden />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-start justify-between gap-4">
-                  <span className="text-sm font-semibold text-on-surface">Aparecer na busca da comunidade</span>
+                <div className={cardInner}>
+                  <h2 className="flex items-center gap-2 text-base font-bold text-indigo-950">
+                    <Globe2 className="h-5 w-5 text-indigo-600" aria-hidden />
+                    Região e horários
+                  </h2>
+                  <p className="mt-1 text-sm text-slate-600">
+                    Fuso IANA para datas e metas fazerem sentido no seu dia (ex.: lembretes e “esta semana”).
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {[
+                      ['America/Sao_Paulo', 'Brasil (SP)'],
+                      ['America/Fortaleza', 'Nordeste'],
+                      ['America/Manaus', 'Manaus'],
+                      ['UTC', 'UTC'],
+                      ['Europe/Lisbon', 'Lisboa'],
+                    ].map(([tz, label]) => (
+                      <button
+                        key={tz}
+                        type="button"
+                        onClick={() => {
+                          if (timezoneRef.current) timezoneRef.current.value = tz;
+                          toast.info(`Fuso: ${tz}`);
+                        }}
+                        className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-indigo-300 hover:text-indigo-800"
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
                   <input
-                    type="checkbox"
-                    name="showInSearch"
-                    defaultChecked={data.showInSearch !== false}
-                    className="mt-0.5 h-4 w-4 shrink-0 rounded border-surface-container-high text-primary focus:ring-primary"
+                    ref={timezoneRef}
+                    id="timezone"
+                    name="timezone"
+                    defaultValue={data.timezone}
+                    className={`${fieldInput} mt-3 font-mono text-sm`}
+                    placeholder="America/Sao_Paulo"
+                    autoComplete="off"
                   />
                 </div>
-                <p className="mt-2 text-sm leading-relaxed text-on-surface-variant">
-                  Quando ativado, outros alunos podem encontrar você pelo nome nos resultados de busca. Desative para permanecer fora dessa lista.
+
+                <div className={cardInner}>
+                  <h2 className="flex items-center gap-2 text-base font-bold text-indigo-950">
+                    <Shield className="h-5 w-5 text-emerald-600" aria-hidden />
+                    Privacidade na comunidade
+                  </h2>
+                  <p className="mt-1 text-sm text-slate-600">Só afeta busca e listagens sociais — não o seu progresso nos cursos.</p>
+                  <label className="mt-5 flex cursor-pointer gap-4 rounded-xl border border-slate-200 bg-white p-4 transition hover:border-emerald-200/80 hover:bg-emerald-50/30">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+                      <Lock className="h-5 w-5" aria-hidden />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-3">
+                        <span className="text-sm font-semibold text-slate-900">Aparecer na busca da comunidade</span>
+                        <input
+                          type="checkbox"
+                          name="showInSearch"
+                          defaultChecked={data.showInSearch !== false}
+                          className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-primary focus:ring-primary"
+                        />
+                      </div>
+                      <p className="mt-2 text-sm text-slate-600">
+                        Desligado = seu nome não entra nos resultados de busca de alunos.
+                      </p>
+                    </div>
+                  </label>
+                </div>
+
+                <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-xs text-slate-600">
+                    O botão abaixo envia <strong>identidade</strong>, <strong>bio</strong>, <strong>fuso</strong> e{' '}
+                    <strong>privacidade</strong> para o servidor.
+                  </p>
+                  <button
+                    type="submit"
+                    disabled={save.isPending}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-md transition hover:bg-indigo-700 disabled:opacity-60 sm:w-auto"
+                  >
+                    {save.isPending ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : null}
+                    Salvar perfil e privacidade
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {tab === 'aplicativo' && (
+            <div
+              role="tabpanel"
+              id="settings-panel-aplicativo"
+              aria-labelledby="settings-tab-aplicativo"
+              className="space-y-6"
+            >
+              <div className={cardInner}>
+                <h2 className="flex items-center gap-2 text-base font-bold text-indigo-950">
+                  <Monitor className="h-5 w-5 text-violet-600" aria-hidden />
+                  Conforto visual
+                </h2>
+                <p className="mt-1 text-sm text-slate-600">Vale só para este navegador — não precisa salvar com o botão da aba anterior.</p>
+                <label className="mt-5 flex cursor-pointer gap-4 rounded-xl border border-slate-200 bg-white p-4 transition hover:border-violet-200">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-700">
+                    <Monitor className="h-5 w-5" aria-hidden />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-3">
+                      <span className="text-sm font-semibold text-slate-900">Reduzir animações</span>
+                      <input
+                        type="checkbox"
+                        checked={reduceMotion}
+                        onChange={(e) => {
+                          setReduceMotion(e.target.checked);
+                          toast.success(e.target.checked ? 'Menos movimento na interface.' : 'Animações normais.');
+                        }}
+                        className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-primary focus:ring-primary"
+                      />
+                    </div>
+                    <p className="mt-2 text-sm text-slate-600">
+                      Menos transições e efeitos (além da configuração do sistema, se você já usa).
+                    </p>
+                  </div>
+                </label>
+                <p className="mt-4 text-sm text-slate-600">
+                  <span className="font-semibold text-slate-800">Idioma:</span> Português (Brasil). Outros idiomas podem
+                  ser adicionados no futuro.
                 </p>
               </div>
-            </label>
-          </div>
-        </section>
 
-        <div className="flex flex-col gap-4 rounded-2xl border border-slate-200/60 bg-surface-container-low p-6 shadow-elevated sm:flex-row sm:items-center sm:justify-between sm:px-8">
-          <p className="text-xs leading-relaxed text-on-surface-variant sm:max-w-md">
-            As alterações são aplicadas na hora após salvar. Se algo não atualizar no menu, recarregue a página — o servidor já terá os dados novos.
-          </p>
-          <button
-            type="submit"
-            disabled={save.isPending}
-            className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-primary px-8 py-3 text-sm font-bold text-white shadow-md shadow-primary/20 transition hover:bg-primary-dim disabled:opacity-60 sm:w-auto"
-          >
-            {save.isPending ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : null}
-            Salvar alterações
-          </button>
+              <div className={cardInner}>
+                <h2 className="flex items-center gap-2 text-base font-bold text-indigo-950">
+                  <Bell className="h-5 w-5 text-amber-600" aria-hidden />
+                  Avisos e lembretes
+                </h2>
+                <p className="mt-1 text-sm text-slate-600">Como a plataforma fala com você hoje.</p>
+                <div className="mt-4 rounded-xl border border-amber-200/90 bg-amber-50/90 p-4 text-sm text-amber-950">
+                  <p className="font-semibold">Por enquanto, tudo na tela</p>
+                  <p className="mt-2 leading-relaxed text-amber-900/95">
+                    Mensagens de exercícios, toasts e o painel mostram seu progresso <strong>enquanto você usa o site</strong>.
+                    Não há lista de e-mails ou push configurável nesta tela.
+                  </p>
+                </div>
+                <ul className="mt-4 space-y-2 text-sm text-slate-600">
+                  <li className="flex gap-2">
+                    <span className="text-indigo-500" aria-hidden>
+                      •
+                    </span>
+                    Concluir desafios: feedback na hora e barra de progresso atualizada.
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-indigo-500" aria-hidden>
+                      •
+                    </span>
+                    Metas semanais: veja no <Link to="/app" className="font-semibold text-indigo-700 hover:underline">Início</Link>.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          )}
+
+          {tab === 'sessao' && (
+            <div
+              role="tabpanel"
+              id="settings-panel-sessao"
+              aria-labelledby="settings-tab-sessao"
+              className="space-y-4"
+            >
+              <div className={cardInner}>
+                <h2 className="text-base font-bold text-indigo-950">Encerrar sessão</h2>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                  Você sai desta conta neste dispositivo. Para entrar de novo, use e-mail e senha na tela de login. Se
+                  notar algo estranho, saia e troque a senha (ou fale com o administrador da plataforma).
+                </p>
+                <button
+                  type="button"
+                  onClick={() => logout()}
+                  className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl border-2 border-rose-200 bg-rose-50 px-6 py-3.5 text-sm font-bold text-rose-900 transition hover:bg-rose-100 sm:w-auto"
+                >
+                  <LogOut className="h-4 w-4" aria-hidden />
+                  Sair da conta
+                </button>
+              </div>
+            </div>
+          )}
+
+          {tab === 'sobre' && (
+            <div role="tabpanel" id="settings-panel-sobre" aria-labelledby="settings-tab-sobre" className="space-y-4">
+              <div className={cardInner}>
+                <h2 className="flex items-center gap-2 text-base font-bold text-indigo-950">
+                  <Info className="h-5 w-5 text-sky-600" aria-hidden />
+                  Referência rápida
+                </h2>
+                <p className="mt-2 text-sm text-slate-600">
+                  Plataforma de cursos com módulos, aulas e exercícios. O passo a passo completo está na central de
+                  ajuda.
+                </p>
+                <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                  <Link
+                    to="/app/help"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-indigo-700"
+                  >
+                    Abrir central de ajuda
+                    <ChevronRight className="h-4 w-4" aria-hidden />
+                  </Link>
+                  <Link
+                    to="/"
+                    className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-center text-sm font-medium text-slate-700 transition hover:border-slate-300"
+                  >
+                    Site público
+                  </Link>
+                  <Link
+                    to="/app"
+                    className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-center text-sm font-medium text-slate-700 transition hover:border-slate-300"
+                  >
+                    Painel (início)
+                  </Link>
+                  <Link
+                    to="/app/community"
+                    className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-center text-sm font-medium text-slate-700 transition hover:border-slate-300"
+                  >
+                    Comunidade
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-      </form>
+      </div>
     </div>
   );
 }

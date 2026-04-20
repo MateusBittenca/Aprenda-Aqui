@@ -17,8 +17,13 @@ async function bootstrap() {
   );
   const origin = process.env.CORS_ORIGIN ?? 'http://localhost:5173';
   app.enableCors({ origin, credentials: true });
-  const port = process.env.PORT ?? 3000;
+  const rawPort = process.env.PORT;
+  const parsed = rawPort !== undefined ? Number(rawPort) : 3000;
+  const port = Number.isFinite(parsed) && parsed > 0 ? parsed : 3000;
   await app.listen(port);
   console.log(`API em http://localhost:${port}/api/v1`);
 }
-bootstrap();
+bootstrap().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

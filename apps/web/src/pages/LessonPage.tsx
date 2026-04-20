@@ -2,9 +2,19 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import { ArrowRight, BookOpen, CheckCircle2, ChevronRight, Gem, Trophy, Zap } from 'lucide-react';
+import {
+  ArrowRight,
+  BookOpen,
+  CheckCircle2,
+  ChevronRight,
+  Gem,
+  Layers,
+  ListTree,
+  Trophy,
+  Zap,
+} from 'lucide-react';
 import { toast } from 'sonner';
-import { apiFetch, ApiError } from '../lib/api';
+import { apiFetch, ApiError, requireToken } from '../lib/api';
 import { useAuthHydration, useAuthStore } from '../stores/authStore';
 import type { LessonDetail } from '../types/catalog';
 import { SessionProgressBar } from '../components/SessionProgressBar';
@@ -26,13 +36,13 @@ export function LessonPage() {
 
   const { data: lesson, isLoading, isError, error } = useQuery({
     queryKey: ['lesson', userId ?? '', lessonId],
-    queryFn: () => apiFetch<LessonDetail>(`/lessons/${lessonId}`, { token: token! }),
+    queryFn: () => apiFetch<LessonDetail>(`/lessons/${lessonId}`, { token: requireToken(token) }),
     enabled: !!lessonId && hydrated && !!token && !!userId,
   });
 
   const completeMutation = useMutation({
     mutationFn: () =>
-      apiFetch(`/progress/lessons/${lessonId}/complete`, { method: 'POST', token: token! }),
+      apiFetch(`/progress/lessons/${lessonId}/complete`, { method: 'POST', token: requireToken(token) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['progress'] });
       queryClient.invalidateQueries({ queryKey: ['me'] });
@@ -88,7 +98,7 @@ export function LessonPage() {
         error={error}
         hint={
           <p>
-            Se você ainda não se matriculou na trilha, abra <Link to="/app/tracks">Trilhas</Link> e matricule-se.
+            Se você ainda não se matriculou no curso, abra <Link to="/app/courses">Cursos</Link> e matricule-se.
             Confira também se a API está rodando.
           </p>
         }
@@ -100,48 +110,88 @@ export function LessonPage() {
 
   const isComplete = allDone || (total > 0 && solvedCount === total);
 
+  const moduleAnchor = `/app/my-courses/${lesson.course.slug}#module-${encodeURIComponent(lesson.module.id)}`;
+
   return (
-    <div className="relative space-y-10">
+    <div className="relative space-y-8 pb-6 [background:radial-gradient(ellipse_at_top_right,rgba(99,102,241,0.08),transparent_50%),radial-gradient(ellipse_at_bottom_left,rgba(129,39,207,0.05),transparent_45%)]">
       <div
-        className="pointer-events-none absolute -right-24 top-0 h-72 w-72 rounded-full bg-violet-400/15 blur-3xl"
+        className="pointer-events-none absolute -right-24 top-0 h-72 w-72 rounded-full bg-violet-400/12 blur-3xl"
         aria-hidden
       />
 
       <nav
-        className="flex flex-wrap items-center gap-2 text-xs font-medium text-slate-500 sm:text-sm"
+        className="flex flex-wrap items-center gap-1.5 text-[11px] font-semibold text-slate-600 sm:gap-2 sm:text-xs"
         aria-label="Navegação da aula"
       >
         <Link
-          to="/app/my-tracks"
-          className="rounded-full bg-slate-100/90 px-3 py-1.5 transition hover:bg-slate-200/90 hover:text-slate-800"
+          to="/app/my-courses"
+          className="rounded-full border border-white/60 bg-white/80 px-3 py-1.5 shadow-sm backdrop-blur-sm transition hover:border-indigo-200 hover:bg-white hover:text-indigo-900"
         >
-          Minhas trilhas
+          Meus cursos
         </Link>
         <ChevronRight className="h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden />
         <Link
-          to={`/app/my-tracks/${lesson.track.slug}`}
-          className="rounded-full bg-slate-100/90 px-3 py-1.5 transition hover:bg-indigo-100 hover:text-indigo-900"
+          to={`/app/my-courses/${lesson.course.slug}`}
+          className="max-w-[10rem] truncate rounded-full border border-white/60 bg-white/80 px-3 py-1.5 shadow-sm backdrop-blur-sm transition hover:border-indigo-200 hover:bg-white hover:text-indigo-900 sm:max-w-[14rem]"
+          title={lesson.course.title}
         >
-          {lesson.track.title}
+          {lesson.course.title}
         </Link>
         <ChevronRight className="h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden />
-        <span className="rounded-full bg-indigo-50 px-3 py-1.5 font-semibold text-indigo-900 ring-1 ring-indigo-100">
+        <Link
+          to={moduleAnchor}
+          className="max-w-[10rem] truncate rounded-full border border-indigo-100 bg-indigo-50/90 px-3 py-1.5 text-indigo-900 shadow-sm ring-1 ring-indigo-100/80 transition hover:bg-indigo-100 sm:max-w-[14rem]"
+          title={lesson.module.title}
+        >
+          {lesson.module.title}
+        </Link>
+        <ChevronRight className="h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden />
+        <span
+          className="max-w-[12rem] truncate rounded-full bg-slate-900 px-3 py-1.5 font-bold text-white shadow-md sm:max-w-[18rem]"
+          title={lesson.title}
+        >
           {lesson.title}
         </span>
       </nav>
 
-      <header className="relative overflow-hidden rounded-[2rem] border border-indigo-100/80 bg-indigo-50/50 p-8 shadow-xl shadow-indigo-500/5 sm:p-10">
-        <div className="absolute -right-16 top-0 h-40 w-40 rounded-full bg-amber-400/12 blur-2xl" />
+      <header className="relative overflow-hidden rounded-[28px] border border-white/70 bg-white/85 p-6 shadow-[0_24px_60px_-24px_rgba(30,27,75,0.15)] backdrop-blur-xl sm:p-9">
+        <div className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-indigo-400/15 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-8 left-1/4 h-32 w-32 rounded-full bg-violet-400/10 blur-2xl" />
         <div className="relative">
-          <p className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-600">
-            <BookOpen className="h-4 w-4" aria-hidden />
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-indigo-800">
+              <Layers className="h-3.5 w-3.5" aria-hidden />
+              Módulo
+            </span>
+            <Link
+              to={moduleAnchor}
+              className="inline-flex max-w-full items-center gap-1 text-sm font-bold text-indigo-700 underline decoration-indigo-300/60 underline-offset-4 transition hover:text-indigo-900"
+            >
+              {lesson.module.title}
+              <ListTree className="h-3.5 w-3.5 shrink-0 opacity-70" aria-hidden />
+            </Link>
+          </div>
+          <p className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-slate-500">
+            <BookOpen className="h-4 w-4 text-indigo-500" aria-hidden />
             {lesson.course.title}
           </p>
-          <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl md:text-[2.25rem] md:leading-tight">
+          <h1 className="mt-2 font-headline text-3xl font-extrabold tracking-tight text-indigo-950 sm:text-4xl md:text-[2.35rem] md:leading-tight">
             {lesson.title}
           </h1>
+          <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-500">
+            <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1 font-medium ring-1 ring-slate-200/80">
+              ~{lesson.estimatedMinutes} min de leitura
+            </span>
+            {total > 0 ? (
+              <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1 font-medium ring-1 ring-slate-200/80">
+                {total} desafio{total !== 1 ? 's' : ''}
+              </span>
+            ) : null}
+          </div>
           {lesson.objective && (
-            <p className="mt-4 max-w-3xl text-lg leading-relaxed text-slate-600">{lesson.objective}</p>
+            <p className="mt-5 max-w-3xl border-l-4 border-indigo-300/80 pl-4 text-base leading-relaxed text-slate-600">
+              {lesson.objective}
+            </p>
           )}
         </div>
       </header>
@@ -161,14 +211,14 @@ export function LessonPage() {
           <div className="relative mt-4">
             <h2 className="text-2xl font-black text-emerald-900">Aula concluída!</h2>
             <p className="mt-2 text-sm text-emerald-800/90">
-              Todos os exercícios resolvidos. Continue avançando na trilha!
+              Todos os exercícios resolvidos. Continue avançando no curso!
             </p>
           </div>
           <Link
-            to={`/app/my-tracks/${lesson.track.slug}`}
+            to={`/app/my-courses/${lesson.course.slug}`}
             className="relative mt-6 inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-8 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-900/20 transition hover:bg-emerald-700"
           >
-            Voltar à trilha
+            Voltar ao curso
             <ArrowRight className="h-4 w-4" aria-hidden />
           </Link>
         </div>

@@ -12,20 +12,21 @@ import { LessonPage } from './pages/LessonPage';
 import { LoginPage } from './pages/LoginPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { RegisterPage } from './pages/RegisterPage';
-import { TrackDetailPage } from './pages/TrackDetailPage';
-import { TrackCatalogPage } from './pages/TrackCatalogPage';
-import { TrackCatalogDetailPage } from './pages/TrackCatalogDetailPage';
-import { MyTracksPage } from './pages/MyTracksPage';
+import { CourseDetailPage } from './pages/CourseDetailPage';
+import { CourseCatalogPage } from './pages/CourseCatalogPage';
+import { CourseCatalogDetailPage } from './pages/CourseCatalogDetailPage';
+import { MyCoursesPage } from './pages/MyCoursesPage';
 import { RankingPage } from './pages/RankingPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { HelpPage } from './pages/HelpPage';
 import { CommunityPage } from './pages/CommunityPage';
 import { UserProfilePage } from './pages/UserProfilePage';
 import { ComparePage } from './pages/ComparePage';
 import { AdminLoginPage } from './pages/admin/AdminLoginPage';
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import { AdminStudentsPage } from './pages/admin/AdminStudentsPage';
-import { AdminTracksPage } from './pages/admin/AdminTracksPage';
-import { AdminTrackContentPage } from './pages/admin/AdminTrackContentPage';
+import { AdminCoursesPage } from './pages/admin/AdminCoursesPage';
+import { AdminCourseContentPage } from './pages/admin/AdminCourseContentPage';
 import { AdminLessonEditPage } from './pages/admin/AdminLessonEditPage';
 import { AdminTeamPage } from './pages/admin/AdminTeamPage';
 
@@ -56,22 +57,23 @@ export default function App() {
               <Route index element={<AdminDashboardPage />} />
               <Route path="team" element={<AdminTeamPage />} />
               <Route path="students" element={<AdminStudentsPage />} />
-              <Route path="tracks" element={<AdminTracksPage />} />
-              <Route path="tracks/:trackId" element={<AdminTrackContentPage />} />
+              <Route path="courses" element={<AdminCoursesPage />} />
+              <Route path="courses/:courseId" element={<AdminCourseContentPage />} />
               <Route path="lessons/:lessonId/edit" element={<AdminLessonEditPage />} />
             </Route>
           </Route>
           <Route element={<ProtectedRoute />}>
             <Route path="/app" element={<AppLayout />}>
               <Route index element={<DashboardPage />} />
-              <Route path="tracks" element={<TrackCatalogPage />} />
-              <Route path="tracks/:trackId" element={<TrackCatalogDetailPage />} />
-              <Route path="my-tracks" element={<MyTracksPage />} />
-              <Route path="my-tracks/:trackId" element={<TrackDetailPage />} />
+              <Route path="courses" element={<CourseCatalogPage />} />
+              <Route path="courses/:courseId" element={<CourseCatalogDetailPage />} />
+              <Route path="my-courses" element={<MyCoursesPage />} />
+              <Route path="my-courses/:courseId" element={<CourseDetailPage />} />
               <Route path="lessons/:lessonId" element={<LessonPage />} />
               <Route path="ranking" element={<RankingPage />} />
               <Route path="me" element={<ProfilePage />} />
               <Route path="settings" element={<SettingsPage />} />
+              <Route path="help" element={<HelpPage />} />
               <Route path="community" element={<CommunityPage />} />
               <Route path="users/:userId/compare" element={<ComparePage />} />
               <Route path="users/:userId" element={<UserProfilePage />} />

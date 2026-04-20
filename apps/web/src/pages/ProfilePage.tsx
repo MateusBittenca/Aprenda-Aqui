@@ -169,6 +169,7 @@ function ProfileHeroCard({
             <Avatar
               userId={data.id}
               displayName={data.displayName}
+              colorKey={data.avatarColorKey}
               size="xl"
               className="!h-full !w-full !rounded-2xl !text-4xl sm:!text-5xl"
             />
@@ -389,7 +390,14 @@ function ActivityMini({ icon, value, label }: { icon: React.ReactNode; value: nu
 function ActivityFeedCard({
   peers,
 }: {
-  peers: { id: string; displayName: string; xpTotal: number; level: number; currentStreak: number }[];
+  peers: {
+    id: string;
+    displayName: string;
+    avatarColorKey: string;
+    xpTotal: number;
+    level: number;
+    currentStreak: number;
+  }[];
 }) {
   return (
     <section className={`rounded-[1.25rem] bg-surface-container-lowest p-6 ${cardShadow}`}>
@@ -403,7 +411,13 @@ function ActivityFeedCard({
         ) : (
           peers.map((u) => (
             <div key={u.id} className="flex gap-4">
-              <Avatar userId={u.id} displayName={u.displayName} size="md" className="!h-12 !w-12 !rounded-xl !text-lg" />
+              <Avatar
+                userId={u.id}
+                displayName={u.displayName}
+                colorKey={u.avatarColorKey}
+                size="md"
+                className="!h-12 !w-12 !rounded-xl !text-lg"
+              />
               <div className="min-w-0 flex-1">
                 <p className="text-sm leading-relaxed text-on-surface">
                   <span className="font-bold">{u.displayName.split(' ')[0]}</span>{' '}
@@ -435,13 +449,13 @@ function WeekendSprintCard() {
       <div className="relative z-10">
         <h4 className="font-headline text-lg font-extrabold">Meta da semana</h4>
         <p className="mb-6 mt-2 text-sm opacity-90">
-          Conclua aulas nas suas trilhas e suba no ranking — cada aula conta XP e gemas.
+          Conclua aulas nos seus cursos e suba no ranking — cada aula conta XP e gemas.
         </p>
         <Link
-          to="/app/my-tracks"
+          to="/app/my-courses"
           className="inline-flex items-center justify-center rounded-xl bg-white px-6 py-2.5 text-xs font-black uppercase tracking-widest text-tertiary shadow-md transition hover:scale-105 active:scale-95"
         >
-          Minhas trilhas
+          Meus cursos
         </Link>
       </div>
       <div className="pointer-events-none absolute -bottom-8 -right-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" />

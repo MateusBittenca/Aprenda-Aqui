@@ -10,15 +10,25 @@ export type SubmitPayload = {
 
 @Injectable()
 export class ExerciseEvaluatorService {
-  evaluate(type: ExerciseType, payload: unknown, submit: SubmitPayload): { correct: boolean; detail?: string } {
+  evaluate(
+    type: ExerciseType,
+    payload: unknown,
+    submit: SubmitPayload,
+  ): { correct: boolean; detail?: string } {
     if (type === ExerciseType.MULTIPLE_CHOICE) {
       return this.evalMc(payload as { correctIndex: number }, submit);
     }
     if (type === ExerciseType.CODE_FILL) {
-      return this.evalFill(payload as { blanks: { id: string; answer: string }[] }, submit);
+      return this.evalFill(
+        payload as { blanks: { id: string; answer: string }[] },
+        submit,
+      );
     }
     if (type === ExerciseType.CODE_EDITOR) {
-      return this.evalEditor(payload as { tests: { expected: string }[]; language: string }, submit);
+      return this.evalEditor(
+        payload as { tests: { expected: string }[]; language: string },
+        submit,
+      );
     }
     throw new BadRequestException('Tipo de exercício inválido');
   }

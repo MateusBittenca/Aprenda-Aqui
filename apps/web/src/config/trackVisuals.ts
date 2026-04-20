@@ -1,26 +1,20 @@
 import type { LucideIcon } from 'lucide-react';
 import { Database, LayoutTemplate, Server } from 'lucide-react';
 
-/** Metadados visuais por slug de trilha (ícones, cores, dicas rápidas). Sem gradientes — paleta flat. */
-export type TrackVisual = {
-  /** Fallback de imagem hero na landing quando `coverImageUrl` não veio do banco. */
+/** Metadados visuais por slug de curso (ícones, cores). */
+export type CourseVisual = {
   heroCover?: string;
   Icon: LucideIcon;
-  /** Classes Tailwind para fundo do ícone */
   iconBg: string;
   iconColor: string;
-  /** Barra superior em cards de trilha/curso */
   accentBar: string;
-  /** Bolinhas das dicas na lista */
   hintDot: string;
-  /** Cor da faixa lateral em módulos (detalhe da trilha) — use com border-l-4 */
   accentStripe: string;
-  /** Fundo suave opcional para hero / destaques */
   softBg: string;
   hints: string[];
 };
 
-const defaultVisual: TrackVisual = {
+const defaultVisual: CourseVisual = {
   Icon: LayoutTemplate,
   iconBg: 'bg-slate-700',
   iconColor: 'text-white',
@@ -31,57 +25,91 @@ const defaultVisual: TrackVisual = {
   hints: ['Microaulas objetivas', 'Exercícios com feedback na hora', 'Progresso salvo automaticamente'],
 };
 
-const map: Record<string, TrackVisual> = {
-  frontend: {
-    heroCover:
-      'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1600&q=80&auto=format&fit=crop',
-    Icon: LayoutTemplate,
-    iconBg: 'bg-fuchsia-600',
-    iconColor: 'text-white',
-    accentBar: 'bg-fuchsia-600',
-    hintDot: 'bg-fuchsia-500',
-    accentStripe: 'border-fuchsia-600',
-    softBg: 'bg-fuchsia-50',
-    hints: [
-      'HTML semântico e acessível',
-      'CSS: layout, cores e responsivo',
-      'Prepare-se para frameworks depois',
-    ],
-  },
-  backend: {
-    heroCover:
-      'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1600&q=80&auto=format&fit=crop',
-    Icon: Server,
-    iconBg: 'bg-violet-600',
-    iconColor: 'text-white',
-    accentBar: 'bg-violet-600',
-    hintDot: 'bg-violet-500',
-    accentStripe: 'border-violet-600',
-    softBg: 'bg-violet-50',
-    hints: [
-      'Node.js e módulos no servidor',
-      'APIs e lógica de negócio',
-      'Conexão com banco de dados',
-    ],
-  },
-  dados: {
-    heroCover:
-      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1600&q=80&auto=format&fit=crop',
-    Icon: Database,
-    iconBg: 'bg-emerald-600',
-    iconColor: 'text-white',
-    accentBar: 'bg-emerald-600',
-    hintDot: 'bg-emerald-500',
-    accentStripe: 'border-emerald-600',
-    softBg: 'bg-emerald-50',
-    hints: [
-      'Entidades e relacionamentos',
-      'Boas práticas de modelagem',
-      'Base para SQL e APIs',
-    ],
-  },
+const frontend: CourseVisual = {
+  heroCover:
+    'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1600&q=80&auto=format&fit=crop',
+  Icon: LayoutTemplate,
+  iconBg: 'bg-fuchsia-600',
+  iconColor: 'text-white',
+  accentBar: 'bg-fuchsia-600',
+  hintDot: 'bg-fuchsia-500',
+  accentStripe: 'border-fuchsia-600',
+  softBg: 'bg-fuchsia-50',
+  hints: [
+    'HTML semântico e acessível',
+    'CSS: layout, cores e responsivo',
+    'Prepare-se para frameworks depois',
+  ],
 };
 
-export function getTrackVisual(slug: string): TrackVisual {
+const backend: CourseVisual = {
+  heroCover:
+    'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1600&q=80&auto=format&fit=crop',
+  Icon: Server,
+  iconBg: 'bg-violet-600',
+  iconColor: 'text-white',
+  accentBar: 'bg-violet-600',
+  hintDot: 'bg-violet-500',
+  accentStripe: 'border-violet-600',
+  softBg: 'bg-violet-50',
+  hints: [
+    'Node.js e módulos no servidor',
+    'APIs e lógica de negócio',
+    'Conexão com banco de dados',
+  ],
+};
+
+const dados: CourseVisual = {
+  heroCover:
+    'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1600&q=80&auto=format&fit=crop',
+  Icon: Database,
+  iconBg: 'bg-emerald-600',
+  iconColor: 'text-white',
+  accentBar: 'bg-emerald-600',
+  hintDot: 'bg-emerald-500',
+  accentStripe: 'border-emerald-600',
+  softBg: 'bg-emerald-50',
+  hints: [
+    'Entidades e relacionamentos',
+    'Boas práticas de modelagem',
+    'Base para SQL e APIs',
+  ],
+};
+
+const map: Record<string, CourseVisual> = {
+  frontend,
+  'web-fundamentals': frontend,
+  'css-layout': frontend,
+  'typescript-fundamentos': frontend,
+  'javascript-moderno': frontend,
+  'react-interfaces': frontend,
+  'react-fundamentos': frontend,
+  'react-formularios-ui': frontend,
+  backend,
+  'node-intro': backend,
+  'sql-basico': backend,
+  'express-apis': backend,
+  dados,
+  'modelagem-intro': dados,
+  'algoritmos-logica': defaultVisual,
+  'complexidade-arrays': defaultVisual,
+  'strings-mapas': defaultVisual,
+  'typescript-profundo': frontend,
+  'tipos-genericos': frontend,
+  'ts-apis-projeto': frontend,
+  'apis-rest-http': backend,
+  'http-fundamentos': backend,
+  'api-design': backend,
+  'qualidade-testes': defaultVisual,
+  'testes-piramide': defaultVisual,
+  'ci-observabilidade': defaultVisual,
+  ferramentas: defaultVisual,
+  'git-essencial': defaultVisual,
+};
+
+export function getCourseVisual(slug: string): CourseVisual {
   return map[slug] ?? defaultVisual;
 }
+
+/** @deprecated use getCourseVisual */
+export const getTrackVisual = getCourseVisual;

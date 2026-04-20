@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { apiFetch } from '../lib/api';
+import { apiFetch, requireToken } from '../lib/api';
 import { useAuthHydration, useAuthStore } from '../stores/authStore';
 import type { MeProfile } from '../types/user';
 
@@ -13,7 +13,7 @@ export function useMe(options?: { syncStore?: boolean }) {
   const query = useQuery({
     /** Uma chave por usuário — ao trocar de conta, não reutiliza o perfil da sessão anterior. */
     queryKey: ['me', userId ?? ''],
-    queryFn: () => apiFetch<MeProfile>('/me', { token: token! }),
+    queryFn: () => apiFetch<MeProfile>('/me', { token: requireToken(token) }),
     enabled: hydrated && !!token && !!userId,
   });
 
@@ -22,6 +22,7 @@ export function useMe(options?: { syncStore?: boolean }) {
     patchUser({
       displayName: query.data.displayName,
       role: query.data.role,
+      avatarColorKey: query.data.avatarColorKey,
       xpTotal: query.data.xpTotal,
       level: query.data.level,
       gems: query.data.gems,

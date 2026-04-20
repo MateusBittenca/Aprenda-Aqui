@@ -1,5 +1,5 @@
 /**
- * Conteúdo de apresentação (landing) por slug de trilha — capa + Markdown longo.
+ * Conteúdo de apresentação (landing) por slug de curso — capa + Markdown longo.
  * Usado no seed; pode ser editado depois pelo admin (campos coverImageUrl / overviewMd).
  */
 const UNSPLASH = {
@@ -14,7 +14,7 @@ const UNSPLASH = {
   qa: 'https://images.unsplash.com/photo-1532619675605-1ede6c666ed0?w=1600&q=80&auto=format&fit=crop',
 } as const;
 
-export function landingForTrack(slug: string): { coverImageUrl: string | null; overviewMd: string | null } {
+export function landingForCourse(slug: string): { coverImageUrl: string | null; overviewMd: string | null } {
   const row = LANDING[slug];
   if (!row) return { coverImageUrl: null, overviewMd: null };
   return { coverImageUrl: row.coverImageUrl, overviewMd: row.overviewMd };
@@ -23,7 +23,7 @@ export function landingForTrack(slug: string): { coverImageUrl: string | null; o
 const LANDING: Record<string, { coverImageUrl: string; overviewMd: string }> = {
   frontend: {
     coverImageUrl: UNSPLASH.code,
-    overviewMd: `## Sobre esta trilha
+    overviewMd: `## Sobre este curso
 
 Construa **interfaces web sólidas** do zero: primeiro a estrutura com HTML semântico, depois estilos com CSS e, em seguida, fundamentos que prepar você para **React** e ecossistemas modernos.
 
@@ -61,7 +61,7 @@ Construa **interfaces web sólidas** do zero: primeiro a estrutura com HTML sem�
   },
   backend: {
     coverImageUrl: UNSPLASH.server,
-    overviewMd: `## Sobre esta trilha
+    overviewMd: `## Sobre este curso
 
 Aprenda **lógica de servidor** com Node.js, conceitos de **APIs HTTP** com Express e fundamentos de **SQL** para consultar dados em bancos relacionais.
 
@@ -92,13 +92,13 @@ server.listen(3000, () => console.log('API no ar'));
   },
   dados: {
     coverImageUrl: UNSPLASH.data,
-    overviewMd: `## Sobre esta trilha
+    overviewMd: `## Sobre este curso
 
 Entenda **entidades**, relacionamentos e normalização em alto nível — o vocabulário necessário para conversar com dados em produtos reais e desenhar modelos coerentes.
 
 ### Por que importa
 
-Dados mal modelados geram bugs, relatórios errados e dívidas técnicas. Esta trilha dá o **mapa mental** antes de mergulhar em SQL ou ORMs.
+Dados mal modelados geram bugs, relatórios errados e dívidas técnicas. Este curso dá o **mapa mental** antes de mergulhar em SQL ou ORMs.
 
 ### Você vai sair sabendo
 
@@ -115,7 +115,7 @@ Dados mal modelados geram bugs, relatórios errados e dívidas técnicas. Esta t
   },
   ferramentas: {
     coverImageUrl: UNSPLASH.git,
-    overviewMd: `## Sobre esta trilha
+    overviewMd: `## Sobre este curso
 
 **Git**, terminal e fluxo de trabalho: controle de versão, branches e hábitos que profissionais usam todos os dias.
 
@@ -137,7 +137,7 @@ git commit -m "Primeiro commit"
   },
   'react-interfaces': {
     coverImageUrl: UNSPLASH.react,
-    overviewMd: `## Sobre esta trilha
+    overviewMd: `## Sobre este curso
 
 **React** é o padrão de mercado para interfaces ricas. Aqui você vê **JSX**, componentes, estado com hooks, formulários, listas com \`key\`, eixos de acessibilidade e quando memoizar.
 
@@ -158,11 +158,11 @@ function Saudacao({ nome }) {
 }
 \`\`\`
 
-> A trilha alterna **leitura guiada** com exercícios no editor quando o avaliador suporta JavaScript.`,
+> O curso alterna **leitura guiada** com exercícios no editor quando o avaliador suporta JavaScript.`,
   },
   'algoritmos-logica': {
     coverImageUrl: UNSPLASH.algo,
-    overviewMd: `## Sobre esta trilha
+    overviewMd: `## Sobre este curso
 
 **Complexidade**, estruturas clássicas (pilha, fila), mapas de frequência, recursão com memoização e padrões como **dois ponteiros** e **janela deslizante** — com implementação em JavaScript.
 
@@ -181,7 +181,7 @@ for (const ch of 'abracadabra') {
   },
   'typescript-profundo': {
     coverImageUrl: UNSPLASH.ts,
-    overviewMd: `## Sobre esta trilha
+    overviewMd: `## Sobre este curso
 
 Aprofunde **TypeScript**: uniões, \`narrowing\`, generics, utility types (\`Partial\`, \`Pick\`, \`Omit\`), módulos ESM/CJS e validação na borda de APIs.
 
@@ -200,7 +200,7 @@ const n = primeiro([1, 2, 3]);
   },
   'apis-rest-http': {
     coverImageUrl: UNSPLASH.api,
-    overviewMd: `## Sobre esta trilha
+    overviewMd: `## Sobre este curso
 
 **HTTP** na prática: recursos REST, verbos, códigos de status, JSON, \`fetch\`, paginação, erros padronizados, **CORS** e cabeçalho \`Authorization\`.
 
@@ -218,7 +218,7 @@ Accept: application/json
   },
   'qualidade-testes': {
     coverImageUrl: UNSPLASH.qa,
-    overviewMd: `## Sobre esta trilha
+    overviewMd: `## Sobre este curso
 
 **Testes** em pirâmide (unitário, integração, E2E), **CI**, logs estruturados, feature flags e revisão de código — cultura de qualidade de produtos modernos.
 

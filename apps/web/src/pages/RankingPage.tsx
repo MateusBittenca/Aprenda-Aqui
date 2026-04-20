@@ -194,7 +194,13 @@ export function RankingPage() {
           <div className="border-t-2 border-dashed border-surface-container-high bg-primary/5">
             <div className="flex items-center border-l-4 border-primary p-4">
               <div className="w-10 text-center font-bold text-primary">#{lb.myRank}</div>
-              <Avatar userId={me.id} displayName={me.displayName} size="md" className="!ml-4 !rounded-full !border-2 !border-primary" />
+              <Avatar
+                userId={me.id}
+                displayName={me.displayName}
+                colorKey={me.avatarColorKey}
+                size="md"
+                className="!ml-4 !rounded-full !border-2 !border-primary"
+              />
               <div className="ml-4 min-w-0 flex-1">
                 <p className="font-bold text-on-surface">
                   Você ({me.displayName.split(' ')[0]})
@@ -282,6 +288,7 @@ function PodiumSlot({
           <Avatar
             userId={entry.id}
             displayName={entry.displayName}
+            colorKey={entry.avatarColorKey}
             size="lg"
             className={`!h-20 !w-20 !rounded-full !text-2xl sm:!h-24 sm:!w-24 ${highlight ? '!text-3xl' : ''} ${isMe ? 'ring-4 ring-primary ring-offset-2' : ''}`}
           />
@@ -338,7 +345,13 @@ function RankRow({
   const inner = (
     <>
       <div className="w-10 text-center font-bold text-outline">#{rank}</div>
-      <Avatar userId={entry.id} displayName={entry.displayName} size="md" className="!ml-4 !rounded-full" />
+      <Avatar
+        userId={entry.id}
+        displayName={entry.displayName}
+        colorKey={entry.avatarColorKey}
+        size="md"
+        className="!ml-4 !rounded-full"
+      />
       <div className="ml-4 min-w-0 flex-1">
         <p className={`font-bold ${isMe ? 'text-on-surface' : 'text-on-surface'}`}>
           {entry.displayName}

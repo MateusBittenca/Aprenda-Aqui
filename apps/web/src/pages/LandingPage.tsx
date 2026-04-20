@@ -18,8 +18,8 @@ export function LandingPage() {
             <a href="#como-funciona" className="transition hover:text-on-surface">
               Como funciona
             </a>
-            <a href="#trilhas" className="transition hover:text-on-surface">
-              Trilhas
+            <a href="#cursos" className="transition hover:text-on-surface">
+              Cursos
             </a>
           </nav>
           <div className="flex items-center gap-2 sm:gap-3">
@@ -80,7 +80,7 @@ export function LandingPage() {
           <div className="absolute bottom-[18%] left-[6%] animate-float-slow">
             <div className="w-64 rounded-2xl bg-white p-4 shadow-xl shadow-slate-300/35 ring-1 ring-slate-100">
               <p className="text-xs font-semibold text-slate-400">Ilustração</p>
-              <p className="text-xs font-semibold text-slate-500">Acompanhe várias trilhas</p>
+              <p className="text-xs font-semibold text-slate-500">Acompanhe vários cursos</p>
               <div className="mt-3 space-y-3">
                 <div>
                   <div className="mb-1 flex justify-between text-xs text-slate-600">
@@ -184,7 +184,7 @@ export function LandingPage() {
             <h2 className="text-center text-2xl font-bold text-slate-900">Como funciona</h2>
             <ol className="mx-auto mt-10 max-w-2xl space-y-6">
               {[
-                'Escolha uma trilha (Frontend, Backend e mais).',
+                'Escolha um curso (Frontend, Backend e mais).',
                 'Siga as aulas na ordem e complete os exercícios.',
                 'Ganhe XP e gemas ao acertar; acompanhe nível e sequência no painel.',
               ].map((step, i) => (
@@ -199,7 +199,7 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section id="trilhas" className="mx-auto max-w-5xl px-4 py-20 text-center">
+        <section id="cursos" className="mx-auto max-w-5xl px-4 py-20 text-center">
           <Sparkles className="mx-auto h-10 w-10 text-blue-500" />
           <h2 className="mt-4 text-2xl font-bold text-slate-900">Pronto para começar?</h2>
           <p className="mx-auto mt-2 max-w-md text-slate-600">

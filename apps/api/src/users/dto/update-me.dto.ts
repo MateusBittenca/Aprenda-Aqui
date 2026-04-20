@@ -1,4 +1,12 @@
-import { IsBoolean, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsIn,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
+import { AVATAR_COLOR_KEYS } from '../avatar-color.constants';
 
 export class UpdateMeDto {
   @IsOptional()
@@ -20,4 +28,8 @@ export class UpdateMeDto {
   @IsOptional()
   @IsBoolean()
   showInSearch?: boolean;
+
+  @IsOptional()
+  @IsIn([...AVATAR_COLOR_KEYS])
+  avatarColorKey?: string;
 }

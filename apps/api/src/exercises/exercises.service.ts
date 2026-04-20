@@ -1,7 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import type { InputJsonValue } from '@prisma/client/runtime/library';
 import { PrismaService } from '../prisma/prisma.service';
-import { ExerciseEvaluatorService, SubmitPayload } from './exercise-evaluator.service';
+import {
+  ExerciseEvaluatorService,
+  SubmitPayload,
+} from './exercise-evaluator.service';
 import { EnrollmentService } from '../enrollment/enrollment.service';
 import { GamificationService } from '../gamification/gamification.service';
 import { ProgressService } from '../progress/progress.service';
@@ -25,7 +28,10 @@ export class ExercisesService {
       throw new NotFoundException('Exercício não encontrado');
     }
 
-    await this.enrollment.assertEnrolledInCourse(userId, exercise.lesson.module.courseId);
+    await this.enrollment.assertEnrolledInCourse(
+      userId,
+      exercise.lesson.module.courseId,
+    );
 
     const payload = exercise.payload as Record<string, unknown>;
     const { correct } = this.evaluator.evaluate(exercise.type, payload, body);
@@ -53,18 +59,26 @@ export class ExercisesService {
     if (correct) {
       if (existing?.solved) {
         alreadySolved = true;
+        await this.gamification.recordDailyActivity(userId);
       } else {
         await this.prisma.userExerciseProgress.upsert({
           where: { userId_exerciseId: { userId, exerciseId } },
           create: { userId, exerciseId, solved: true, solvedAt: new Date() },
           update: { solved: true, solvedAt: new Date() },
         });
-        const gamResult = await this.gamification.applyXpAndGems(userId, exercise.xpReward, exercise.gemReward);
+        const gamResult = await this.gamification.applyXpAndGems(
+          userId,
+          exercise.xpReward,
+          exercise.gemReward,
+        );
         xpGained = gamResult.xpGained;
         gemsGained = gamResult.gemsGained;
         leveledUp = gamResult.leveledUp;
         newLevel = gamResult.level;
-        const lessonResult = await this.progress.tryCompleteLesson(userId, exercise.lessonId);
+        const lessonResult = await this.progress.tryCompleteLesson(
+          userId,
+          exercise.lessonId,
+        );
         lessonCompleted = lessonResult.justCompleted;
       }
     }

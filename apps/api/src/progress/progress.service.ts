@@ -38,7 +38,10 @@ export class ProgressService {
     });
     if (!lesson) throw new NotFoundException('Aula não encontrada');
 
-    await this.enrollment.assertEnrolledInCourse(userId, lesson.module.courseId);
+    await this.enrollment.assertEnrolledInCourse(
+      userId,
+      lesson.module.courseId,
+    );
 
     if (lesson.exercises.length > 0) {
       const solved = await this.prisma.userExerciseProgress.findMany({
@@ -49,7 +52,10 @@ export class ProgressService {
         },
       });
       if (solved.length < lesson.exercises.length) {
-        return { completed: false, message: 'Conclua todos os exercícios primeiro' };
+        return {
+          completed: false,
+          message: 'Conclua todos os exercícios primeiro',
+        };
       }
     }
 
@@ -57,7 +63,10 @@ export class ProgressService {
   }
 
   /** Chamado após acerto de exercício: verifica se a aula pode ser concluída. Retorna se foi completada agora. */
-  async tryCompleteLesson(userId: string, lessonId: string): Promise<{ justCompleted: boolean }> {
+  async tryCompleteLesson(
+    userId: string,
+    lessonId: string,
+  ): Promise<{ justCompleted: boolean }> {
     const lesson = await this.prisma.lesson.findUnique({
       where: { id: lessonId },
       include: { exercises: true },
@@ -94,7 +103,11 @@ export class ProgressService {
     let xpGained = 0;
     let gemsGained = 0;
     if (!existing?.completed) {
-      const res = await this.gamification.applyXpAndGems(userId, LESSON_COMPLETE_XP, LESSON_COMPLETE_GEMS);
+      const res = await this.gamification.applyXpAndGems(
+        userId,
+        LESSON_COMPLETE_XP,
+        LESSON_COMPLETE_GEMS,
+      );
       xpGained = res.xpGained;
       gemsGained = res.gemsGained;
     }

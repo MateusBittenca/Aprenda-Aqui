@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
-import { apiFetch } from '../lib/api';
+import { apiFetch, requireToken } from '../lib/api';
 import { useAuthHydration, useAuthStore } from '../stores/authStore';
 import type { ComparePayload } from '../types/social';
 import { Avatar } from '../components/Avatar';
@@ -16,7 +16,7 @@ export function ComparePage() {
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['users', userId, 'compare'],
-    queryFn: () => apiFetch<ComparePayload>(`/users/${userId}/compare`, { token: token! }),
+    queryFn: () => apiFetch<ComparePayload>(`/users/${userId}/compare`, { token: requireToken(token) }),
     enabled: hydrated && !!token && !!userId && userId !== me?.id,
   });
 
@@ -61,11 +61,11 @@ export function ComparePage() {
         <div className="grid grid-cols-3 items-center gap-2 border-b border-slate-100 px-4 py-4">
           <span />
           <div className="flex flex-col items-center gap-1">
-            <Avatar userId={data.you.id} displayName={data.you.displayName} size="md" />
+            <Avatar userId={data.you.id} displayName={data.you.displayName} colorKey={data.you.avatarColorKey} size="md" />
             <span className="text-xs font-semibold text-slate-800">Você</span>
           </div>
           <div className="flex flex-col items-center gap-1">
-            <Avatar userId={data.them.id} displayName={data.them.displayName} size="md" />
+            <Avatar userId={data.them.id} displayName={data.them.displayName} colorKey={data.them.avatarColorKey} size="md" />
             <span className="text-xs font-semibold text-slate-800 line-clamp-2">{data.them.displayName}</span>
           </div>
         </div>

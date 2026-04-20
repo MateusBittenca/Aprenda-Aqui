@@ -28,7 +28,9 @@ describe('API (e2e)', () => {
     await app.close();
   });
 
-  it('/api/v1/tracks (GET) lista trilhas', () => {
-    return request(app.getHttpServer()).get('/api/v1/tracks').expect(200);
+  it('/api/v1/catalog/courses (GET) lista cursos', () => {
+    return request(app.getHttpServer())
+      .get('/api/v1/catalog/courses')
+      .expect(200);
   });
 });

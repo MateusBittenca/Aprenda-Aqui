@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { UserRole } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -9,10 +17,8 @@ import { CreateCourseDto } from './dto/create-course.dto';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { CreateModuleDto } from './dto/create-module.dto';
 import { CreateStudentUserDto } from './dto/create-student-user.dto';
-import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
-import { UpdateTrackDto } from './dto/update-track.dto';
 
 @Controller('admin')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -44,18 +50,6 @@ export class AdminController {
     return this.admin.createStudentUser(dto);
   }
 
-  // ─── Tracks ───────────────────────────────────────────────────────────────
-
-  @Post('tracks')
-  createTrack(@Body() dto: CreateTrackDto) {
-    return this.admin.createTrack(dto);
-  }
-
-  @Patch('tracks/:trackId')
-  updateTrack(@Param('trackId') trackId: string, @Body() dto: UpdateTrackDto) {
-    return this.admin.updateTrack(trackId, dto);
-  }
-
   // ─── Courses ──────────────────────────────────────────────────────────────
 
   @Post('courses')
@@ -64,7 +58,10 @@ export class AdminController {
   }
 
   @Patch('courses/:courseId')
-  updateCourse(@Param('courseId') courseId: string, @Body() dto: UpdateCourseDto) {
+  updateCourse(
+    @Param('courseId') courseId: string,
+    @Body() dto: UpdateCourseDto,
+  ) {
     return this.admin.updateCourse(courseId, dto);
   }
 
@@ -88,7 +85,10 @@ export class AdminController {
   }
 
   @Patch('lessons/:lessonId')
-  updateLesson(@Param('lessonId') lessonId: string, @Body() dto: UpdateLessonDto) {
+  updateLesson(
+    @Param('lessonId') lessonId: string,
+    @Body() dto: UpdateLessonDto,
+  ) {
     return this.admin.updateLesson(lessonId, dto);
   }
 }

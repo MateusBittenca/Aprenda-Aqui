@@ -26,6 +26,7 @@ export class SocialService {
       select: {
         id: true,
         displayName: true,
+        avatarColorKey: true,
         level: true,
         xpTotal: true,
       },
@@ -37,8 +38,12 @@ export class SocialService {
 
   private async activityCounts(userId: string) {
     const [completedLessons, solvedExercises] = await Promise.all([
-      this.prisma.userLessonProgress.count({ where: { userId, completed: true } }),
-      this.prisma.userExerciseProgress.count({ where: { userId, solved: true } }),
+      this.prisma.userLessonProgress.count({
+        where: { userId, completed: true },
+      }),
+      this.prisma.userExerciseProgress.count({
+        where: { userId, solved: true },
+      }),
     ]);
     return { completedLessons, solvedExercises };
   }
@@ -60,18 +65,25 @@ export class SocialService {
     });
     if (!user) throw new NotFoundException('Usuário não encontrado');
 
-    const [followerCount, followingCount, activity, xpBand] = await Promise.all([
-      this.prisma.userFollow.count({ where: { followingId: targetId } }),
-      this.prisma.userFollow.count({ where: { followerId: targetId } }),
-      this.activityCounts(targetId),
-      Promise.resolve(xpToNextLevel(user.xpTotal)),
-    ]);
+    const [followerCount, followingCount, activity, xpBand] = await Promise.all(
+      [
+        this.prisma.userFollow.count({ where: { followingId: targetId } }),
+        this.prisma.userFollow.count({ where: { followerId: targetId } }),
+        this.activityCounts(targetId),
+        Promise.resolve(xpToNextLevel(user.xpTotal)),
+      ],
+    );
 
     const isSelf = targetId === viewerId;
     let isFollowing: boolean | undefined;
     if (!isSelf) {
       const link = await this.prisma.userFollow.findUnique({
-        where: { followerId_followingId: { followerId: viewerId, followingId: targetId } },
+        where: {
+          followerId_followingId: {
+            followerId: viewerId,
+            followingId: targetId,
+          },
+        },
       });
       isFollowing = !!link;
     }
@@ -142,14 +154,23 @@ export class SocialService {
       orderBy: { createdAt: 'desc' },
       include: {
         follower: {
-          select: { id: true, displayName: true, level: true, xpTotal: true },
+          select: {
+            id: true,
+            displayName: true,
+            avatarColorKey: true,
+            level: true,
+            xpTotal: true,
+          },
         },
       },
     });
     const followingSet = new Set(
       (
         await this.prisma.userFollow.findMany({
-          where: { followerId: viewerId, followingId: { in: rows.map((r) => r.followerId) } },
+          where: {
+            followerId: viewerId,
+            followingId: { in: rows.map((r) => r.followerId) },
+          },
           select: { followingId: true },
         })
       ).map((x) => x.followingId),
@@ -167,14 +188,23 @@ export class SocialService {
       orderBy: { createdAt: 'desc' },
       include: {
         following: {
-          select: { id: true, displayName: true, level: true, xpTotal: true },
+          select: {
+            id: true,
+            displayName: true,
+            avatarColorKey: true,
+            level: true,
+            xpTotal: true,
+          },
         },
       },
     });
     const followingSet = new Set(
       (
         await this.prisma.userFollow.findMany({
-          where: { followerId: viewerId, followingId: { in: rows.map((r) => r.followingId) } },
+          where: {
+            followerId: viewerId,
+            followingId: { in: rows.map((r) => r.followingId) },
+          },
           select: { followingId: true },
         })
       ).map((x) => x.followingId),

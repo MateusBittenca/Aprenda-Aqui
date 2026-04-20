@@ -24,7 +24,7 @@ const RANKS: LevelRank[] = [
   { fromLevel: 36, toLevel: 40, name: 'Arquiteto', description: 'Estrutura, padrões e organização.' },
   { fromLevel: 41, toLevel: 45, name: 'Mentor', description: 'Referência para quem aprende junto.' },
   { fromLevel: 46, toLevel: 50, name: 'Mestre', description: 'Excelência e maestria no percurso.' },
-  { fromLevel: 51, toLevel: 999, name: 'Lendário', description: 'Acima do esperado — trilha épica.' },
+  { fromLevel: 51, toLevel: 999, name: 'Lendário', description: 'Acima do esperado — jornada épica.' },
 ];
 
 export function getRankForLevel(level: number): LevelRank {

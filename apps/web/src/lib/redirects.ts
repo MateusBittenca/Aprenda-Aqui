@@ -8,8 +8,8 @@ export function postLoginPath(fromState?: string | null): string {
   }
   if (
     fromState === '/me' ||
-    fromState.startsWith('/tracks') ||
-    fromState.startsWith('/my-tracks') ||
+    fromState.startsWith('/courses') ||
+    fromState.startsWith('/my-courses') ||
     fromState.startsWith('/lessons')
   ) {
     return `/app${fromState}`;

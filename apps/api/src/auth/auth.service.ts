@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserRole } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
@@ -14,7 +18,9 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto) {
-    const existing = await this.prisma.user.findUnique({ where: { email: dto.email.toLowerCase() } });
+    const existing = await this.prisma.user.findUnique({
+      where: { email: dto.email.toLowerCase() },
+    });
     if (existing) {
       throw new ConflictException('E-mail já cadastrado');
     }
@@ -31,7 +37,9 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
-    const user = await this.prisma.user.findUnique({ where: { email: dto.email.toLowerCase() } });
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email.toLowerCase() },
+    });
     if (!user) {
       throw new UnauthorizedException('Credenciais inválidas');
     }
@@ -52,6 +60,7 @@ export class AuthService {
     email: string;
     displayName: string;
     role: UserRole;
+    avatarColorKey: string;
     xpTotal: number;
     level: number;
     gems: number;
@@ -63,6 +72,7 @@ export class AuthService {
       email: user.email,
       displayName: user.displayName,
       role: user.role,
+      avatarColorKey: user.avatarColorKey,
       xpTotal: user.xpTotal,
       level: user.level,
       gems: user.gems,

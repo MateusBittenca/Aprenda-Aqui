@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { twMerge } from 'tailwind-merge';
 import {
   ArrowRight,
   BookOpen,
@@ -55,11 +56,32 @@ function isThisWeek(dateStr: string | null) {
 }
 
 function streakMessage(streak: number) {
-  if (streak === 0) return 'Comece hoje e construa sua sequência!';
-  if (streak === 1) return 'Primeiro dia! Continue amanhã. 💪';
-  if (streak < 7) return `${streak} dias seguidos — ótimo ritmo!`;
-  if (streak < 30) return `${streak} dias em chamas! Continue assim! 🔥`;
-  return `${streak} dias — você é lendário! 🏆`;
+  if (streak === 0) return 'Comece hoje sua ofensiva — um exercício certo ou aula concluída já conta!';
+  if (streak === 1) return 'Primeiro dia de ofensiva! Volte amanhã para manter a chama. 💪';
+  if (streak < 7) return `${streak} dias de ofensiva — ótimo ritmo!`;
+  if (streak < 30) return `${streak} dias seguidos em chamas! 🔥`;
+  return `${streak} dias — ofensiva lendária! 🏆`;
+}
+
+function StreakWeekStrip({ days }: { days: boolean[] }) {
+  if (days.length !== 7) return null;
+  return (
+    <div className="mt-3 flex items-center gap-2">
+      <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant/80">7 dias</span>
+      <div className="flex gap-1" role="img" aria-label="Atividade nos últimos sete dias; o último círculo é hoje">
+        {days.map((on, i) => (
+          <span
+            key={i}
+            className={twMerge(
+              'h-2.5 w-2.5 rounded-full',
+              on ? 'bg-orange-500' : 'bg-slate-200',
+              i === 6 && 'ring-2 ring-orange-400 ring-offset-1',
+            )}
+          />
+        ))}
+      </div>
+    </div>
+  );
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
@@ -107,13 +129,14 @@ function HeroSection({ data }: { data: MeProfile }) {
     <div className="relative overflow-hidden rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-6 shadow-elevated sm:p-8">
       <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-primary-container/25 opacity-90" />
       <div className="relative flex items-center gap-4 sm:gap-5">
-        <Avatar userId={data.id} displayName={data.displayName} size="xl" />
+        <Avatar userId={data.id} displayName={data.displayName} colorKey={data.avatarColorKey} size="xl" />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-on-surface-variant">{greeting},</p>
           <h1 className="font-headline mt-0.5 truncate text-2xl font-black tracking-tight text-on-surface sm:text-3xl">
             {firstName}!
           </h1>
           <p className="mt-1 text-sm text-on-surface-variant">{streakMessage(data.currentStreak)}</p>
+          <StreakWeekStrip days={data.streakWeekDays} />
         </div>
         {data.currentStreak >= 3 && (
           <div className="hidden flex-col items-center rounded-2xl border-2 border-amber-200 bg-amber-50 px-4 py-3 text-center shadow-sm sm:flex">
@@ -197,7 +220,7 @@ function StatsRow({ data, progress }: { data: MeProfile; progress?: UserProgress
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-      <StatKpi icon={<Flame className="h-5 w-5 text-amber-500" />} label="Sequência" value={`${data.currentStreak}d`} sub={`Recorde: ${data.longestStreak}d`} accent="amber" />
+      <StatKpi icon={<Flame className="h-5 w-5 text-amber-500" />} label="Ofensiva" value={`${data.currentStreak}d`} sub={`Recorde: ${data.longestStreak}d`} accent="amber" />
       <StatKpi icon={<Gem className="h-5 w-5 text-sky-500" />} label="Gemas" value={String(data.gems)} sub="coletadas" accent="sky" />
       <StatKpi icon={<GraduationCap className="h-5 w-5 text-emerald-600" />} label="Aulas" value={String(completedLessons)} sub="concluídas" accent="emerald" />
       <StatKpi icon={<Zap className="h-5 w-5 text-violet-600" />} label="Exercícios" value={String(solvedEx)} sub="resolvidos" accent="violet" />
@@ -309,7 +332,7 @@ function CoursesSection({ enrolled, loading }: { enrolled: EnrolledCourse[]; loa
           <BookOpen className="h-4 w-4 text-primary" />
           Cursos em andamento
         </h2>
-        <Link to="/app/my-tracks" className="text-xs font-semibold text-primary hover:underline">
+        <Link to="/app/my-courses" className="text-xs font-semibold text-primary hover:underline">
           Ver todos →
         </Link>
       </div>
@@ -328,8 +351,8 @@ function CoursesSection({ enrolled, loading }: { enrolled: EnrolledCourse[]; loa
         <div className="rounded-2xl border-2 border-dashed border-surface-container-high bg-surface-container-lowest py-8 text-center text-sm text-on-surface-variant shadow-elevated">
           <BookOpen className="mx-auto mb-3 h-8 w-8 text-slate-300" />
           <p className="font-medium">Você ainda não está matriculado em nenhum curso.</p>
-          <Link to="/app/tracks" className="mt-3 inline-flex items-center gap-1 font-semibold text-primary hover:underline">
-            Explorar trilhas <ArrowRight className="h-3.5 w-3.5" />
+          <Link to="/app/courses" className="mt-3 inline-flex items-center gap-1 font-semibold text-primary hover:underline">
+            Explorar cursos <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
       ) : (
@@ -354,10 +377,10 @@ function CoursesSection({ enrolled, loading }: { enrolled: EnrolledCourse[]; loa
 function CourseCard({ course }: { course: EnrolledCourse }) {
   return (
     <Link
-      to={`/app/my-tracks/${course.track.slug}`}
+      to={`/app/my-courses/${course.slug}`}
       className="group flex flex-col rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-5 shadow-elevated transition hover:-translate-y-0.5 hover:shadow-md"
     >
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">{course.track.title}</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Curso</p>
       <h3 className="mt-1 font-bold text-on-surface group-hover:text-primary">{course.title}</h3>
       {course.description && (
         <p className="mt-1 line-clamp-2 text-xs text-slate-500">{course.description}</p>
@@ -453,7 +476,7 @@ function LeaderboardMini({ lb, myId }: { lb?: LeaderboardData; myId: string }) {
           return (
             <li key={u.id} className={`flex items-center gap-3 rounded-xl px-3 py-2 ${rankStyle(rank, isMe)}`}>
               <span className="w-7 shrink-0 text-center text-sm font-black">{rankEmoji(rank)}</span>
-              <Avatar userId={u.id} displayName={u.displayName} size="sm" />
+              <Avatar userId={u.id} displayName={u.displayName} colorKey={u.avatarColorKey} size="sm" />
               <span className={`flex-1 truncate text-sm font-semibold ${isMe ? 'text-blue-800' : 'text-slate-800'}`}>
                 {u.displayName}{isMe && ' (você)'}
               </span>
@@ -468,7 +491,7 @@ function LeaderboardMini({ lb, myId }: { lb?: LeaderboardData; myId: string }) {
       {!inTop && myEntry && (
         <div className="mt-3 flex items-center gap-3 rounded-xl border-2 border-blue-500 bg-blue-50 px-3 py-2">
           <span className="w-7 shrink-0 text-center text-sm font-black text-blue-700">#{myRank}</span>
-          <Avatar userId={myId} displayName={myEntry.displayName} size="sm" />
+          <Avatar userId={myId} displayName={myEntry.displayName} colorKey={myEntry.avatarColorKey} size="sm" />
           <span className="flex-1 truncate text-sm font-semibold text-blue-800">{myEntry.displayName} (você)</span>
           <span className="shrink-0 text-xs font-bold tabular-nums text-slate-500">{myEntry.xpTotal} XP</span>
         </div>
@@ -536,26 +559,26 @@ export function QuickActionsBar() {
   return (
     <div className="grid gap-3 sm:grid-cols-3">
       <Link
-        to="/app/tracks"
+        to="/app/courses"
         className="group flex items-center justify-between rounded-2xl bg-primary p-4 font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary-dim"
       >
         <div className="flex items-center gap-3">
           <ShoppingBag className="h-5 w-5" />
           <div>
-            <p className="font-bold">Trilhas</p>
+            <p className="font-bold">Cursos</p>
             <p className="text-[11px] text-white/80">Catálogo e matrícula</p>
           </div>
         </div>
         <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
       </Link>
       <Link
-        to="/app/my-tracks"
+        to="/app/my-courses"
         className="group flex items-center justify-between rounded-2xl border-2 border-violet-200 bg-violet-50 p-4 font-semibold text-violet-800 transition hover:border-violet-300"
       >
         <div className="flex items-center gap-3">
           <Map className="h-5 w-5" />
           <div>
-            <p className="font-bold">Minhas trilhas</p>
+            <p className="font-bold">Meus cursos</p>
             <p className="text-[11px] text-violet-500">Onde estou estudando</p>
           </div>
         </div>

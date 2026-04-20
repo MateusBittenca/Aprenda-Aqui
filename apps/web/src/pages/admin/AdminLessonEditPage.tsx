@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, Eye, Loader2, Save } from 'lucide-react';
 import { toast } from 'sonner';
-import { ApiError, apiFetch } from '../../lib/api';
+import { ApiError, apiFetch, requireToken } from '../../lib/api';
 import { useAuthHydration, useAuthStore } from '../../stores/authStore';
 import { PageLoader } from '../../components/ui/PageLoader';
 import { ErrorState } from '../../components/ui/ErrorState';
@@ -21,8 +21,8 @@ type AdminLessonPayload = {
     title: string;
     course: {
       id: string;
+      slug: string;
       title: string;
-      track: { id: string; slug: string; title: string };
     };
   };
   exercises: Array<{ id: string; title: string; type: string }>;
@@ -32,60 +32,37 @@ const field = 'mt-1 w-full rounded-xl border border-white/[0.08] bg-[#0b0f19] px
 const fieldMono = `${field} font-mono text-sm`;
 const lbl = 'block text-sm font-medium text-slate-400';
 
-export function AdminLessonEditPage() {
-  const { lessonId } = useParams<{ lessonId: string }>();
-  const token = useAuthStore((s) => s.token);
-  const hydrated = useAuthHydration();
-  const queryClient = useQueryClient();
+type EditFormProps = {
+  data: AdminLessonPayload;
+  lessonId: string;
+  token: string | null;
+  queryClient: QueryClient;
+};
 
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['admin', 'lesson', lessonId],
-    queryFn: () => apiFetch<AdminLessonPayload>(`/admin/lessons/${lessonId}`, { token: token! }),
-    enabled: hydrated && !!token && !!lessonId,
-  });
-
-  const [title, setTitle] = useState('');
-  const [slug, setSlug] = useState('');
-  const [objective, setObjective] = useState('');
-  const [estimatedMinutes, setEstimatedMinutes] = useState(3);
-  const [contentMd, setContentMd] = useState('');
+function AdminLessonEditForm({ data, lessonId, token, queryClient }: EditFormProps) {
+  const [title, setTitle] = useState(data.title);
+  const [slug, setSlug] = useState(data.slug);
+  const [objective, setObjective] = useState(data.objective ?? '');
+  const [estimatedMinutes, setEstimatedMinutes] = useState(data.estimatedMinutes);
+  const [contentMd, setContentMd] = useState(data.contentMd);
   const [preview, setPreview] = useState(false);
-  const didInit = useRef(false);
-
-  // Reset quando trocar de aula
-  useEffect(() => { didInit.current = false; }, [lessonId]);
-
-  useEffect(() => {
-    if (!data || didInit.current) return;
-    didInit.current = true;
-    setTitle(data.title);
-    setSlug(data.slug);
-    setObjective(data.objective ?? '');
-    setEstimatedMinutes(data.estimatedMinutes);
-    setContentMd(data.contentMd);
-  }, [data]);
 
   const saveMutation = useMutation({
     mutationFn: () =>
       apiFetch(`/admin/lessons/${lessonId}`, {
         method: 'PATCH',
-        token: token!,
+        token: requireToken(token),
         body: JSON.stringify({ title, slug, objective: objective || null, estimatedMinutes, contentMd }),
       }),
     onSuccess: () => {
       toast.success('Aula salva');
       queryClient.invalidateQueries({ queryKey: ['admin', 'lesson', lessonId] });
-      queryClient.invalidateQueries({ queryKey: ['track'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'course'] });
     },
     onError: (e: unknown) => toast.error(e instanceof ApiError ? e.message : 'Erro ao salvar'),
   });
 
-  if (!lessonId) return null;
-  if (!hydrated || isLoading) return <PageLoader label="Carregando aula…" />;
-  if (isError) return <ErrorState title="Não foi possível carregar a aula." error={error} />;
-  if (!data) return null;
-
-  const backTo = `/admin/tracks/${data.module.course.track.slug}`;
+  const backTo = `/admin/courses/${data.module.course.slug}`;
 
   return (
     <div className="space-y-6">
@@ -93,7 +70,7 @@ export function AdminLessonEditPage() {
       <div>
         <Link to={backTo} className="inline-flex items-center gap-1.5 text-sm font-medium text-amber-400 hover:underline">
           <ArrowLeft className="h-3.5 w-3.5" />
-          {data.module.course.track.title} / {data.module.course.title} / {data.module.title}
+          {data.module.course.title} / {data.module.title}
         </Link>
         <h1 className="mt-3 text-2xl font-bold tracking-tight text-white">Editor de aula</h1>
         <p className="mt-1 text-sm text-slate-500">
@@ -195,5 +172,27 @@ export function AdminLessonEditPage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+export function AdminLessonEditPage() {
+  const { lessonId } = useParams<{ lessonId: string }>();
+  const token = useAuthStore((s) => s.token);
+  const hydrated = useAuthHydration();
+  const queryClient = useQueryClient();
+
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ['admin', 'lesson', lessonId],
+    queryFn: () => apiFetch<AdminLessonPayload>(`/admin/lessons/${lessonId}`, { token: requireToken(token) }),
+    enabled: hydrated && !!token && !!lessonId,
+  });
+
+  if (!lessonId) return null;
+  if (!hydrated || isLoading) return <PageLoader label="Carregando aula…" />;
+  if (isError) return <ErrorState title="Não foi possível carregar a aula." error={error} />;
+  if (!data) return null;
+
+  return (
+    <AdminLessonEditForm key={data.id} data={data} lessonId={lessonId} token={token} queryClient={queryClient} />
   );
 }

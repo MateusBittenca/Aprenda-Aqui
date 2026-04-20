@@ -2,14 +2,13 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight,
-  BookOpen,
   GraduationCap,
   Layers,
   Shield,
   Sparkles,
   Users,
 } from 'lucide-react';
-import { apiFetch } from '../../lib/api';
+import { apiFetch, requireToken } from '../../lib/api';
 import { useAuthHydration, useAuthStore } from '../../stores/authStore';
 import { PageLoader } from '../../components/ui/PageLoader';
 import { ErrorState } from '../../components/ui/ErrorState';
@@ -17,7 +16,6 @@ import { ErrorState } from '../../components/ui/ErrorState';
 type AdminStats = {
   users: number;
   admins: number;
-  tracks: number;
   courses: number;
   lessons: number;
 };
@@ -28,7 +26,7 @@ export function AdminDashboardPage() {
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['admin', 'stats'],
-    queryFn: () => apiFetch<AdminStats>('/admin/stats', { token: token! }),
+    queryFn: () => apiFetch<AdminStats>('/admin/stats', { token: requireToken(token) }),
     enabled: hydrated && !!token,
   });
 
@@ -59,12 +57,12 @@ export function AdminDashboardPage() {
             Painel de controle
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-400">
-            Gerencie alunos, equipe administrativa e o catálogo de trilhas. Métricas atualizadas em tempo real.
+            Gerencie alunos, equipe administrativa e o catálogo de cursos. Métricas atualizadas em tempo real.
           </p>
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Kpi
           icon={<Users className="h-5 w-5" />}
           label="Usuários"
@@ -78,13 +76,6 @@ export function AdminDashboardPage() {
           value={data.admins}
           hint="acesso ao console"
           accent="bg-amber-500/15"
-        />
-        <Kpi
-          icon={<BookOpen className="h-5 w-5" />}
-          label="Trilhas"
-          value={data.tracks}
-          hint="áreas de estudo"
-          accent="bg-violet-500/10"
         />
         <Kpi
           icon={<Layers className="h-5 w-5" />}
@@ -110,7 +101,7 @@ export function AdminDashboardPage() {
           </div>
           <ul className="mt-4 space-y-2">
             <QuickLink to="/admin/team" title="Convidar administrador" desc="Crie outra conta com perfil ADMIN" />
-            <QuickLink to="/admin/tracks" title="Editar catálogo" desc="Trilhas, cursos, módulos e aulas" />
+            <QuickLink to="/admin/courses" title="Editar catálogo" desc="Cursos, módulos e aulas" />
             <QuickLink to="/admin/students" title="Ver alunos" desc="Lista completa e progresso" />
           </ul>
         </section>

@@ -1,23 +1,3 @@
-export type TrackSummary = {
-  id: string;
-  slug: string;
-  title: string;
-  description: string | null;
-  tagline: string | null;
-  orderIndex: number;
-  _count: { courses: number; lessons?: number };
-  /** Só em GET /me/tracks — todas as aulas da trilha concluídas. */
-  completed?: boolean;
-};
-
-/** Catálogo (loja): todas as trilhas + se o usuário já está matriculado. */
-export type TrackCatalogItem = TrackSummary & {
-  enrolled: boolean;
-  freeCourseCount: number;
-  paidCourseCount: number;
-  canEnrollInTrack: boolean;
-};
-
 export type LessonRef = {
   id: string;
   slug: string;
@@ -35,54 +15,47 @@ export type ModuleDetail = {
   lessons: LessonRef[];
 };
 
-export type CourseDetail = {
-  id: string;
-  slug: string;
-  title: string;
-  description: string | null;
-  orderIndex: number;
-  /** Catálogo público e trilha autenticada. */
-  isFree: boolean;
-  /** Só em GET /me/tracks/:id — aulas deste curso estão liberadas para o usuário. */
-  accessible?: boolean;
-  modules: ModuleDetail[];
-};
-
-export type TrackDetail = {
+/** Lista pública GET /catalog/courses */
+export type CatalogCourseSummary = {
   id: string;
   slug: string;
   title: string;
   description: string | null;
   tagline: string | null;
   orderIndex: number;
-  courses: CourseDetail[];
-  /** URL de capa para hero da landing (catálogo). */
-  coverImageUrl?: string | null;
-  /** Markdown longo: visão geral antes da matrícula. */
-  overviewMd?: string | null;
-  /** Matrículas na trilha (público). */
-  enrollmentCount?: number;
-  stats?: {
+  isFree: boolean;
+  coverImageUrl: string | null;
+  _count: { modules: number; enrollments: number };
+};
+
+/** GET /catalog/courses/:id — detalhe para landing */
+export type CourseCatalogDetail = {
+  id: string;
+  slug: string;
+  title: string;
+  description: string | null;
+  tagline: string | null;
+  coverImageUrl: string | null;
+  overviewMd: string | null;
+  orderIndex: number;
+  isFree: boolean;
+  modules: ModuleDetail[];
+  enrollmentCount: number;
+  stats: {
     lessonCount: number;
     totalMinutes: number;
     exerciseCount: number;
   };
 };
 
-export type CourseCatalogItem = {
-  id: string;
-  slug: string;
-  title: string;
-  description: string | null;
-  isFree: boolean;
-  moduleCount: number;
-  lessonCount: number;
-  track: { id: string; title: string; slug: string; orderIndex: number };
-  /** Matrícula na trilha inteira (libera todos os cursos gratuitos). */
-  trackEnrolled: boolean;
+/** GET /me/courses/catalog */
+export type UserCourseCatalogItem = CatalogCourseSummary & {
   enrolled: boolean;
-  enrolledAt: string | null;
+  canEnrollInCourse: boolean;
 };
+
+/** GET /me/courses/:id — curso matriculado (estrutura de estudo) */
+export type EnrolledCourseDetail = CourseCatalogDetail;
 
 export type ExerciseType = 'MULTIPLE_CHOICE' | 'CODE_FILL' | 'CODE_EDITOR';
 
@@ -106,8 +79,21 @@ export type LessonDetail = {
   contentMd: string;
   estimatedMinutes: number;
   orderIndex: number;
-  track: { id: string; slug: string; title: string };
   course: { id: string; slug: string; title: string };
   module: { id: string; slug: string; title: string };
   exercises: LessonExercise[];
+};
+
+/** GET /courses (autenticado) — lista para o aluno */
+export type CourseListItem = {
+  id: string;
+  slug: string;
+  title: string;
+  description: string | null;
+  isFree: boolean;
+  orderIndex: number;
+  moduleCount: number;
+  lessonCount: number;
+  enrolled: boolean;
+  enrolledAt: string | null;
 };

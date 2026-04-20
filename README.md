@@ -31,7 +31,23 @@ Monorepo com API **NestJS** (Prisma + MySQL), frontend **React + Vite** (Tailwin
    npx prisma db seed
    ```
 
+   **Bases antigas com “trilhas” (`Track` / `UserTrackEnrollment`):** faça backup e execute o script SQL em [`apps/api/prisma/manual-remove-tracks-mysql.sql`](apps/api/prisma/manual-remove-tracks-mysql.sql) no MySQL **antes** de alinhar o schema (ele copia matrículas para cursos, remove trilhas e ajusta `Course`). Em projeto novo, ignore esse arquivo.
+
    Em ambientes onde `prisma migrate dev` falhar por **shadow database** (usuário sem `CREATE DATABASE`), use `db push` como acima ou conceda permissões ao usuário MySQL.
+
+## Design (Google Stitch — DevCode Journey)
+
+A tela **“Trilha de Aprendizado”** do projeto Stitch pode ser baixada (HTML + PNG) com o SDK oficial, que usa a mesma API do servidor MCP do Stitch:
+
+```bash
+# PowerShell — defina a chave obtida em https://stitch.withgoogle.com/settings
+$env:STITCH_API_KEY="sua-chave"
+npm run stitch:fetch-screen
+```
+
+Isso grava `screen.html`, `screen.png` e `meta.json` em `apps/web/public/stitch-assets/devcode-journey/`. O catálogo em `/app/courses` usa o PNG como fundo opcional do hero quando o arquivo existe.
+
+Variáveis opcionais: `STITCH_PROJECT_ID`, `STITCH_SCREEN_ID` (padrões: projeto DevCode Journey e a tela informada no fluxo Stitch).
 
 ## Executar em desenvolvimento
 
@@ -53,7 +69,9 @@ Terminal 2 — Web (http://localhost:5173, proxy `/api` → API):
 npm run dev:web
 ```
 
-Abra o app, **crie uma conta** e navegue em **Trilhas** → aula → exercícios (múltipla escolha, preencher código, editor JavaScript com validação no servidor).
+Abra o app, **crie uma conta** e navegue em **Cursos** → aula → exercícios (múltipla escolha, preencher código, editor JavaScript com validação no servidor).
+
+**Catálogo público (API):** `GET /api/v1/catalog/courses` e `GET /api/v1/catalog/courses/:courseId`.
 
 **Progresso (API):** `GET /api/v1/progress` e `POST /api/v1/progress/lessons/:lessonId/complete` (antes eram `me/progress` e `lessons/.../complete` na raiz do prefixo).
 
@@ -66,7 +84,7 @@ npm run build
 ## Estrutura
 
 - `apps/api` — NestJS, JWT, módulos de auth, catálogo, aulas, progresso, gamificação e submissão de exercícios.
-- `apps/web` — SPA com rotas protegidas, dashboard, trilhas, aulas em Markdown e Monaco Editor.
+- `apps/web` — SPA com rotas protegidas, dashboard, catálogo de cursos, aulas em Markdown e Monaco Editor.
 - `docker-compose.yml` — MySQL 8 para desenvolvimento local.
 
 ## Variáveis de ambiente (API)

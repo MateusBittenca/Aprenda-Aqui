@@ -13,6 +13,12 @@ export class ApiError extends Error {
   }
 }
 
+/** Para queryFn/mutations onde `enabled` garante sessão; falha explícita se o invariante quebrar. */
+export function requireToken(token: string | null | undefined): string {
+  if (!token) throw new Error('Sessão necessária para esta requisição');
+  return token;
+}
+
 async function parseJson(res: Response): Promise<unknown> {
   const text = await res.text();
   if (!text) return null;

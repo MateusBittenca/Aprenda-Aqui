@@ -13,15 +13,18 @@ const SIZE: Record<Size, string> = {
 export function Avatar({
   userId,
   displayName,
+  colorKey,
   size = 'md',
   className,
 }: {
   userId: string;
   displayName: string;
+  /** Preferência salva no perfil; omitir usa cor automática pelo id. */
+  colorKey?: string | null;
   size?: Size;
   className?: string;
 }) {
-  const style = getAvatarStyle(userId);
+  const style = getAvatarStyle(userId, colorKey);
   const initial = displayName.charAt(0).toUpperCase();
   return (
     <span

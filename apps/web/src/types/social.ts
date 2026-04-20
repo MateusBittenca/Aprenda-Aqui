@@ -2,6 +2,7 @@
 export type PublicProfile = {
   id: string;
   displayName: string;
+  avatarColorKey: string;
   bio: string | null;
   xpTotal: number;
   level: number;
@@ -30,6 +31,7 @@ export type ComparePayload = {
 export type UserSearchHit = {
   id: string;
   displayName: string;
+  avatarColorKey: string;
   level: number;
   xpTotal: number;
 };
@@ -37,6 +39,7 @@ export type UserSearchHit = {
 export type FollowListUser = {
   id: string;
   displayName: string;
+  avatarColorKey: string;
   level: number;
   xpTotal: number;
   viewerFollowsThem: boolean;

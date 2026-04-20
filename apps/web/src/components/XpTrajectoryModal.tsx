@@ -50,7 +50,7 @@ export function XpTrajectoryModal({ open, onClose, xpTotal, level }: Props) {
 
   useEffect(() => {
     if (!open) {
-      setSelectedStep(null);
+      queueMicrotask(() => setSelectedStep(null));
       return;
     }
     document.addEventListener('keydown', handleEscape);
@@ -61,10 +61,6 @@ export function XpTrajectoryModal({ open, onClose, xpTotal, level }: Props) {
       document.body.style.overflow = prev;
     };
   }, [open, handleEscape]);
-
-  useEffect(() => {
-    if (!open) setSelectedStep(null);
-  }, [open]);
 
   if (!open) return null;
 

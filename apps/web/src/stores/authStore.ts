@@ -9,6 +9,8 @@ export type AuthUser = {
   email: string;
   displayName: string;
   role: UserRole;
+  /** Presente após login/me; sessões antigas podem não ter o campo. */
+  avatarColorKey?: string;
   xpTotal: number;
   level: number;
   gems: number;
@@ -43,8 +45,9 @@ export function useAuthHydration(): boolean {
   const [hydrated, setHydrated] = useState(() => useAuthStore.persist.hasHydrated());
 
   useEffect(() => {
-    if (useAuthStore.persist.hasHydrated()) setHydrated(true);
-    const unsub = useAuthStore.persist.onFinishHydration(() => setHydrated(true));
+    const mark = () => queueMicrotask(() => setHydrated(true));
+    if (useAuthStore.persist.hasHydrated()) mark();
+    const unsub = useAuthStore.persist.onFinishHydration(() => mark());
     return unsub;
   }, []);
 

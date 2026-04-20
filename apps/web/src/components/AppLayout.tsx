@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import {
+  CircleHelp,
   Flame,
   Gem,
   LayoutDashboard,
@@ -10,12 +12,15 @@ import {
   ShoppingBag,
   Users,
 } from 'lucide-react';
+import { twMerge } from 'tailwind-merge';
 import { BrandLogo } from './BrandLogo';
 import { Avatar } from './Avatar';
 import { useAuth } from '../hooks/useAuth';
+import { useMe } from '../hooks/useMe';
 import { getRankForLevel } from '../lib/levelTitles';
+import { useUiPreferences } from '../stores/uiPreferencesStore';
 
-function StreakBadge({ streak }: { streak: number }) {
+function StreakBadge({ streak, weekDays }: { streak: number; weekDays?: boolean[] }) {
   const color =
     streak === 0
       ? 'bg-slate-100 text-slate-500'
@@ -27,29 +32,54 @@ function StreakBadge({ streak }: { streak: number }) {
 
   const title =
     streak === 0
-      ? 'Nenhum dia de sequência ainda'
+      ? 'Nenhum dia de ofensiva ainda — acerte um exercício ou conclua uma aula hoje.'
       : streak < 7
-        ? `${streak} dias de sequência`
-        : `${streak} dias em chamas! 🔥`;
+        ? `Ofensiva: ${streak} dia${streak === 1 ? '' : 's'}. Os pontos mostram os últimos 7 dias (o último é hoje).`
+        : `${streak} dias de ofensiva! Continue assim.`;
 
   return (
     <span
       title={title}
-      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium transition ${color} ${streak >= 7 ? 'ring-1 ring-amber-300' : ''}`}
+      className={twMerge(
+        'inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 font-medium transition',
+        color,
+        streak >= 7 ? 'ring-1 ring-amber-300' : '',
+      )}
     >
+      {weekDays && weekDays.length === 7 ? (
+        <span className="flex gap-0.5 pr-0.5" aria-hidden>
+          {weekDays.map((on, i) => (
+            <span
+              key={i}
+              title={on ? 'Estudou neste dia' : 'Sem estudo'}
+              className={twMerge(
+                'h-2 w-2 rounded-full transition-colors',
+                on ? 'bg-orange-500 shadow-[0_0_0_1px_rgba(251,146,60,0.35)]' : 'bg-slate-300/80',
+                i === 6 && 'ring-1 ring-orange-600 ring-offset-1 ring-offset-white',
+              )}
+            />
+          ))}
+        </span>
+      ) : null}
       <Flame
-        className={`h-4 w-4 ${streak >= 7 ? 'animate-pulse motion-reduce:animate-none' : ''}`}
+        className={`h-4 w-4 shrink-0 ${streak >= 7 ? 'animate-pulse motion-reduce:animate-none' : ''}`}
         aria-hidden
       />
-      {streak}
+      <span className="tabular-nums">{streak}</span>
     </span>
   );
 }
 
 export function AppLayout() {
   const { user, logout } = useAuth();
+  const { data: me } = useMe({ syncStore: true });
   const pathname = useLocation().pathname;
   const hideGlobalStats = pathname === '/app/me' || pathname === '/app/ranking';
+  const reduceMotion = useUiPreferences((s) => s.reduceMotion);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('reduce-interface-motion', reduceMotion);
+  }, [reduceMotion]);
 
   return (
     <div className="min-h-dvh bg-surface text-on-surface dot-grid">
@@ -83,7 +113,7 @@ export function AppLayout() {
               </button>
               {!hideGlobalStats && (
                 <>
-                  <StreakBadge streak={user.currentStreak} />
+                  <StreakBadge streak={user.currentStreak} weekDays={me?.streakWeekDays} />
                   <span
                     title={`${user.gems} gemas`}
                     className="inline-flex items-center gap-1 rounded-full bg-sky-50 px-2 py-0.5 font-medium text-sky-600"
@@ -108,17 +138,24 @@ export function AppLayout() {
                 aria-label="Abrir perfil"
                 className="rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
               >
-                <Avatar userId={user.id} displayName={user.displayName} size="sm" className="ring-2 ring-white hover:ring-blue-400 transition" />
+                <Avatar
+                  userId={user.id}
+                  displayName={user.displayName}
+                  colorKey={user.avatarColorKey}
+                  size="sm"
+                  className="ring-2 ring-white hover:ring-blue-400 transition"
+                />
               </Link>
             </div>
           )}
         </div>
         <nav className="mx-auto flex max-w-7xl flex-wrap gap-1 border-t border-surface-container-high/80 px-2 pb-2 pt-1 sm:px-6" aria-label="Principal">
           <AppNavLink to="/app" end icon={<LayoutDashboard className="h-4 w-4" />} label="Início" />
-          <AppNavLink to="/app/my-tracks" end={false} icon={<Map className="h-4 w-4" />} label="Minhas trilhas" />
-          <AppNavLink to="/app/tracks" end={false} icon={<ShoppingBag className="h-4 w-4" />} label="Trilhas" />
+          <AppNavLink to="/app/my-courses" end={false} icon={<Map className="h-4 w-4" />} label="Meus cursos" />
+          <AppNavLink to="/app/courses" end={false} icon={<ShoppingBag className="h-4 w-4" />} label="Cursos" />
           <AppNavLink to="/app/ranking" icon={<Medal className="h-4 w-4" />} label="Ranking" />
           <AppNavLink to="/app/community" icon={<Users className="h-4 w-4" />} label="Comunidade" />
+          <AppNavLink to="/app/help" icon={<CircleHelp className="h-4 w-4" />} label="Ajuda" />
           <AppNavLink to="/app/settings" icon={<Settings2 className="h-4 w-4" />} label="Configurações" />
         </nav>
       </header>

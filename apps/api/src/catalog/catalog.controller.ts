@@ -1,17 +1,17 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { CatalogService } from './catalog.service';
 
-@Controller('tracks')
+@Controller('catalog')
 export class CatalogController {
   constructor(private readonly catalog: CatalogService) {}
 
-  @Get()
-  list() {
-    return this.catalog.listTracks();
+  @Get('courses')
+  listCourses() {
+    return this.catalog.listCoursesPublic();
   }
 
-  @Get(':trackId')
-  getOne(@Param('trackId') trackId: string) {
-    return this.catalog.getTrack(trackId);
+  @Get('courses/:courseId')
+  getCourse(@Param('courseId') courseId: string) {
+    return this.catalog.getCoursePublic(courseId);
   }
 }

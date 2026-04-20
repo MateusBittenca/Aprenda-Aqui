@@ -9,11 +9,15 @@ export type MeProfile = {
   timezone: string;
   bio?: string | null;
   showInSearch?: boolean;
+  /** Cor do avatar: "auto" ou chave fixa (blue, violet, …). */
+  avatarColorKey: string;
   xpTotal: number;
   level: number;
   gems: number;
   currentStreak: number;
   longestStreak: number;
+  /** Últimos 7 dias (mais antigo → hoje); true = dia com estudo (exercício certo ou aula concluída). */
+  streakWeekDays: boolean[];
   lastActivityDate: string | null;
   createdAt: string;
   xpProgress: {

@@ -9,7 +9,11 @@ export function levelFromTotalXp(xpTotal: number): number {
   return level;
 }
 
-export function xpToNextLevel(xpTotal: number): { level: number; currentBandXp: number; bandSize: number } {
+export function xpToNextLevel(xpTotal: number): {
+  level: number;
+  currentBandXp: number;
+  bandSize: number;
+} {
   const level = levelFromTotalXp(xpTotal);
   let spent = 0;
   for (let l = 1; l < level; l++) {

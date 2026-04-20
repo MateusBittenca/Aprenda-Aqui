@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Editor from '@monaco-editor/react';
 import { Check, Loader2, Play } from 'lucide-react';
 import { toast } from 'sonner';
@@ -146,10 +146,14 @@ function CodeFillView({
   let last = 0;
   let m: RegExpExecArray | null;
   let key = 0;
+  const codeTextClass = 'font-mono text-[13px] leading-6 text-[#d4d4d4]';
+  const blankInputClass =
+    'mx-0.5 inline-flex h-6 min-h-6 min-w-[4ch] max-w-[10rem] shrink-0 items-center rounded border border-[#454545] bg-[#2d2d2d] px-1.5 font-mono text-[13px] leading-none text-[#f3f3f3] outline-none ring-0 transition placeholder:text-[#6b6b6b] focus:border-[#007fd4] focus:ring-1 focus:ring-[#007fd4]/50';
+
   while ((m = re.exec(template)) !== null) {
     if (m.index > last) {
       parts.push(
-        <span key={`t-${key++}`} className="font-mono text-sm text-slate-800">
+        <span key={`t-${key++}`} className={codeTextClass}>
           {template.slice(last, m.index)}
         </span>,
       );
@@ -159,7 +163,7 @@ function CodeFillView({
       <input
         key={`b-${id}`}
         aria-label={`Lacuna ${id}`}
-        className="mx-0.5 inline-block min-w-[6rem] rounded-lg border-2 border-indigo-200 bg-indigo-50/50 px-2 py-1 font-mono text-sm font-medium text-indigo-950 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/20"
+        className={blankInputClass}
         value={values[id] ?? ''}
         onChange={(e) => setValues((v) => ({ ...v, [id]: e.target.value }))}
         onKeyDown={(e) => {
@@ -171,7 +175,7 @@ function CodeFillView({
   }
   if (last < template.length) {
     parts.push(
-      <span key={`t-${key++}`} className="font-mono text-sm text-slate-800">
+      <span key={`t-${key++}`} className={codeTextClass}>
         {template.slice(last)}
       </span>,
     );
@@ -197,7 +201,7 @@ function CodeFillView({
       <div className="border-b border-slate-200/90 bg-slate-50 px-4 py-3">
         <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700">{exercise.prompt}</p>
       </div>
-      <div className="flex flex-wrap items-center gap-1 bg-[#1e1e1e] px-4 py-4 font-mono text-sm leading-loose text-slate-100">
+      <div className="flex flex-wrap items-center gap-x-0 gap-y-1.5 bg-[#1e1e1e] px-4 py-3.5">
         {parts}
       </div>
     </MacEditorChrome>
@@ -216,7 +220,9 @@ function CodeEditorView({
   const starter = (exercise.payload.starterCode as string) ?? '';
   const [code, setCode] = useState(starter);
   const loadingRef = useRef(loading);
-  loadingRef.current = loading;
+  useEffect(() => {
+    loadingRef.current = loading;
+  }, [loading]);
 
   if (exercise.solved) {
     return (

@@ -1,5 +1,8 @@
 ﻿import { PrismaClient, ExerciseType } from '@prisma/client';
-import { landingForTrack } from './track-landing-content';
+import { landingForCourse } from './track-landing-content';
+
+/** Ordem global estável (grupo lógico * 100000 + ordem do curso no grupo). */
+const courseOrder = (trackOrd: number, courseOrd: number) => trackOrd * 100000 + courseOrd;
 
 type ExCreate = {
   type: ExerciseType;
@@ -12,7 +15,7 @@ type ExCreate = {
 };
 
 /**
- * Cinco trilhas novas (conteúdo extenso): React, Algoritmos, TypeScript avançado, APIs, Qualidade.
+ * Cinco cursos novos (conteúdo extenso): React, Algoritmos, TypeScript avançado, APIs, Qualidade.
  * O editor de código do MVP avalia apenas expressões JavaScript.
  */
 export async function seedNewTracks(prisma: PrismaClient) {
@@ -32,27 +35,17 @@ export async function seedNewTracks(prisma: PrismaClient) {
     });
   }
 
-  // --- Trilha 1: React e interfaces ---
-  const trackReact = await prisma.track.create({
-    data: {
-      slug: 'react-interfaces',
-      title: 'React e interfaces',
-      description: 'Componentes, estado, hooks e boas práticas para UIs modernas.',
-      tagline: 'Construa interfaces reativas com confiança.',
-      orderIndex: 4,
-      ...landingForTrack('react-interfaces'),
-    },
-  });
-
+  // --- React e interfaces ---
   const courseReactA = await prisma.course.create({
     data: {
-      trackId: trackReact.id,
       slug: 'react-fundamentos',
       title: 'React — fundamentos',
       description: 'JSX, componentes, props e composição.',
-      orderIndex: 0,
+      orderIndex: courseOrder(4, 0),
       isFree: true,
       autoEnrollOnAuth: true,
+      tagline: 'Construa interfaces reativas com confiança.',
+      ...landingForCourse('react-interfaces'),
     },
   });
 
@@ -366,11 +359,10 @@ useEffect(() => {
 
   const courseReactB = await prisma.course.create({
     data: {
-      trackId: trackReact.id,
       slug: 'react-formularios-ui',
       title: 'Formulários e padrões de UI',
       description: 'Inputs controlados, validação básica e acessibilidade.',
-      orderIndex: 1,
+      orderIndex: courseOrder(4, 1),
       isFree: true,
       autoEnrollOnAuth: false,
     },
@@ -624,27 +616,17 @@ Gerencie foco em modais (trap), ofereça skip links e estados visíveis de :focu
     },
   ]);
 
-  // --- Trilha 2: Algoritmos e lógica ---
-  const trackAlgo = await prisma.track.create({
-    data: {
-      slug: 'algoritmos-logica',
-      title: 'Algoritmos e lógica',
-      description: 'Complexidade, estruturas, padrões de resolução e prática em JavaScript.',
-      tagline: 'Pense como um engenheiro: correto, rápido e claro.',
-      orderIndex: 5,
-      ...landingForTrack('algoritmos-logica'),
-    },
-  });
-
+  // --- Algoritmos e lógica ---
   const courseAlgoA = await prisma.course.create({
     data: {
-      trackId: trackAlgo.id,
       slug: 'complexidade-arrays',
       title: 'Complexidade e arrays',
       description: 'Big-O intuitivo, busca e ordenação em alto nível.',
-      orderIndex: 0,
+      orderIndex: courseOrder(5, 0),
       isFree: true,
       autoEnrollOnAuth: true,
+      tagline: 'Pense como um engenheiro: correto, rápido e claro.',
+      ...landingForCourse('algoritmos-logica'),
     },
   });
 
@@ -886,11 +868,10 @@ Em JS, \`push\` + \`shift\` funciona mas \`shift\` pode ser O(n). Para performan
 
   const courseAlgoB = await prisma.course.create({
     data: {
-      trackId: trackAlgo.id,
       slug: 'strings-mapas',
       title: 'Strings, mapas e conjuntos',
       description: 'Contagem de frequência, sets e mapas em problemas comuns.',
-      orderIndex: 1,
+      orderIndex: courseOrder(5, 1),
       isFree: true,
       autoEnrollOnAuth: false,
     },
@@ -1129,27 +1110,17 @@ async function seedNewTracksPart2(
   prisma: PrismaClient,
   exercisesForLesson: (lessonId: string, items: ExCreate[]) => Promise<void>,
 ) {
-  // --- Trilha 3: TypeScript profundo ---
-  const trackTs = await prisma.track.create({
-    data: {
-      slug: 'typescript-profundo',
-      title: 'TypeScript profundo',
-      description: 'Tipos avançados, generics, narrowing e integração com APIs.',
-      tagline: 'Tipos que guiam o design e reduzem bugs.',
-      orderIndex: 6,
-      ...landingForTrack('typescript-profundo'),
-    },
-  });
-
+  // --- TypeScript profundo ---
   const courseTsA = await prisma.course.create({
     data: {
-      trackId: trackTs.id,
       slug: 'tipos-genericos',
       title: 'Tipos e generics',
       description: 'Uniões, narrowing, generics e inferência.',
-      orderIndex: 0,
+      orderIndex: courseOrder(6, 0),
       isFree: true,
       autoEnrollOnAuth: true,
+      tagline: 'Tipos que guiam o design e reduzem bugs.',
+      ...landingForCourse('typescript-profundo'),
     },
   });
 
@@ -1404,11 +1375,10 @@ Combine com ** keyof ** e mapeamentos para DRY em formulários e DTOs.`,
 
   const courseTsB = await prisma.course.create({
     data: {
-      trackId: trackTs.id,
       slug: 'ts-apis-projeto',
       title: 'TypeScript em projetos reais',
       description: 'Módulos, tipos de API e estratégias de strictness.',
-      orderIndex: 1,
+      orderIndex: courseOrder(6, 1),
       isFree: true,
       autoEnrollOnAuth: false,
     },
@@ -1642,27 +1612,17 @@ Em TS, uniões discriminadas com campo \`ok\` são um ótimo encaixe.`,
     },
   ]);
 
-  // --- Trilha 4: APIs REST e HTTP (orderIndex 7) ---
-  const trackApi = await prisma.track.create({
-    data: {
-      slug: 'apis-rest-http',
-      title: 'APIs REST e HTTP',
-      description: 'Recursos, verbos, status codes, JSON e consumo seguro no cliente.',
-      tagline: 'Contratos claros entre cliente e servidor.',
-      orderIndex: 7,
-      ...landingForTrack('apis-rest-http'),
-    },
-  });
-
+  // --- APIs REST e HTTP ---
   const courseApiA = await prisma.course.create({
     data: {
-      trackId: trackApi.id,
       slug: 'http-fundamentos',
       title: 'HTTP na prática',
       description: 'Métodos, cabeçalhos, corpo e idempotência.',
-      orderIndex: 0,
+      orderIndex: courseOrder(7, 0),
       isFree: true,
       autoEnrollOnAuth: true,
+      tagline: 'Contratos claros entre cliente e servidor.',
+      ...landingForCourse('apis-rest-http'),
     },
   });
 
@@ -1889,11 +1849,10 @@ Use \`AbortController\` para cancelar requisições (timeouts, unmount de compon
 
   const courseApiB = await prisma.course.create({
     data: {
-      trackId: trackApi.id,
       slug: 'api-design',
       title: 'Design de APIs',
       description: 'Versionamento, paginação, erros e documentação.',
-      orderIndex: 1,
+      orderIndex: courseOrder(7, 1),
       isFree: true,
       autoEnrollOnAuth: false,
     },
@@ -2132,27 +2091,17 @@ Rotacione tokens vazados e prefira escopos mínimos.`,
     },
   ]);
 
-  // --- Trilha 5: Qualidade, testes e entrega ---
-  const trackQa = await prisma.track.create({
-    data: {
-      slug: 'qualidade-testes',
-      title: 'Qualidade, testes e entrega',
-      description: 'Testes automatizados, revisão, CI e observabilidade básica.',
-      tagline: 'Confiança para mudar código sem medo.',
-      orderIndex: 8,
-      ...landingForTrack('qualidade-testes'),
-    },
-  });
-
+  // --- Qualidade, testes e entrega ---
   const courseQaA = await prisma.course.create({
     data: {
-      trackId: trackQa.id,
       slug: 'testes-piramide',
       title: 'Pirâmide de testes',
       description: 'Unitário, integração e E2E — onde investir.',
-      orderIndex: 0,
+      orderIndex: courseOrder(8, 0),
       isFree: true,
       autoEnrollOnAuth: true,
+      tagline: 'Confiança para mudar código sem medo.',
+      ...landingForCourse('qualidade-testes'),
     },
   });
 
@@ -2394,11 +2343,10 @@ Playwright/Cypress simulam usuário real. Use para **fluxos críticos** (login, 
 
   const courseQaB = await prisma.course.create({
     data: {
-      trackId: trackQa.id,
       slug: 'ci-observabilidade',
       title: 'CI e observabilidade',
       description: 'Pipelines, logs, métricas e erros em produção.',
-      orderIndex: 1,
+      orderIndex: courseOrder(8, 1),
       isFree: true,
       autoEnrollOnAuth: false,
     },

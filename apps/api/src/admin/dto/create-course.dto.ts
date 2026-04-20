@@ -1,11 +1,15 @@
-import { IsBoolean, IsInt, IsOptional, IsString, Matches, MaxLength, Min, MinLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsInt,
+  IsOptional,
+  IsString,
+  Matches,
+  MaxLength,
+  Min,
+  MinLength,
+} from 'class-validator';
 
 export class CreateCourseDto {
-  /** ID ou slug da trilha */
-  @IsString()
-  @MinLength(1)
-  trackId!: string;
-
   @IsString()
   @MinLength(1)
   @MaxLength(120)
@@ -23,6 +27,20 @@ export class CreateCourseDto {
   @IsString()
   @MaxLength(10000)
   description?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(160)
+  tagline?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2048)
+  coverImageUrl?: string | null;
+
+  @IsOptional()
+  @IsString()
+  overviewMd?: string | null;
 
   @IsOptional()
   @IsInt()

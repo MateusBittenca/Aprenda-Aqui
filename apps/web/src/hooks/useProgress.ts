@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { apiFetch } from '../lib/api';
+import { apiFetch, requireToken } from '../lib/api';
 import { useAuthHydration, useAuthStore } from '../stores/authStore';
 
 type LessonProgress = { lessonId: string; completed: boolean; completedAt: string | null };
@@ -17,7 +17,7 @@ export function useProgress() {
 
   const query = useQuery({
     queryKey: ['progress', userId ?? ''],
-    queryFn: () => apiFetch<UserProgress>('/progress', { token: token! }),
+    queryFn: () => apiFetch<UserProgress>('/progress', { token: requireToken(token) }),
     enabled: hydrated && !!token && !!userId,
     staleTime: 15_000,
   });

@@ -12,7 +12,7 @@ export function StatCard({
   sub: string;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-soft">
+    <div className="rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-4 shadow-elevated">
       <div className="flex items-center gap-2 text-slate-500">
         {icon}
         <span className="text-xs font-semibold uppercase tracking-wide">{label}</span>

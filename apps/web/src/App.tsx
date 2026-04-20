@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { Toaster } from 'sonner';
+import { ScrollToTop } from './components/ScrollToTop';
 import { AppLayout } from './components/AppLayout';
 import { AdminLayout } from './components/AdminLayout';
 import { AdminProtectedRoute } from './components/AdminProtectedRoute';
@@ -43,7 +44,8 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <Toaster richColors position="top-center" closeButton />
+        <ScrollToTop />
+        <Toaster richColors position="top-center" closeButton duration={4500} />
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />

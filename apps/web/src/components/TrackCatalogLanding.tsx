@@ -68,16 +68,10 @@ export function TrackCatalogLanding({
                 className="h-full w-full object-cover"
                 loading="eager"
               />
-              <div
-                className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-900/75 to-slate-900/35"
-                aria-hidden
-              />
+              <div className="absolute inset-0 bg-slate-950/80" aria-hidden />
             </>
           ) : (
-            <div
-              className={`h-full min-h-[280px] w-full bg-gradient-to-br from-slate-800 via-indigo-900 to-slate-900 sm:min-h-[320px]`}
-              aria-hidden
-            />
+            <div className="h-full min-h-[280px] w-full bg-slate-900 sm:min-h-[320px]" aria-hidden />
           )}
         </div>
 
@@ -187,7 +181,7 @@ export function TrackCatalogLanding({
         </article>
 
         <aside className="space-y-4 lg:sticky lg:top-24">
-          <div className="rounded-3xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white p-6 shadow-lg shadow-indigo-500/10">
+          <div className="rounded-3xl border border-indigo-100 bg-indigo-50/90 p-6 shadow-lg shadow-indigo-500/10">
             <h3 className="flex items-center gap-2 text-sm font-black uppercase tracking-wide text-indigo-900">
               <CheckCircle2 className="h-4 w-4 text-emerald-600" aria-hidden />
               Por que estudar aqui

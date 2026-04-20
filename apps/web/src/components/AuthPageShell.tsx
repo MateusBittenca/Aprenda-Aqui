@@ -3,10 +3,10 @@ import { BrandLogo } from './BrandLogo';
 
 export function AuthPageShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-dvh flex-col bg-slate-50 dot-grid">
-      <header className="border-b border-slate-200/60 bg-white/90 px-4 py-4 backdrop-blur-md">
+    <div className="flex min-h-dvh flex-col bg-surface dot-grid text-on-surface">
+      <header className="border-b border-surface-container-high/80 bg-surface-container-lowest/90 px-4 py-4 shadow-sm backdrop-blur-md">
         <div className="mx-auto flex max-w-md items-center justify-between">
-          <Link to="/" className="text-sm font-semibold text-slate-600 transition hover:text-blue-600">
+          <Link to="/" className="text-sm font-semibold text-on-surface-variant transition hover:text-primary">
             Voltar ao início
           </Link>
           <BrandLogo size="sm" linkTo="/" />

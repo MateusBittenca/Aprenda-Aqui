@@ -43,12 +43,12 @@ export function RegisterPage() {
 
   return (
     <AuthPageShell>
-      <div className="w-full max-w-md rounded-3xl border border-slate-200/80 bg-white p-8 shadow-soft">
-        <h1 className="text-2xl font-bold text-slate-900">Criar conta</h1>
-        <p className="mt-1 text-sm text-slate-500">Crie sua conta e comece hoje.</p>
+      <div className="w-full max-w-md rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-8 shadow-elevated">
+        <h1 className="font-headline text-2xl font-bold text-on-surface">Criar conta</h1>
+        <p className="mt-1 text-sm text-on-surface-variant">Crie sua conta e comece hoje.</p>
         <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-4" noValidate>
           <div>
-            <label htmlFor={nameId} className="block text-left text-sm font-medium text-slate-700">
+            <label htmlFor={nameId} className="block text-left text-sm font-medium text-on-surface">
               Nome
             </label>
             <input
@@ -58,11 +58,11 @@ export function RegisterPage() {
               autoComplete="name"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 outline-none ring-blue-400 focus:ring-2"
+              className="mt-1 w-full rounded-xl border border-surface-container-high bg-surface-container-lowest px-3 py-2 text-on-surface outline-none ring-primary/20 focus:ring-2"
             />
           </div>
           <div>
-            <label htmlFor={emailId} className="block text-left text-sm font-medium text-slate-700">
+            <label htmlFor={emailId} className="block text-left text-sm font-medium text-on-surface">
               E-mail
             </label>
             <input
@@ -72,11 +72,11 @@ export function RegisterPage() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 outline-none ring-blue-400 focus:ring-2"
+              className="mt-1 w-full rounded-xl border border-surface-container-high bg-surface-container-lowest px-3 py-2 text-on-surface outline-none ring-primary/20 focus:ring-2"
             />
           </div>
           <div>
-            <label htmlFor={passwordId} className="block text-left text-sm font-medium text-slate-700">
+            <label htmlFor={passwordId} className="block text-left text-sm font-medium text-on-surface">
               Senha (mín. 8 caracteres)
             </label>
             <input
@@ -87,7 +87,7 @@ export function RegisterPage() {
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 outline-none ring-blue-400 focus:ring-2"
+              className="mt-1 w-full rounded-xl border border-surface-container-high bg-surface-container-lowest px-3 py-2 text-on-surface outline-none ring-primary/20 focus:ring-2"
             />
           </div>
           {err ? (
@@ -98,14 +98,14 @@ export function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="rounded-2xl bg-blue-600 py-3 font-semibold text-white shadow-lg shadow-blue-500/25 transition hover:bg-blue-700 disabled:opacity-60"
+            className="rounded-2xl bg-primary py-3 font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary-dim disabled:opacity-60"
           >
             {loading ? 'Criando…' : 'Registrar'}
           </button>
         </form>
-        <p className="mt-4 text-center text-sm text-slate-600">
+        <p className="mt-4 text-center text-sm text-on-surface-variant">
           Já tem conta?{' '}
-          <Link to="/login" className="font-semibold text-blue-600 hover:underline">
+          <Link to="/login" className="font-semibold text-primary hover:underline">
             Entrar
           </Link>
         </p>

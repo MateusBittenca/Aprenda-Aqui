@@ -45,12 +45,12 @@ export function LoginPage() {
 
   return (
     <AuthPageShell>
-      <div className="w-full max-w-md rounded-3xl border border-slate-200/80 bg-white p-8 shadow-soft">
-        <h1 className="text-2xl font-bold text-slate-900">Entrar</h1>
-        <p className="mt-1 text-sm text-slate-500">Entre para continuar aprendendo.</p>
+      <div className="w-full max-w-md rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-8 shadow-elevated">
+        <h1 className="font-headline text-2xl font-bold text-on-surface">Entrar</h1>
+        <p className="mt-1 text-sm text-on-surface-variant">Entre para continuar aprendendo.</p>
         <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-4" noValidate>
           <div>
-            <label htmlFor={emailId} className="block text-left text-sm font-medium text-slate-700">
+            <label htmlFor={emailId} className="block text-left text-sm font-medium text-on-surface">
               E-mail
             </label>
             <input
@@ -60,11 +60,11 @@ export function LoginPage() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 outline-none ring-blue-400 focus:ring-2"
+              className="mt-1 w-full rounded-xl border border-surface-container-high bg-surface-container-lowest px-3 py-2 text-on-surface outline-none ring-primary/20 focus:ring-2"
             />
           </div>
           <div>
-            <label htmlFor={passwordId} className="block text-left text-sm font-medium text-slate-700">
+            <label htmlFor={passwordId} className="block text-left text-sm font-medium text-on-surface">
               Senha
             </label>
             <input
@@ -74,7 +74,7 @@ export function LoginPage() {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 outline-none ring-blue-400 focus:ring-2"
+              className="mt-1 w-full rounded-xl border border-surface-container-high bg-surface-container-lowest px-3 py-2 text-on-surface outline-none ring-primary/20 focus:ring-2"
             />
           </div>
           {err ? (
@@ -85,14 +85,14 @@ export function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="rounded-2xl bg-blue-600 py-3 font-semibold text-white shadow-lg shadow-blue-500/25 transition hover:bg-blue-700 disabled:opacity-60"
+            className="rounded-2xl bg-primary py-3 font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary-dim disabled:opacity-60"
           >
             {loading ? 'Entrando…' : 'Entrar'}
           </button>
         </form>
-        <p className="mt-4 text-center text-sm text-slate-600">
+        <p className="mt-4 text-center text-sm text-on-surface-variant">
           Novo por aqui?{' '}
-          <Link to="/register" className="font-semibold text-blue-600 hover:underline">
+          <Link to="/register" className="font-semibold text-primary hover:underline">
             Criar conta
           </Link>
         </p>

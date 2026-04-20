@@ -7,18 +7,18 @@ export function LandingPage() {
   const token = useAuthStore((s) => s.token);
 
   return (
-    <div className="min-h-dvh bg-slate-50 dot-grid text-slate-900">
-      <header className="fixed left-0 right-0 top-0 z-50 border-b border-slate-200/60 bg-white/90 backdrop-blur-md">
+    <div className="min-h-dvh bg-surface dot-grid text-on-surface">
+      <header className="fixed left-0 right-0 top-0 z-50 border-b border-surface-container-high/80 bg-surface-container-lowest/90 shadow-sm backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
           <BrandLogo size="md" linkTo="/" />
-          <nav className="hidden items-center gap-8 text-sm font-medium text-slate-600 md:flex">
-            <a href="#recursos" className="transition hover:text-slate-900">
+          <nav className="hidden items-center gap-8 text-sm font-medium text-on-surface-variant md:flex">
+            <a href="#recursos" className="transition hover:text-on-surface">
               Recursos
             </a>
-            <a href="#como-funciona" className="transition hover:text-slate-900">
+            <a href="#como-funciona" className="transition hover:text-on-surface">
               Como funciona
             </a>
-            <a href="#trilhas" className="transition hover:text-slate-900">
+            <a href="#trilhas" className="transition hover:text-on-surface">
               Trilhas
             </a>
           </nav>
@@ -26,7 +26,7 @@ export function LandingPage() {
             {token ? (
               <Link
                 to="/app"
-                className="rounded-full bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition hover:bg-blue-700"
+                className="rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/30 transition hover:bg-primary-dim"
               >
                 Ir para o painel
               </Link>
@@ -34,13 +34,13 @@ export function LandingPage() {
               <>
                 <Link
                   to="/login"
-                  className="rounded-full px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                  className="rounded-full px-3 py-2 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container-low"
                 >
                   Entrar
                 </Link>
                 <Link
                   to="/register"
-                  className="rounded-full bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition hover:bg-blue-700"
+                  className="rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/30 transition hover:bg-primary-dim"
                 >
                   Começar grátis
                 </Link>
@@ -136,7 +136,7 @@ export function LandingPage() {
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
               to="/register"
-              className="inline-flex w-full max-w-xs items-center justify-center rounded-2xl bg-blue-600 px-8 py-4 text-base font-semibold text-white shadow-xl shadow-blue-500/35 transition hover:bg-blue-700 sm:w-auto"
+              className="inline-flex w-full max-w-xs items-center justify-center rounded-2xl bg-primary px-8 py-4 text-base font-semibold text-white shadow-xl shadow-primary/35 transition hover:bg-primary-dim sm:w-auto"
             >
               Começar grátis
             </Link>
@@ -189,7 +189,7 @@ export function LandingPage() {
                 'Ganhe XP e gemas ao acertar; acompanhe nível e sequência no painel.',
               ].map((step, i) => (
                 <li key={step} className="flex gap-4 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-sm font-bold text-white">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-sm font-bold text-white">
                     {i + 1}
                   </span>
                   <p className="pt-1 text-left text-slate-700">{step}</p>
@@ -207,7 +207,7 @@ export function LandingPage() {
           </p>
           <Link
             to="/register"
-            className="mt-8 inline-flex items-center justify-center rounded-2xl bg-blue-600 px-10 py-4 text-base font-semibold text-white shadow-xl shadow-blue-500/35 transition hover:bg-blue-700"
+            className="mt-8 inline-flex items-center justify-center rounded-2xl bg-primary px-10 py-4 text-base font-semibold text-white shadow-xl shadow-primary/35 transition hover:bg-primary-dim"
           >
             Criar conta grátis
           </Link>

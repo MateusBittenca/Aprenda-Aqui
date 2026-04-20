@@ -1,4 +1,4 @@
-import { Link, NavLink, Outlet } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import {
   Flame,
   Gem,
@@ -8,12 +8,12 @@ import {
   Medal,
   Settings2,
   ShoppingBag,
-  User,
   Users,
 } from 'lucide-react';
 import { BrandLogo } from './BrandLogo';
 import { Avatar } from './Avatar';
 import { useAuth } from '../hooks/useAuth';
+import { getRankForLevel } from '../lib/levelTitles';
 
 function StreakBadge({ streak }: { streak: number }) {
   const color =
@@ -37,7 +37,10 @@ function StreakBadge({ streak }: { streak: number }) {
       title={title}
       className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium transition ${color} ${streak >= 7 ? 'ring-1 ring-amber-300' : ''}`}
     >
-      <Flame className={`h-4 w-4 ${streak >= 7 ? 'animate-pulse' : ''}`} aria-hidden />
+      <Flame
+        className={`h-4 w-4 ${streak >= 7 ? 'animate-pulse motion-reduce:animate-none' : ''}`}
+        aria-hidden
+      />
       {streak}
     </span>
   );
@@ -45,11 +48,19 @@ function StreakBadge({ streak }: { streak: number }) {
 
 export function AppLayout() {
   const { user, logout } = useAuth();
+  const pathname = useLocation().pathname;
+  const hideGlobalStats = pathname === '/app/me' || pathname === '/app/ranking';
 
   return (
-    <div className="min-h-dvh bg-slate-50 text-slate-900 dot-grid">
-      <header className="sticky top-0 z-40 border-b border-slate-200/60 bg-white/90 backdrop-blur-md shadow-sm shadow-slate-200/40">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
+    <div className="min-h-dvh bg-surface text-on-surface dot-grid">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-xl focus:bg-surface-container-lowest focus:px-4 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-primary focus:shadow-elevated focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+      >
+        Ir para o conteúdo
+      </a>
+      <header className="sticky top-0 z-40 border-b border-surface-container-high/80 bg-surface-container-lowest/85 shadow-elevated backdrop-blur-md">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-8">
           <BrandLogo size="sm" linkTo="/app" />
           {user && (
             <div className="flex flex-wrap items-center justify-end gap-2 text-sm">
@@ -70,34 +81,48 @@ export function AppLayout() {
                 <LogOut className="h-4 w-4" aria-hidden />
                 <span className="hidden sm:inline">Sair</span>
               </button>
-              <StreakBadge streak={user.currentStreak} />
-              <span
-                title={`${user.gems} gemas`}
-                className="inline-flex items-center gap-1 rounded-full bg-sky-50 px-2 py-0.5 font-medium text-sky-600"
+              {!hideGlobalStats && (
+                <>
+                  <StreakBadge streak={user.currentStreak} />
+                  <span
+                    title={`${user.gems} gemas`}
+                    className="inline-flex items-center gap-1 rounded-full bg-sky-50 px-2 py-0.5 font-medium text-sky-600"
+                  >
+                    <Gem className="h-4 w-4" aria-hidden />
+                    {user.gems}
+                  </span>
+                  <span
+                    title={getRankForLevel(user.level).description}
+                    className="hidden flex-col items-end rounded-full bg-blue-50 px-2.5 py-0.5 sm:flex"
+                  >
+                    <span className="text-xs font-semibold leading-tight text-blue-700">Nv. {user.level}</span>
+                    <span className="max-w-[7rem] truncate text-[10px] font-medium leading-tight text-blue-600/90">
+                      {getRankForLevel(user.level).name}
+                    </span>
+                  </span>
+                </>
+              )}
+              <Link
+                to="/app/me"
+                title="Ver perfil"
+                aria-label="Abrir perfil"
+                className="rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
               >
-                <Gem className="h-4 w-4" aria-hidden />
-                {user.gems}
-              </span>
-              <span className="hidden rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 sm:inline">
-                Nv. {user.level}
-              </span>
-              <Link to="/app/me" title="Ver perfil">
                 <Avatar userId={user.id} displayName={user.displayName} size="sm" className="ring-2 ring-white hover:ring-blue-400 transition" />
               </Link>
             </div>
           )}
         </div>
-        <nav className="mx-auto flex max-w-5xl gap-1 border-t border-slate-100 px-2 pb-2 pt-1" aria-label="Principal">
+        <nav className="mx-auto flex max-w-7xl flex-wrap gap-1 border-t border-surface-container-high/80 px-2 pb-2 pt-1 sm:px-6" aria-label="Principal">
           <AppNavLink to="/app" end icon={<LayoutDashboard className="h-4 w-4" />} label="Início" />
           <AppNavLink to="/app/my-tracks" end={false} icon={<Map className="h-4 w-4" />} label="Minhas trilhas" />
           <AppNavLink to="/app/tracks" end={false} icon={<ShoppingBag className="h-4 w-4" />} label="Trilhas" />
           <AppNavLink to="/app/ranking" icon={<Medal className="h-4 w-4" />} label="Ranking" />
           <AppNavLink to="/app/community" icon={<Users className="h-4 w-4" />} label="Comunidade" />
-          <AppNavLink to="/app/me" icon={<User className="h-4 w-4" />} label="Perfil" />
           <AppNavLink to="/app/settings" icon={<Settings2 className="h-4 w-4" />} label="Configurações" />
         </nav>
       </header>
-      <main className="mx-auto max-w-5xl px-4 py-8">
+      <main id="main-content" className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-8 lg:px-12" tabIndex={-1}>
         <Outlet />
       </main>
     </div>
@@ -122,7 +147,8 @@ function AppNavLink({
       className={({ isActive }) =>
         [
           'inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition',
-          isActive ? 'bg-blue-50 text-blue-800' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
+          'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+          isActive ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface',
         ].join(' ')
       }
     >

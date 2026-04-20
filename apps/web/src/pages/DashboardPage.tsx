@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight,
@@ -15,6 +16,8 @@ import {
   Trophy,
   Zap,
 } from 'lucide-react';
+import { XpTrajectoryModal } from '../components/XpTrajectoryModal';
+import { getNextRankThreshold, getRankForLevel } from '../lib/levelTitles';
 import { ErrorState } from '../components/ui/ErrorState';
 import { PageLoader } from '../components/ui/PageLoader';
 import { Avatar } from '../components/Avatar';
@@ -101,16 +104,16 @@ function HeroSection({ data }: { data: MeProfile }) {
   const greeting = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white p-6 shadow-soft sm:p-8">
-      <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-blue-50 opacity-60" />
+    <div className="relative overflow-hidden rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-6 shadow-elevated sm:p-8">
+      <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-primary-container/25 opacity-90" />
       <div className="relative flex items-center gap-4 sm:gap-5">
         <Avatar userId={data.id} displayName={data.displayName} size="xl" />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-slate-500">{greeting},</p>
-          <h1 className="mt-0.5 truncate text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+          <p className="text-sm font-medium text-on-surface-variant">{greeting},</p>
+          <h1 className="font-headline mt-0.5 truncate text-2xl font-black tracking-tight text-on-surface sm:text-3xl">
             {firstName}!
           </h1>
-          <p className="mt-1 text-sm text-slate-600">{streakMessage(data.currentStreak)}</p>
+          <p className="mt-1 text-sm text-on-surface-variant">{streakMessage(data.currentStreak)}</p>
         </div>
         {data.currentStreak >= 3 && (
           <div className="hidden flex-col items-center rounded-2xl border-2 border-amber-200 bg-amber-50 px-4 py-3 text-center shadow-sm sm:flex">
@@ -127,36 +130,62 @@ function HeroSection({ data }: { data: MeProfile }) {
 // ─── XP ───────────────────────────────────────────────────────────────────────
 
 function XPSection({ data }: { data: MeProfile }) {
+  const [trajOpen, setTrajOpen] = useState(false);
   const pct =
     data.xpProgress.bandSize > 0
       ? Math.min(100, Math.round((data.xpProgress.currentBandXp / data.xpProgress.bandSize) * 100))
       : 0;
+  const rank = getRankForLevel(data.level);
+  const nextRank = getNextRankThreshold(data.level);
 
   return (
-    <div className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-soft sm:p-6">
-      <div className="flex items-end justify-between gap-3">
-        <div>
-          <p className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide text-blue-700">
-            <Sparkles className="h-3.5 w-3.5" /> Nível {data.level}
-          </p>
-          <p className="mt-1.5 text-3xl font-black tabular-nums text-slate-900">
-            {data.xpProgress.currentBandXp}
-            <span className="ml-1 text-lg font-bold text-slate-400">/ {data.xpProgress.bandSize} XP</span>
+    <>
+      <button
+        type="button"
+        onClick={() => setTrajOpen(true)}
+        className="w-full rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-5 text-left shadow-elevated transition hover:border-primary/25 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 sm:p-6"
+      >
+        <div className="flex items-end justify-between gap-3">
+          <div className="min-w-0">
+            <p className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide text-primary">
+              <Sparkles className="h-3.5 w-3.5 shrink-0" aria-hidden /> Nível {data.level}
+            </p>
+            <p className="mt-1 text-sm font-semibold text-indigo-800">{rank.name}</p>
+            <p className="mt-1.5 text-3xl font-black tabular-nums text-slate-900">
+              {data.xpProgress.currentBandXp}
+              <span className="ml-1 text-lg font-bold text-slate-400">/ {data.xpProgress.bandSize} XP</span>
+            </p>
+          </div>
+          <p className="shrink-0 text-right text-sm font-semibold text-slate-500">
+            {pct}% para<br />
+            <span className="text-slate-900">Nível {data.level + 1}</span>
           </p>
         </div>
-        <p className="text-right text-sm font-semibold text-slate-500">
-          {pct}% para<br />
-          <span className="text-slate-900">Nível {data.level + 1}</span>
-        </p>
-      </div>
-      <div className="mt-4 h-3.5 overflow-hidden rounded-full bg-slate-100">
-        <div
-          className="h-full rounded-full bg-blue-600 transition-all duration-700"
-          style={{ width: `${pct}%` }}
-        />
-      </div>
-      <p className="mt-2 text-xs text-slate-400">{data.xpTotal} XP total acumulado</p>
-    </div>
+        <div className="mt-4 h-3.5 overflow-hidden rounded-full bg-slate-100">
+          <div
+            className="h-full rounded-full bg-primary transition-all duration-700"
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+        <div className="mt-3 flex flex-col gap-1 border-t border-slate-100 pt-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs text-slate-400">{data.xpTotal.toLocaleString('pt-BR')} XP total acumulado</p>
+          {nextRank ? (
+            <p className="text-xs font-medium text-slate-500">
+              Próximo título em nv. {nextRank.level}: <span className="text-indigo-700">{nextRank.name}</span>
+            </p>
+          ) : (
+            <p className="text-xs font-medium text-amber-700">Título máximo alcançado nesta escala</p>
+          )}
+        </div>
+        <p className="mt-2 text-[11px] font-medium text-primary">Ver trajetória e recompensas →</p>
+      </button>
+      <XpTrajectoryModal
+        open={trajOpen}
+        onClose={() => setTrajOpen(false)}
+        xpTotal={data.xpTotal}
+        level={data.level}
+      />
+    </>
   );
 }
 
@@ -196,7 +225,7 @@ function StatKpi({
     violet: 'bg-violet-50',
   };
   return (
-    <div className={`rounded-2xl border border-slate-200/80 ${bg[accent] ?? 'bg-white'} p-4 shadow-soft`}>
+    <div className={`rounded-2xl border border-slate-200/60 ${bg[accent] ?? 'bg-surface-container-lowest'} p-4 shadow-elevated`}>
       <div className="flex items-center gap-1.5">{icon}<span className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</span></div>
       <p className="mt-2 text-2xl font-black tabular-nums text-slate-900">{value}</p>
       <p className="text-xs text-slate-500">{sub}</p>
@@ -215,9 +244,9 @@ function GoalsSection({ progress }: { progress?: UserProgress }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       {/* Daily */}
-      <div className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-soft">
+      <div className="rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-5 shadow-elevated">
         <div className="flex items-center gap-2 mb-4">
-          <Target className="h-4 w-4 text-blue-600" />
+          <Target className="h-4 w-4 text-primary" />
           <h2 className="text-sm font-bold uppercase tracking-wide text-slate-700">Meta do dia</h2>
           {todayLessons >= 1 && todayEx >= 3 && (
             <span className="ml-auto text-xs font-bold text-emerald-600">Concluída! 🎉</span>
@@ -229,7 +258,7 @@ function GoalsSection({ progress }: { progress?: UserProgress }) {
         </ul>
       </div>
       {/* Weekly challenge */}
-      <div className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-soft">
+      <div className="rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-5 shadow-elevated">
         <div className="flex items-center gap-2 mb-4">
           <Trophy className="h-4 w-4 text-amber-500" />
           <h2 className="text-sm font-bold uppercase tracking-wide text-slate-700">Desafio semanal</h2>
@@ -259,7 +288,7 @@ function GoalItem({ label, done, current, total }: { label: string; done: boolea
       </div>
       <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-100">
         <div
-          className={`h-full rounded-full transition-all duration-500 ${done ? 'bg-emerald-500' : 'bg-blue-500'}`}
+          className={`h-full rounded-full transition-all duration-500 ${done ? 'bg-emerald-500' : 'bg-primary'}`}
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -277,10 +306,10 @@ function CoursesSection({ enrolled, loading }: { enrolled: EnrolledCourse[]; loa
     <section>
       <div className="mb-4 flex items-center justify-between">
         <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-slate-700">
-          <BookOpen className="h-4 w-4 text-blue-600" />
+          <BookOpen className="h-4 w-4 text-primary" />
           Cursos em andamento
         </h2>
-        <Link to="/app/my-tracks" className="text-xs font-semibold text-blue-600 hover:underline">
+        <Link to="/app/my-tracks" className="text-xs font-semibold text-primary hover:underline">
           Ver todos →
         </Link>
       </div>
@@ -290,16 +319,16 @@ function CoursesSection({ enrolled, loading }: { enrolled: EnrolledCourse[]; loa
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-36 animate-pulse rounded-3xl border border-slate-100 bg-slate-100/80"
+              className="h-36 animate-pulse rounded-2xl border border-surface-container-high bg-surface-container-low/80"
               aria-hidden
             />
           ))}
         </div>
       ) : enrolled.length === 0 ? (
-        <div className="rounded-3xl border-2 border-dashed border-slate-200 bg-white py-8 text-center text-sm text-slate-500 shadow-soft">
+        <div className="rounded-2xl border-2 border-dashed border-surface-container-high bg-surface-container-lowest py-8 text-center text-sm text-on-surface-variant shadow-elevated">
           <BookOpen className="mx-auto mb-3 h-8 w-8 text-slate-300" />
           <p className="font-medium">Você ainda não está matriculado em nenhum curso.</p>
-          <Link to="/app/tracks" className="mt-3 inline-flex items-center gap-1 text-blue-600 font-semibold hover:underline">
+          <Link to="/app/tracks" className="mt-3 inline-flex items-center gap-1 font-semibold text-primary hover:underline">
             Explorar trilhas <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
@@ -307,12 +336,12 @@ function CoursesSection({ enrolled, loading }: { enrolled: EnrolledCourse[]; loa
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {inProgress.slice(0, 3).map((c) => <CourseCard key={c.id} course={c} />)}
           {inProgress.length === 0 && completed.length > 0 && (
-            <div className="sm:col-span-2 xl:col-span-3 rounded-3xl border border-emerald-200 bg-emerald-50 p-5 text-center text-sm shadow-soft">
+            <div className="sm:col-span-2 xl:col-span-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-center text-sm shadow-elevated">
               <p className="font-semibold text-emerald-800">Todos os cursos concluídos! 🎉 Explore mais no catálogo.</p>
             </div>
           )}
           {inProgress.length === 0 && completed.length === 0 && enrolled.length > 0 && (
-            <div className="sm:col-span-2 xl:col-span-3 rounded-3xl border border-slate-200 bg-white p-5 text-center text-sm text-slate-500 shadow-soft">
+            <div className="sm:col-span-2 xl:col-span-3 rounded-2xl border border-surface-container-high bg-surface-container-lowest p-5 text-center text-sm text-on-surface-variant shadow-elevated">
               <p>Matriculado em {enrolled.length} curso{enrolled.length !== 1 ? 's' : ''} sem aulas criadas ainda.</p>
             </div>
           )}
@@ -326,10 +355,10 @@ function CourseCard({ course }: { course: EnrolledCourse }) {
   return (
     <Link
       to={`/app/my-tracks/${course.track.slug}`}
-      className="group flex flex-col rounded-3xl border border-slate-200/80 bg-white p-5 shadow-soft transition hover:-translate-y-0.5 hover:shadow-md"
+      className="group flex flex-col rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-5 shadow-elevated transition hover:-translate-y-0.5 hover:shadow-md"
     >
       <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">{course.track.title}</p>
-      <h3 className="mt-1 font-bold text-slate-900 group-hover:text-blue-700">{course.title}</h3>
+      <h3 className="mt-1 font-bold text-on-surface group-hover:text-primary">{course.title}</h3>
       {course.description && (
         <p className="mt-1 line-clamp-2 text-xs text-slate-500">{course.description}</p>
       )}
@@ -340,7 +369,7 @@ function CourseCard({ course }: { course: EnrolledCourse }) {
         </div>
         <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-slate-100">
           <div
-            className="h-full rounded-full bg-blue-600 transition-all duration-500"
+            className="h-full rounded-full bg-primary transition-all duration-500"
             style={{ width: `${course.progress.pct}%` }}
           />
         </div>
@@ -373,7 +402,7 @@ function BottomGrid({
 function LeaderboardMini({ lb, myId }: { lb?: LeaderboardData; myId: string }) {
   if (!lb) {
     return (
-      <div className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-soft">
+      <div className="rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-5 shadow-elevated">
         <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-slate-700">
           <Medal className="h-4 w-4 text-amber-500" /> Ranking Global
         </h2>
@@ -407,12 +436,12 @@ function LeaderboardMini({ lb, myId }: { lb?: LeaderboardData; myId: string }) {
   };
 
   return (
-    <div className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-soft">
+    <div className="rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-5 shadow-elevated">
       <div className="flex items-center justify-between mb-4">
         <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-slate-700">
           <Medal className="h-4 w-4 text-amber-500" /> Ranking Global
         </h2>
-        <Link to="/app/ranking" className="text-xs font-semibold text-blue-600 hover:underline">
+        <Link to="/app/ranking" className="text-xs font-semibold text-primary hover:underline">
           Ver completo →
         </Link>
       </div>
@@ -461,7 +490,7 @@ function BadgesSection({ data, progress }: { data: MeProfile; progress?: UserPro
   const shown = [...earned, ...notEarned].slice(0, 9);
 
   return (
-    <div className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-soft">
+    <div className="rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-5 shadow-elevated">
       <div className="flex items-center justify-between mb-4">
         <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-slate-700">
           <Trophy className="h-4 w-4 text-amber-500" /> Conquistas
@@ -493,7 +522,7 @@ function BadgesSection({ data, progress }: { data: MeProfile; progress?: UserPro
       </div>
       <Link
         to="/app/me"
-        className="mt-4 flex items-center justify-center gap-1 text-xs font-semibold text-slate-500 hover:text-blue-600"
+        className="mt-4 flex items-center justify-center gap-1 text-xs font-semibold text-slate-500 hover:text-primary"
       >
         Ver todas as conquistas <ArrowRight className="h-3 w-3" />
       </Link>
@@ -508,13 +537,13 @@ export function QuickActionsBar() {
     <div className="grid gap-3 sm:grid-cols-3">
       <Link
         to="/app/tracks"
-        className="group flex items-center justify-between rounded-2xl bg-blue-600 p-4 font-semibold text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700"
+        className="group flex items-center justify-between rounded-2xl bg-primary p-4 font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary-dim"
       >
         <div className="flex items-center gap-3">
           <ShoppingBag className="h-5 w-5" />
           <div>
             <p className="font-bold">Trilhas</p>
-            <p className="text-[11px] text-blue-200">Catálogo e matrícula</p>
+            <p className="text-[11px] text-white/80">Catálogo e matrícula</p>
           </div>
         </div>
         <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />

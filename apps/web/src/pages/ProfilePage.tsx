@@ -1,17 +1,31 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Flame, Gem, GraduationCap, Sparkles, Trophy, Zap } from 'lucide-react';
+import {
+  Flame,
+  Gem,
+  GraduationCap,
+  Pencil,
+  Terminal,
+  Trophy,
+  Users,
+  Zap,
+} from 'lucide-react';
 import { ErrorState } from '../components/ui/ErrorState';
 import { PageLoader } from '../components/ui/PageLoader';
 import { Avatar } from '../components/Avatar';
 import { useMe } from '../hooks/useMe';
 import { useProgress } from '../hooks/useProgress';
+import { useLeaderboard } from '../hooks/useLeaderboard';
 import { computeBadges, RARITY_LABEL, RARITY_STYLE } from '../lib/badges';
 import type { MeProfile } from '../types/user';
+import { getRankForLevel, getNextRankThreshold } from '../lib/levelTitles';
 import type { UserProgress } from '../hooks/useProgress';
+
+const cardShadow = 'shadow-card';
 
 export function ProfilePage() {
   const { data, isLoading, isError, error, hydrated } = useMe({ syncStore: true });
   const { data: progress } = useProgress();
+  const { data: lb } = useLeaderboard();
 
   if (!hydrated || isLoading) return <PageLoader label="Carregando perfil…" />;
 
@@ -20,7 +34,7 @@ export function ProfilePage() {
       <ErrorState
         title="Não foi possível carregar o perfil."
         error={error}
-        hint={<p>Verifique a API em <code className="rounded bg-white px-1 text-slate-800">localhost:3000</code>.</p>}
+        hint={<p>Verifique a API em <code className="rounded bg-white px-1 text-on-surface">localhost:3000</code>.</p>}
       />
     );
   }
@@ -31,230 +45,407 @@ export function ProfilePage() {
   const completedLessons = safeProgress.lessons.filter((l) => l.completed).length;
   const solvedEx = safeProgress.exercises.filter((e) => e.solved).length;
   const badges = computeBadges(data, safeProgress);
-  const earned = badges.filter((b) => b.earned);
 
   const pct =
     data.xpProgress.bandSize > 0
       ? Math.min(100, Math.round((data.xpProgress.currentBandXp / data.xpProgress.bandSize) * 100))
       : 0;
 
+  const earned = badges.filter((b) => b.earned);
+  const locked = badges.filter((b) => !b.earned);
+  const showcaseBadges = [...earned, ...locked].slice(0, 4);
+
+  const activityPeers = (lb?.top ?? []).filter((u) => u.id !== data.id).slice(0, 3);
+
+  const xpCompact =
+    data.xpTotal >= 1000 ? `${(data.xpTotal / 1000).toFixed(1).replace('.', ',')}k` : String(data.xpTotal);
+
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <div className="flex flex-wrap gap-2 text-sm">
+    <div className="w-full">
+      {/* Barra tipo TopAppBar do mockup (título + stats) */}
+      <header className="mb-8 flex h-14 min-h-[3.5rem] items-center justify-between gap-4 border-b border-surface-container-high/70 pb-4">
+        <h1 className="font-headline text-lg font-bold text-primary sm:text-xl">Perfil</h1>
+        <div className="flex items-center gap-5 sm:gap-8">
+          <div className="flex cursor-default items-center gap-2 transition-transform hover:scale-105">
+            <Flame className="h-5 w-5 text-orange-500" aria-hidden />
+            <span className="font-bold text-on-surface">{data.currentStreak}</span>
+          </div>
+          <div className="flex cursor-default items-center gap-2 transition-transform hover:scale-105">
+            <Gem className="h-5 w-5 text-sky-400" aria-hidden />
+            <span className="font-bold text-on-surface">{data.gems.toLocaleString('pt-BR')}</span>
+          </div>
+          <div className="hidden cursor-default items-center gap-2 transition-transform hover:scale-105 sm:flex">
+            <Trophy className="h-5 w-5 text-amber-500" aria-hidden />
+            <span className="font-bold text-on-surface">Nv. {data.level}</span>
+          </div>
+        </div>
+      </header>
+
+      <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
+        <div className="space-y-8 lg:col-span-8">
+          <ProfileHeroCard data={data} completedLessons={completedLessons} xpCompact={xpCompact} />
+
+          <AchievementsGallery badges={showcaseBadges} total={badges.length} earnedCount={earned.length} />
+
+          <LearningPathCard data={data} pct={pct} />
+
+          <section id="todas-conquistas" className="scroll-mt-28 space-y-4">
+            <h2 className="font-headline text-sm font-bold uppercase tracking-wide text-on-surface-variant">
+              Todas as conquistas
+            </h2>
+            <BadgesFullGrid badges={badges} />
+          </section>
+
+          {(completedLessons > 0 || solvedEx > 0) && (
+            <section
+              className={`rounded-[1.25rem] border border-surface-container-high/60 bg-surface-container-lowest p-6 ${cardShadow}`}
+            >
+              <h2 className="font-headline text-sm font-bold uppercase tracking-wide text-on-surface-variant">
+                Atividade
+              </h2>
+              <div className="mt-4 grid grid-cols-3 gap-4">
+                <ActivityMini
+                  icon={<GraduationCap className="mx-auto h-6 w-6 text-primary" />}
+                  value={completedLessons}
+                  label="aulas"
+                />
+                <ActivityMini
+                  icon={<Zap className="mx-auto h-6 w-6 text-tertiary" />}
+                  value={solvedEx}
+                  label="exercícios"
+                />
+                <ActivityMini
+                  icon={<Trophy className="mx-auto h-6 w-6 text-amber-500" />}
+                  value={earned.length}
+                  label="conquistas"
+                />
+              </div>
+            </section>
+          )}
+        </div>
+
+        <aside className="space-y-8 lg:sticky lg:top-28 lg:col-span-4">
+          <ActivityFeedCard peers={activityPeers} />
+          <WeekendSprintCard />
+        </aside>
+      </div>
+
+      <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Link
           to="/app/community"
-          className="rounded-full border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700 shadow-sm transition hover:border-indigo-200 hover:text-indigo-700"
+          className="rounded-full border border-surface-container-high bg-surface-container-lowest px-4 py-2 text-sm font-semibold text-on-surface shadow-sm transition hover:border-primary/40 hover:text-primary"
         >
           Comunidade
         </Link>
         <Link
           to="/app/settings"
-          className="rounded-full border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700 shadow-sm transition hover:border-indigo-200 hover:text-indigo-700"
+          className="rounded-full border border-surface-container-high bg-surface-container-lowest px-4 py-2 text-sm font-semibold text-on-surface shadow-sm transition hover:border-primary/40 hover:text-primary"
         >
           Configurações
         </Link>
       </div>
-
-      {/* Identity */}
-      <IdentityCard data={data} completedLessons={completedLessons} solvedEx={solvedEx} />
-
-      {/* XP */}
-      <XPCard data={data} pct={pct} />
-
-      {/* Stats */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatTile icon={<Sparkles className="h-5 w-5 text-blue-500" />} label="XP total" value={data.xpTotal.toLocaleString('pt-BR')} />
-        <StatTile icon={<Gem className="h-5 w-5 text-sky-500" />} label="Gemas" value={String(data.gems)} />
-        <StatTile icon={<Flame className="h-5 w-5 text-orange-500" />} label="Sequência" value={`${data.currentStreak}d`} />
-        <StatTile icon={<Trophy className="h-5 w-5 text-amber-500" />} label="Recorde" value={`${data.longestStreak}d`} />
-      </div>
-
-      {/* Activity */}
-      {(completedLessons > 0 || solvedEx > 0) && (
-        <div className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-soft">
-          <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500">Atividade</h2>
-          <div className="mt-4 grid grid-cols-3 gap-4">
-            <ActivityStat icon={<GraduationCap className="h-5 w-5 text-blue-500" />} value={completedLessons} label="aulas concluídas" />
-            <ActivityStat icon={<Zap className="h-5 w-5 text-violet-500" />} value={solvedEx} label="exercícios resolvidos" />
-            <ActivityStat icon={<Trophy className="h-5 w-5 text-amber-500" />} value={earned.length} label="conquistas" />
-          </div>
-        </div>
-      )}
-
-      {/* Badges */}
-      <BadgesFullSection badges={badges} />
     </div>
   );
 }
 
-function IdentityCard({
+function ProfileHeroCard({
   data,
   completedLessons,
-  solvedEx: _solvedEx,
+  xpCompact,
 }: {
   data: MeProfile;
   completedLessons: number;
-  solvedEx: number;
+  xpCompact: string;
+}) {
+  const rank = getRankForLevel(data.level);
+  return (
+    <section
+      className={`relative flex flex-col gap-8 overflow-hidden rounded-[1.25rem] bg-surface-container-lowest p-6 sm:p-8 md:flex-row md:items-start ${cardShadow}`}
+    >
+      <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-bl-full bg-primary-container/20" />
+      <div className="relative flex flex-col items-center md:items-start">
+        <div className="relative">
+          <div className="h-36 w-36 overflow-hidden rounded-2xl border-4 border-surface-container-highest shadow-inner sm:h-40 sm:w-40">
+            <Avatar
+              userId={data.id}
+              displayName={data.displayName}
+              size="xl"
+              className="!h-full !w-full !rounded-2xl !text-4xl sm:!text-5xl"
+            />
+          </div>
+          <Link
+            to="/app/settings"
+            title="Editar perfil"
+            className="absolute -bottom-2 -right-2 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white shadow-lg transition hover:scale-110 active:translate-y-0.5"
+          >
+            <Pencil className="h-5 w-5" aria-hidden />
+          </Link>
+        </div>
+      </div>
+
+      <div className="relative min-w-0 flex-1 text-center md:text-left">
+        <div className="mb-2 flex flex-col items-center gap-3 md:flex-row md:items-center">
+          <h2 className="font-headline text-3xl font-extrabold tracking-tight text-on-surface">{data.displayName}</h2>
+          <span className="rounded-full bg-secondary-container px-3 py-1 text-xs font-black uppercase tracking-widest text-on-secondary-container">
+            Nv. {data.level} · {rank.name}
+          </span>
+        </div>
+        {data.bio ? <p className="mb-4 text-sm font-medium text-on-surface-variant">{data.bio}</p> : null}
+        <p className="mb-6 text-sm font-medium text-on-surface-variant">
+          Membro desde {new Date(data.createdAt).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })} ·{' '}
+          {completedLessons} aulas concluídas
+        </p>
+
+        <div className="grid grid-cols-3 gap-3 sm:gap-4">
+          <div className="flex flex-col items-center justify-center rounded-xl border-b-4 border-orange-200 bg-surface-container-low p-4">
+            <Flame className="mb-1 h-6 w-6 text-orange-500" aria-hidden />
+            <span className="font-headline text-xl font-black text-on-surface">{data.currentStreak}</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Sequência</span>
+          </div>
+          <div className="flex flex-col items-center justify-center rounded-xl border-b-4 border-blue-200 bg-surface-container-low p-4">
+            <Zap className="mb-1 h-6 w-6 text-primary" aria-hidden />
+            <span className="font-headline text-xl font-black text-on-surface">{xpCompact}</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">XP total</span>
+          </div>
+          <div className="flex flex-col items-center justify-center rounded-xl border-b-4 border-tertiary-container bg-surface-container-low p-4">
+            <Trophy className="mb-1 h-6 w-6 text-tertiary" aria-hidden />
+            <span className="line-clamp-2 min-h-[2.25rem] text-center font-headline text-sm font-black leading-tight text-on-surface">
+              {rank.name}
+            </span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Título</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function AchievementsGallery({
+  badges,
+  total,
+  earnedCount,
+}: {
+  badges: ReturnType<typeof computeBadges>;
+  total: number;
+  earnedCount: number;
 }) {
   return (
-    <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-soft">
-      <div className="h-2 bg-blue-600" />
-      <div className="flex flex-col gap-4 p-6 sm:flex-row sm:items-start">
-        <Avatar userId={data.id} displayName={data.displayName} size="xl" />
-        <div className="flex-1 min-w-0">
-          <h1 className="text-2xl font-bold text-slate-900">{data.displayName}</h1>
-          {data.bio ? <p className="mt-2 text-sm text-slate-600">{data.bio}</p> : null}
-          <p className="text-sm text-slate-500">{data.email}</p>
-          <p className="mt-1 text-xs text-slate-400">
-            Membro desde {new Date(data.createdAt).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
-          </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-bold text-blue-700">
-              Nível {data.level}
-            </span>
-            <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-700">
-              {completedLessons} aulas
-            </span>
-            <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-bold text-amber-700">
-              🔥 {data.currentStreak} dias
-            </span>
+    <section className="space-y-6">
+      <div className="flex items-center justify-between gap-4">
+        <h3 className="font-headline text-xl font-extrabold text-on-surface">Conquistas</h3>
+        <a href="#todas-conquistas" className="text-sm font-bold text-primary hover:underline">
+          Ver todas
+        </a>
+      </div>
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6">
+        {badges.map((badge) => (
+          <ShowcaseBadge key={badge.id} badge={badge} />
+        ))}
+        {Array.from({ length: Math.max(0, 4 - badges.length) }).map((_, i) => (
+          <div
+            key={`placeholder-${i}`}
+            className="flex flex-col items-center rounded-xl border border-dashed border-surface-container-high bg-surface-container-low/50 p-6 text-center opacity-60"
+          >
+            <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-surface-container-highest">
+              <span className="text-2xl text-outline">…</span>
+            </div>
+            <span className="text-xs font-medium text-on-surface-variant">Mais em breve</span>
           </div>
-        </div>
+        ))}
       </div>
-    </div>
-  );
-}
-
-function XPCard({ data, pct }: { data: MeProfile; pct: number }) {
-  return (
-    <div className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-soft">
-      <div className="flex items-center gap-3">
-        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
-          <Sparkles className="h-5 w-5" />
-        </span>
-        <div>
-          <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Progresso de nível</p>
-          <p className="text-2xl font-black text-slate-900">Nível {data.level}</p>
-        </div>
-        <div className="ml-auto text-right">
-          <p className="text-xs text-slate-400">XP total</p>
-          <p className="text-lg font-black text-slate-700">{data.xpTotal.toLocaleString('pt-BR')}</p>
-        </div>
-      </div>
-      <div className="mt-4 h-3 overflow-hidden rounded-full bg-slate-100">
-        <div className="h-full rounded-full bg-blue-600 transition-all duration-700" style={{ width: `${pct}%` }} />
-      </div>
-      <p className="mt-2 text-sm text-slate-600">
-        {data.xpProgress.currentBandXp} / {data.xpProgress.bandSize} XP para nível {data.level + 1}
-        <span className="ml-2 font-semibold text-slate-400">({pct}%)</span>
+      <p className="text-center text-xs text-on-surface-variant">
+        {earnedCount} de {total} desbloqueadas
       </p>
-    </div>
+    </section>
   );
 }
 
-function ActivityStat({ icon, value, label }: { icon: React.ReactNode; value: number; label: string }) {
+function ShowcaseBadge({ badge }: { badge: ReturnType<typeof computeBadges>[0] }) {
+  const locked = !badge.earned;
   return (
-    <div className="text-center">
-      <div className="flex justify-center text-slate-500">{icon}</div>
-      <p className="mt-2 text-2xl font-black text-slate-900">{value}</p>
-      <p className="text-xs text-slate-500">{label}</p>
+    <div className="group cursor-default">
+      <div
+        className={`flex flex-col items-center rounded-xl border-b-4 border-transparent bg-surface-container-lowest p-5 text-center shadow-sm transition-all hover:-translate-y-2 ${
+          locked
+            ? 'opacity-60 grayscale hover:opacity-100 hover:grayscale-0'
+            : 'hover:border-secondary-container hover:shadow-md'
+        } ${!locked ? RARITY_STYLE[badge.rarity] : 'border border-surface-container-high'}`}
+      >
+        <div
+          className={`mb-4 flex h-20 w-20 items-center justify-center rounded-full ${
+            locked ? 'bg-surface-container-highest' : 'bg-secondary-container/20'
+          }`}
+        >
+          {locked ? (
+            <span className="text-3xl text-outline" aria-hidden>
+              🔒
+            </span>
+          ) : (
+            <span className="text-4xl">{badge.icon}</span>
+          )}
+        </div>
+        <span className="font-headline text-sm font-bold text-on-surface">{badge.name}</span>
+        <span className="mt-1 text-[10px] font-medium leading-tight text-on-surface-variant">{badge.description}</span>
+      </div>
     </div>
   );
 }
 
-function StatTile({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function LearningPathCard({ data, pct }: { data: MeProfile; pct: number }) {
+  const rank = getRankForLevel(data.level);
+  const nextRank = getNextRankThreshold(data.level);
   return (
-    <div className="rounded-2xl border border-slate-200/80 bg-white p-4 text-center shadow-soft">
-      <div className="flex justify-center">{icon}</div>
-      <p className="mt-2 text-lg font-black text-slate-900">{value}</p>
-      <p className="text-xs text-slate-500">{label}</p>
-    </div>
+    <section className="space-y-6 rounded-[1.25rem] bg-surface-container-low p-6 sm:p-8">
+      <div className="flex flex-wrap items-center gap-4">
+        <div className="rounded-xl bg-surface-container-lowest p-3 shadow-sm">
+          <Terminal className="h-7 w-7 text-primary" aria-hidden />
+        </div>
+        <div>
+          <h3 className="font-headline text-lg font-extrabold text-on-surface">Sua jornada de nível</h3>
+          <p className="text-sm text-on-surface-variant">
+            {pct}% do caminho para o nível {data.level + 1} · {rank.name}
+          </p>
+        </div>
+      </div>
+      <div className="h-4 w-full overflow-hidden rounded-full bg-surface-container-highest">
+        <div
+          className="h-full rounded-full bg-primary transition-all duration-1000 motion-reduce:transition-none"
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+        <span>{data.xpProgress.currentBandXp} XP neste nível</span>
+        <span>{data.xpProgress.bandSize} XP necessários</span>
+      </div>
+      {nextRank && (
+        <p className="text-xs text-on-surface-variant">
+          Próximo título em nv. {nextRank.level}: <span className="font-bold text-primary">{nextRank.name}</span>
+        </p>
+      )}
+    </section>
   );
 }
 
-function BadgesFullSection({ badges }: { badges: ReturnType<typeof computeBadges> }) {
+function BadgesFullGrid({ badges }: { badges: ReturnType<typeof computeBadges> }) {
   const earned = badges.filter((b) => b.earned);
   const locked = badges.filter((b) => !b.earned);
-
   return (
-    <div className="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-soft">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500">
-          Conquistas
-        </h2>
-        <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">
-          {earned.length}/{badges.length}
-        </span>
-      </div>
-
+    <div className={`rounded-[1.25rem] border border-surface-container-high/60 bg-surface-container-lowest p-5 ${cardShadow}`}>
       {earned.length > 0 && (
-        <>
-          <p className="mb-3 text-xs font-semibold uppercase text-emerald-600">Desbloqueadas</p>
-          <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
-            {earned.map((badge) => (
-              <BadgeCard key={badge.id} badge={badge} />
-            ))}
-          </div>
-        </>
+        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {earned.map((badge) => (
+            <FullBadge key={badge.id} badge={badge} />
+          ))}
+        </div>
       )}
-
       {locked.length > 0 && (
         <>
-          <p className="mb-3 mt-5 text-xs font-semibold uppercase text-slate-400">A desbloquear</p>
-          <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-outline">Em progresso / bloqueadas</p>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {locked.map((badge) => (
-              <BadgeCard key={badge.id} badge={badge} locked />
+              <FullBadge key={badge.id} badge={badge} locked />
             ))}
           </div>
         </>
       )}
-
-      <div className="mt-5 rounded-2xl border border-blue-100 bg-blue-50 p-4">
-        <p className="text-center text-xs text-blue-700">
-          Continue concluindo aulas e mantendo sua sequência para desbloquear mais conquistas!
-        </p>
-        <Link
-          to="/app/my-tracks"
-          className="mt-2 flex items-center justify-center gap-1 text-xs font-bold text-blue-700 hover:underline"
-        >
-          Ir para Minhas trilhas <ArrowRight className="h-3 w-3" />
-        </Link>
-      </div>
     </div>
   );
 }
 
-function BadgeCard({ badge, locked }: { badge: ReturnType<typeof computeBadges>[0]; locked?: boolean }) {
+function FullBadge({ badge, locked }: { badge: ReturnType<typeof computeBadges>[0]; locked?: boolean }) {
   return (
     <div
       title={`${badge.name}: ${badge.description}`}
-      className={`flex flex-col items-center gap-1 rounded-2xl border p-3 text-center transition ${
-        locked
-          ? 'border-slate-100 bg-slate-50 opacity-50 grayscale'
-          : RARITY_STYLE[badge.rarity]
+      className={`flex flex-col items-center rounded-xl border p-3 text-center ${
+        locked ? 'border-slate-100 bg-slate-50 opacity-70 grayscale' : RARITY_STYLE[badge.rarity]
       }`}
     >
-      <span className="text-3xl">{badge.icon}</span>
-      <p className="text-[11px] font-bold leading-tight text-slate-800">{badge.name}</p>
-      <p className="text-[10px] text-slate-500 leading-tight">{badge.description}</p>
-      {locked && badge.progress && (
-        <div className="w-full mt-1">
-          <div className="h-1 rounded-full bg-slate-200">
-            <div
-              className="h-full rounded-full bg-blue-400"
-              style={{ width: `${Math.round((badge.progress.current / badge.progress.total) * 100)}%` }}
-            />
-          </div>
-          <p className="mt-0.5 text-[9px] tabular-nums text-slate-400">
-            {badge.progress.current}/{badge.progress.total}
-          </p>
-        </div>
-      )}
+      <span className="text-2xl">{locked ? '🔒' : badge.icon}</span>
+      <p className="mt-1 text-[11px] font-bold leading-tight text-slate-800">{badge.name}</p>
       {!locked && (
         <span className="mt-1 rounded-full bg-white/70 px-1.5 py-0.5 text-[9px] font-bold uppercase text-slate-500">
           {RARITY_LABEL[badge.rarity]}
         </span>
       )}
+      {locked && badge.progress && (
+        <p className="mt-1 text-[9px] text-slate-400">
+          {badge.progress.current}/{badge.progress.total}
+        </p>
+      )}
     </div>
+  );
+}
+
+function ActivityMini({ icon, value, label }: { icon: React.ReactNode; value: number; label: string }) {
+  return (
+    <div className="text-center">
+      {icon}
+      <p className="mt-2 font-headline text-2xl font-black text-on-surface">{value}</p>
+      <p className="text-xs text-on-surface-variant">{label}</p>
+    </div>
+  );
+}
+
+function ActivityFeedCard({
+  peers,
+}: {
+  peers: { id: string; displayName: string; xpTotal: number; level: number; currentStreak: number }[];
+}) {
+  return (
+    <section className={`rounded-[1.25rem] bg-surface-container-lowest p-6 ${cardShadow}`}>
+      <h3 className="font-headline text-xl font-extrabold text-on-surface">Atividade no ranking</h3>
+      <p className="mt-1 text-xs text-on-surface-variant">Destaques da comunidade</p>
+      <div className="mt-6 space-y-6">
+        {peers.length === 0 ? (
+          <p className="text-sm text-on-surface-variant">
+            Ainda não há outros alunos no ranking ou os dados estão carregando.
+          </p>
+        ) : (
+          peers.map((u) => (
+            <div key={u.id} className="flex gap-4">
+              <Avatar userId={u.id} displayName={u.displayName} size="md" className="!h-12 !w-12 !rounded-xl !text-lg" />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm leading-relaxed text-on-surface">
+                  <span className="font-bold">{u.displayName.split(' ')[0]}</span>{' '}
+                  <span className="text-on-surface-variant">está com</span>{' '}
+                  <span className="font-bold text-primary">{u.xpTotal.toLocaleString('pt-BR')} XP</span> no ranking.
+                </p>
+                <p className="mt-1 text-[10px] font-medium uppercase tracking-wider text-on-surface-variant">
+                  Nv. {u.level} · sequência {u.currentStreak}d
+                </p>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+      <Link
+        to="/app/community"
+        className="mt-6 flex w-full items-center justify-center rounded-xl bg-surface-container-low py-3 text-sm font-bold text-on-surface-variant transition hover:bg-surface-container-high"
+      >
+        <Users className="mr-2 h-4 w-4" aria-hidden />
+        Explorar comunidade
+      </Link>
+    </section>
+  );
+}
+
+function WeekendSprintCard() {
+  return (
+    <section className="relative overflow-hidden rounded-[1.25rem] bg-tertiary p-6 text-on-tertiary shadow-lg">
+      <div className="relative z-10">
+        <h4 className="font-headline text-lg font-extrabold">Meta da semana</h4>
+        <p className="mb-6 mt-2 text-sm opacity-90">
+          Conclua aulas nas suas trilhas e suba no ranking — cada aula conta XP e gemas.
+        </p>
+        <Link
+          to="/app/my-tracks"
+          className="inline-flex items-center justify-center rounded-xl bg-white px-6 py-2.5 text-xs font-black uppercase tracking-widest text-tertiary shadow-md transition hover:scale-105 active:scale-95"
+        >
+          Minhas trilhas
+        </Link>
+      </div>
+      <div className="pointer-events-none absolute -bottom-8 -right-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
+      <div className="pointer-events-none absolute -left-4 -top-4 h-20 w-20 rounded-full bg-tertiary-dim/50 blur-xl" />
+    </section>
   );
 }

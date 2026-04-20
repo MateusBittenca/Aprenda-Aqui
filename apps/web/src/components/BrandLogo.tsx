@@ -59,7 +59,7 @@ export function BrandLogo({
           )}
         >
           Aprenda aqui
-          <span className={variant === 'dark' ? 'text-amber-400' : 'text-blue-600'}>!</span>
+          <span className={variant === 'dark' ? 'text-amber-400' : 'text-primary'}>!</span>
         </span>
       ) : null}
     </>

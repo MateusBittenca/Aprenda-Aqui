@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { levelFromTotalXp } from './level.util';
 
@@ -85,6 +89,27 @@ export class GamificationService {
     }
 
     return weekKeys.map((k) => active.has(k));
+  }
+
+  /** Debita gemas (ex.: desbloquear explicação). Lança se o saldo for insuficiente. */
+  async spendGems(
+    userId: string,
+    amount: number,
+  ): Promise<{ gemsRemaining: number }> {
+    if (!Number.isFinite(amount) || amount < 1) {
+      throw new BadRequestException('Quantidade de gemas inválida');
+    }
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('Usuário não encontrado');
+    if (user.gems < amount) {
+      throw new BadRequestException('Gemas insuficientes');
+    }
+    const gemsRemaining = user.gems - amount;
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { gems: gemsRemaining },
+    });
+    return { gemsRemaining };
   }
 
   async applyXpAndGems(

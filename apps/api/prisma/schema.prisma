@@ -37,6 +37,7 @@ model User {
   lessonProgress   UserLessonProgress[]
   exerciseProgress UserExerciseProgress[]
   exerciseAttempts UserExerciseAttempt[]
+  exerciseExplanationUnlocks UserExerciseExplanationUnlock[]
   courseEnrollments UserCourseEnrollment[]
   followingLinks    UserFollow[] @relation("FollowerSide")
   followerLinks     UserFollow[] @relation("FollowingSide")
@@ -129,8 +130,22 @@ model Exercise {
   orderIndex  Int          @default(0)
   attempts    UserExerciseAttempt[]
   progress    UserExerciseProgress[]
+  explanationUnlocks UserExerciseExplanationUnlock[]
 
   @@index([lessonId])
+}
+
+/// Desbloqueio da explicação completa (após gastar gema) em exercícios com dicas progressivas.
+model UserExerciseExplanationUnlock {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exerciseId String
+  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, exerciseId])
+  @@index([userId])
 }
 
 enum ExerciseType {

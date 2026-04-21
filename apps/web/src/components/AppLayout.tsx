@@ -5,7 +5,6 @@ import {
   Flame,
   Gem,
   LayoutDashboard,
-  LogOut,
   Map,
   Medal,
   Settings2,
@@ -73,7 +72,7 @@ function StreakBadge({ streak, weekDays }: { streak: number; weekDays?: boolean[
 
 export function AppLayout() {
   usePresenceHeartbeat();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { data: me } = useMe({ syncStore: true });
   const pathname = useLocation().pathname;
   const hideGlobalStats = pathname === '/app/me' || pathname === '/app/ranking';
@@ -108,14 +107,6 @@ export function AppLayout() {
                   <span className="sr-only sm:not-sr-only">Admin</span>
                 </Link>
               )}
-              <button
-                type="button"
-                onClick={logout}
-                className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1 rounded-full border border-slate-200 px-2 text-slate-600 transition hover:bg-slate-100 sm:min-h-11 sm:min-w-0 sm:px-3"
-              >
-                <LogOut className="h-4 w-4 shrink-0" aria-hidden />
-                <span className="sr-only sm:not-sr-only">Sair</span>
-              </button>
               {!hideGlobalStats && (
                 <>
                   <StreakBadge streak={user.currentStreak} weekDays={me?.streakWeekDays} />

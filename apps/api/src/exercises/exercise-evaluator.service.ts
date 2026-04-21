@@ -75,8 +75,9 @@ export class ExerciseEvaluatorService {
     try {
       const wrapped = `"use strict"; return (${code});`;
       result = runInNewContext(wrapped, Object.create(null), { timeout: 400 });
-    } catch {
-      return { correct: false, detail: 'Erro ao executar o código' };
+    } catch (err) {
+      const detail = this.formatVmEvalError(err);
+      return { correct: false, detail };
     }
     const normalized = this.normalizeExpected(result);
     for (const t of payload.tests) {
@@ -90,5 +91,40 @@ export class ExerciseEvaluatorService {
   private normalizeExpected(value: unknown): string {
     if (typeof value === 'string') return value;
     return JSON.stringify(value);
+  }
+
+  /** Mensagem segura e útil para o aluno (sem stack completo). */
+  private formatVmEvalError(err: unknown): string {
+    const fallback =
+      'Não foi possível executar o código. Confira parênteses, chaves, aspas e se a expressão está completa.';
+    let text = '';
+
+    if (err instanceof Error) {
+      text = (err.message ?? '').trim();
+      if (!text && err.stack) {
+        const lines = err.stack.split('\n').map((l) => l.trim()).filter(Boolean);
+        text = lines[0] ?? '';
+      }
+      if (!text && err.name && err.name !== 'Error') {
+        text = err.name;
+      }
+    } else if (typeof err === 'string') {
+      text = err.trim();
+    } else if (err != null && typeof err === 'object' && 'message' in err) {
+      text = String((err as { message: unknown }).message).trim();
+    } else if (err != null) {
+      text = String(err).trim();
+      if (text === '[object Object]') {
+        try {
+          text = JSON.stringify(err);
+        } catch {
+          text = '';
+        }
+      }
+    }
+
+    const line = text.split('\n')[0]?.trim() ?? '';
+    if (!line) return fallback;
+    return line.length > 200 ? `${line.slice(0, 197)}…` : line;
   }
 }

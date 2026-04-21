@@ -20,4 +20,12 @@ export class ExercisesController {
   ) {
     return this.exercises.submit(user.userId, exerciseId, body);
   }
+
+  @Post(':exerciseId/reveal-explanation')
+  revealExplanation(
+    @CurrentUser() user: JwtUser,
+    @Param('exerciseId') exerciseId: string,
+  ) {
+    return this.exercises.revealExplanation(user.userId, exerciseId);
+  }
 }

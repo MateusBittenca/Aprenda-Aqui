@@ -18,6 +18,30 @@ type ExCreate = {
  * Cinco cursos novos (conteúdo extenso): React, Algoritmos, TypeScript avançado, APIs, Qualidade.
  * O editor de código do MVP avalia apenas expressões JavaScript.
  */
+
+const DEFAULT_CODE_PROGRESSIVE_HINTS: [string, string] = [
+  'O ambiente avalia **uma expressão** (não use `return` no topo). O valor final deve bater com o enunciado.',
+  'Confira **tipos**: número sem aspas; string entre aspas; arrays `[]` e objetos `{}` com sintaxe válida em JavaScript.',
+];
+
+function withProgressiveHintsIfMissing(item: ExCreate): Record<string, unknown> {
+  const p = item.payload as Record<string, unknown>;
+  if (
+    (item.type === ExerciseType.CODE_EDITOR ||
+      item.type === ExerciseType.CODE_FILL) &&
+    !Array.isArray(p.hints)
+  ) {
+    return { ...p, hints: [...DEFAULT_CODE_PROGRESSIVE_HINTS] };
+  }
+  return p;
+}
+
+/** Rodapé pedagógico: lista o que será cobrado nos desafios (escola / uso público). */
+function blocoPraticaDesafios(itens: string[]): string {
+  const lista = itens.map((t) => `- ${t}`).join('\n');
+  return `\n\n---\n\n### O que você vai praticar nesta aula\n\n${lista}\n\n> **Dica de estudo:** leia até o fim antes de abrir os desafios. Na versão atual da plataforma, o exercício com **editor de código** pede **uma expressão JavaScript** (sem JSX), avaliada no servidor — quando a aula é de React ou TypeScript, o texto acima explica o JS necessário.\n`;
+}
+
 export async function seedNewTracks(prisma: PrismaClient) {
   async function exercisesForLesson(lessonId: string, items: ExCreate[]) {
     await prisma.exercise.createMany({
@@ -30,7 +54,7 @@ export async function seedNewTracks(prisma: PrismaClient) {
         explanation: e.explanation,
         xpReward: e.xpReward,
         gemReward: e.gemReward,
-        payload: e.payload as object,
+        payload: withProgressiveHintsIfMissing(e) as object,
       })),
     });
   }
@@ -58,20 +82,41 @@ export async function seedNewTracks(prisma: PrismaClient) {
       moduleId: modR1.id,
       slug: 'jsx-por-baixo-dos-panos',
       title: 'JSX por baixo dos panos',
-      objective: 'Entender o que JSX representa e por que facilita a UI.',
-      estimatedMinutes: 8,
+      objective:
+        'Explicar o que é JSX, como a interpolação com chaves funciona e produzir uma string em JavaScript puro equivalente ao texto ensinado.',
+      estimatedMinutes: 18,
       orderIndex: 0,
       contentMd: `## JSX no React
 
-O **JSX** é uma sintaxe que lembra HTML, mas vira chamadas de função (\`React.createElement\` ou equivalente do compilador). Isso permite misturar **marcação** com **lógica** no mesmo arquivo de componente.
+### Contexto
 
-### Por que usar?
+Esta aula é para quem está **começando em React** (incluindo uso em escola ou laboratório). É útil já conhecer **HTML** básico (tags como \`p\`, \`div\`) e **JavaScript** introdutório: variáveis, strings e funções. Tudo o que você precisa para os desafios está escrito abaixo.
 
-- **Leitura**: a árvore de interface fica explícita.
-- **Segurança**: valores são escapados por padrão (menos XSS acidental em textos).
-- **Composição**: componentes são funções que retornam JSX.
+### Objetivo verificável
 
-### Exemplo mínimo
+Ao concluir a leitura e os desafios, você deve ser capaz de:
+
+1. Dizer **o que acontece com JSX** antes de chegar ao navegador.
+2. Usar **chaves \`{ }\`** no JSX para mostrar valores JavaScript.
+3. Montar a **mesma frase** (\`Olá, dev\`) usando **JavaScript puro** (concatenação ou template literal), porque é assim que o editor de código da plataforma avalia nesta versão.
+
+### O que é JSX?
+
+O **JSX** é uma **sintaxe** parecida com HTML, usada em arquivos React. Ela **não** é executada diretamente pelo navegador: o **compilador** (Babel, SWC, Vite etc.) transforma JSX em chamadas JavaScript — em geral equivalentes a \`React.createElement(...)\`.
+
+Isso permite escrever **interface** e **lógica** no mesmo arquivo de forma legível.
+
+### Por que usar JSX?
+
+- **Leitura**: a árvore da tela fica explícita no código.
+- **Segurança**: textos dinâmicos costumam ser tratados de forma a reduzir risco de XSS.
+- **Composição**: componentes são funções que **retornam JSX**; telas grandes viram peças pequenas reutilizáveis.
+
+### Exemplo guiado passo a passo
+
+1. Criamos uma **função** cujo nome começa com maiúscula (**PascalCase**): \`Saudacao\`.
+2. Ela recebe \`props\`; aqui usamos **desestruturação** \`({ nome })\`.
+3. O \`return\` devolve JSX: um \`<p>\` com texto fixo **e** o valor de \`nome\` entre **chaves**.
 
 \`\`\`jsx
 function Saudacao({ nome }) {
@@ -79,13 +124,43 @@ function Saudacao({ nome }) {
 }
 \`\`\`
 
-A expressão \`{nome}\` injeta o valor JavaScript no texto.
+**Interpolação:** tudo que está dentro de \`{ }\` é uma **expressão JavaScript**. Sem as chaves, a palavra \`nome\` seria só texto literal na tela.
+
+### JavaScript puro para o último desafio (leia com atenção)
+
+O desafio com **editor de código** **não** usa JSX: você digita **uma expressão JavaScript** cujo **resultado** deve ser a string exata pedida no enunciado.
+
+Duas formas comuns de montar texto:
+
+**1) Concatenação com \`+\`**
+
+\`\`\`js
+"Olá, " + "dev"
+\`\`\`
+
+**2) Template literal (crase)**
+
+\`\`\`js
+\`Olá, dev\`
+\`\`\`
+
+Com variável: \`\` \`Olá, \${nome}\` \`\`. Nesta aula o enunciado pede o texto **fixo** \`Olá, dev\`, sem variável.
+
+### Erros comuns
+
+- Escrever \`nome\` no JSX **sem** \`{ }\` — o navegador mostra a palavra “nome”, não o valor.
+- Achar que o navegador “entende JSX” sozinho — é preciso **build** no fluxo de desenvolvimento.
+- No editor da plataforma, usar \`<p>\` ou JSX — o avaliador espera **expressão JS**, não marcação React.
 
 ### Boas práticas
 
-- Um componente por responsabilidade coesa.
-- Nomes em **PascalCase** para componentes React.
-- Evite lógica pesada diretamente no JSX; extraia funções ou hooks.`,
+- Um componente com **uma responsabilidade** clara.
+- Nomes de componente em **PascalCase**.
+- Lógica muito pesada: extrair para funções ou hooks (você verá hooks nas próximas aulas).${blocoPraticaDesafios([
+        '**Quiz:** reconhecer o papel do compilador com JSX no ecossistema React.',
+        '**Lacunas:** colocar `{` e `}` para interpolar a variável `nome` dentro do JSX (como no exemplo).',
+        '**Expressão no editor:** gerar a string exata `Olá, dev` em JavaScript (concatenação ou crase), como explicado na seção “JavaScript puro”.',
+      ])}`,
     },
   });
 
@@ -93,7 +168,8 @@ A expressão \`{nome}\` injeta o valor JavaScript no texto.
     {
       type: ExerciseType.MULTIPLE_CHOICE,
       title: 'Natureza do JSX',
-      prompt: 'No ecossistema React, o JSX é tipicamente:',
+      prompt:
+        'No ecossistema React, o JSX é tipicamente: *(Você já viu a seção “O que é JSX?” nesta aula.)*',
       explanation:
         'O JSX é **compilado** para JavaScript (ex.: createElement). Navegadores não executam JSX cru sem build.',
       xpReward: 16,
@@ -111,7 +187,8 @@ A expressão \`{nome}\` injeta o valor JavaScript no texto.
     {
       type: ExerciseType.CODE_FILL,
       title: 'Interpolação no JSX',
-      prompt: 'Complete para exibir a variável **nome** dentro do parágrafo.',
+      prompt:
+        'Complete para exibir a variável **nome** dentro do parágrafo. *(Revise o exemplo \`{nome}\` na seção “Exemplo guiado”.)*',
       explanation: 'Chaves \`{ }\` avaliam expressões JavaScript dentro do JSX.',
       xpReward: 20,
       gemReward: 2,
@@ -121,17 +198,30 @@ A expressão \`{nome}\` injeta o valor JavaScript no texto.
           { id: 'b1', answer: '{' },
           { id: 'b2', answer: '}' },
         ],
+        hints: [
+          'No JSX, o valor dinâmico fica **entre chaves**: abra com `{` antes de `nome` e feche com `}` depois.',
+          'Sem as chaves, o React mostraria a palavra literal `nome`, não o conteúdo da variável.',
+        ],
       },
     },
     {
       type: ExerciseType.CODE_EDITOR,
       title: 'Template de string',
       prompt:
-        'Escreva uma **expressão** JavaScript que resulte na string exata **`Olá, dev`** (use template literal ou concatenação).',
-      explanation: 'Ex.: `\\`Olá, dev\\`` ou `"Olá, " + "dev"`.',
+        'Escreva **uma expressão** JavaScript cujo resultado seja a string exata **`Olá, dev`** (use **template literal** com crase ou **concatenação** com `+`). *(Leia a seção “JavaScript puro para o último desafio”.)*',
+      explanation:
+        'Exemplos válidos: `` `Olá, dev` `` ou `"Olá, " + "dev"`. O avaliador compara o valor final da expressão.',
       xpReward: 24,
       gemReward: 3,
-      payload: { language: 'javascript', starterCode: '', tests: [{ expected: '"Olá, dev"' }] },
+      payload: {
+        language: 'javascript',
+        starterCode: '',
+        tests: [{ expected: '"Olá, dev"' }],
+        hints: [
+          'Template literal usa **crases**: `` `Olá, dev` `` — sem variáveis, o texto é fixo entre as crases.',
+          'Com concatenação: `"Olá, " + "dev"` — duas strings com `+` viram uma só.',
+        ],
+      },
     },
   ]);
 
@@ -140,16 +230,24 @@ A expressão \`{nome}\` injeta o valor JavaScript no texto.
       moduleId: modR1.id,
       slug: 'props-imutaveis',
       title: 'Props e imutabilidade',
-      objective: 'Passar dados para baixo e respeitar fluxo unidirecional.',
-      estimatedMinutes: 7,
+      objective:
+        'Explicar props, fluxo unidirecional de dados e imutabilidade; praticar acesso a propriedades e `.length` em JavaScript.',
+      estimatedMinutes: 16,
       orderIndex: 1,
-      contentMd: `## Props
+      contentMd: `## Props e imutabilidade
 
-**Props** (propriedades) são o mecanismo principal de um componente pai **passar dados** para filhos. Em React, trate props como **somente leitura** no filho: não mutar objetos recebidos; crie cópias ou derive novo estado no pai.
+### Contexto
 
-### Fluxo de dados
+Você já viu JSX e componentes como funções. Agora vamos ver **como o pai passa dados para o filho** usando **props** — conceito central do React. Para o exercício no **editor de código**, você usará **JavaScript puro**: objeto com **notação de ponto** e **tamanho de array** (\`.length\`).
 
-Dados descem pela árvore; eventos sobem (callbacks) quando o filho precisa avisar o pai.
+### O que são props?
+
+**Props** (properties) são argumentos que o **componente pai** passa para o **filho**. No filho, trate props como **somente leitura**: não altere objetos recebidos “no lugar”; em vez disso, o **pai** cria novo estado ou novas cópias e repassa de novo.
+
+### Fluxo de dados (modelo mental)
+
+- **Dados descem** pela árvore via props.
+- Quando o filho precisa **avisar o pai** (ex.: clique), o pai passa uma **função callback** como prop; o filho **chama** a função — o estado continua sendo responsabilidade de quem “possui” os dados (em geral o pai ou um hook acima).
 
 \`\`\`jsx
 function Lista({ itens, onRemover }) {
@@ -159,7 +257,22 @@ function Lista({ itens, onRemover }) {
 
 ### key em listas
 
-Use uma **key estável** (id) para ajudar o reconciliador a associar itens entre renders.`,
+Ao usar \`.map\`, cada elemento irmão precisa de uma prop \`key\` **estável** (por exemplo o \`id\` do item). Isso ajuda o React a saber **qual item** mudou entre um render e outro.
+
+### JavaScript que você usará no desafio do editor
+
+- **Objeto:** \`const usuario = { nome: "Ana" }\` — a propriedade \`nome\` se acessa com **ponto**: \`usuario.nome\`.
+- **Tamanho do array:** em JavaScript, \`[1, 2, 3].length\` vale **3** (número). O avaliador da plataforma compara o **valor** da sua expressão.
+
+### Erros comuns
+
+- Mutar array ou objeto de props no filho e esperar que o React “adivinhe” — prefira imutabilidade e estado no lugar certo.
+- Usar **índice do map** como \`key\` quando a lista pode reordenar — pode causar bugs de estado em filhos.
+- Confundir JSX com o editor de código: no desafio “tamanho”, a resposta é **expressão JS**, não JSX.${blocoPraticaDesafios([
+        '**Quiz:** direção típica das props (pai → filhos).',
+        '**Lacunas:** notação de ponto para ler `usuario.nome`.',
+        '**Expressão no editor:** obter o número de elementos de `[1, 2, 3]` com `.length`.',
+      ])}`,
     },
   });
 
@@ -167,7 +280,8 @@ Use uma **key estável** (id) para ajudar o reconciliador a associar itens entre
     {
       type: ExerciseType.MULTIPLE_CHOICE,
       title: 'Direção dos dados',
-      prompt: 'No modelo mental clássico do React, as props costumam fluir:',
+      prompt:
+        'No modelo mental clássico do React, as props costumam fluir: *(Revise “Fluxo de dados” nesta aula.)*',
       explanation: 'Props descem do pai para os filhos; atualizações de estado no pai geram novo render.',
       xpReward: 15,
       gemReward: 2,
@@ -184,23 +298,37 @@ Use uma **key estável** (id) para ajudar o reconciliador a associar itens entre
     {
       type: ExerciseType.CODE_FILL,
       title: 'Acesso a propriedade',
-      prompt: 'Complete para ler a propriedade **nome** do objeto **usuario**.',
+      prompt:
+        'Complete para ler a propriedade **nome** do objeto **usuario**. *(Veja “JavaScript que você usará” — notação de ponto.)*',
       explanation: 'Notação de ponto: `usuario.nome`.',
       xpReward: 18,
       gemReward: 2,
       payload: {
         template: 'const usuario = { nome: "Ana" };\nconst x = usuario{{b1}}nome;',
         blanks: [{ id: 'b1', answer: '.' }],
+        hints: [
+          'Em objetos JavaScript, usamos um **ponto** entre o nome da variável e o nome da propriedade.',
+          'O padrão é `objeto.propriedade` — aqui, `usuario` e em seguida `nome`.',
+        ],
       },
     },
     {
       type: ExerciseType.CODE_EDITOR,
       title: 'Tamanho de array',
-      prompt: 'Escreva uma expressão que retorne quantos elementos tem o array **`[1, 2, 3]`**.',
-      explanation: '`[1,2,3].length` resulta em 3; JSON.stringify(3) é "3".',
+      prompt:
+        'Escreva **uma expressão** que retorne quantos elementos tem o array **`[1, 2, 3]`** *(use a propriedade `.length`)*.',
+      explanation: '`[1,2,3].length` resulta em 3.',
       xpReward: 22,
       gemReward: 2,
-      payload: { language: 'javascript', starterCode: '', tests: [{ expected: '3' }] },
+      payload: {
+        language: 'javascript',
+        starterCode: '',
+        tests: [{ expected: '3' }],
+        hints: [
+          'Em JavaScript, todo array tem `.length` com o número de elementos.',
+          'Exemplo: `[10, 20].length` vale 2 — aplique o mesmo ao array `[1, 2, 3]`.',
+        ],
+      },
     },
   ]);
 
@@ -213,25 +341,66 @@ Use uma **key estável** (id) para ajudar o reconciliador a associar itens entre
       moduleId: modR2.id,
       slug: 'usestate-basico',
       title: 'useState na prática',
-      objective: 'Armazenar e atualizar estado local em componentes de função.',
-      estimatedMinutes: 9,
+      objective:
+        'Explicar useState, atualização imutável com spread e somar um array com reduce em JavaScript.',
+      estimatedMinutes: 20,
       orderIndex: 0,
-      contentMd: `## useState
+      contentMd: `## useState na prática
 
-\`useState\` retorna um par **[valor, setValor]**. Chamar o setter agenda um **re-render** com o novo estado.
+### Contexto
+
+Esta aula assume que você já sabe o que é um **componente de função** e **props**. Agora o tema é **estado local**: dados que **mudam com o tempo** e fazem a tela atualizar de novo (**re-render**).
+
+### useState em palavras simples
+
+\`useState(valorInicial)\` devolve um **par**:
+
+1. O **valor atual** do estado.
+2. Uma **função** (setter) para pedir um novo valor.
+
+Quando você chama o setter, o React **marca** o componente para renderizar de novo com o valor novo.
 
 ### Atualização funcional
 
-Quando o próximo estado depende do anterior, prefira a forma funcional:
+Se o próximo valor **depende** do anterior (ex.: contador +1), use a forma com **função**:
 
 \`\`\`js
 setContagem((c) => c + 1);
 \`\`\`
 
-### Armadilhas comuns
+Assim você sempre usa o valor **mais recente**, mesmo se houver várias atualizações em fila.
 
-- **Mutação direta** de arrays/objetos: prefira cópias (\`[...arr]\`, spread de objetos).
-- **Estado derivado**: não guarde no state o que pode ser calculado a partir de outras variáveis.`,
+### Imutabilidade em arrays
+
+**Não** faça \`arr.push(4)\` e guarde o mesmo array no state se a convenção for imutabilidade. Crie um **novo** array:
+
+\`\`\`js
+const novo = [...arr, 4];
+\`\`\`
+
+O **spread** \`...arr\` copia os elementos de \`arr\` para dentro do novo array.
+
+### Somar números de um array com \`reduce\` (para o desafio do editor)
+
+\`reduce\` “acumula” um valor percorrendo o array:
+
+\`\`\`js
+[10, 20, 12].reduce((a, b) => a + b, 0);
+\`\`\`
+
+- O **0** é o valor inicial do acumulador \`a\`.
+- Para cada elemento \`b\`, somamos \`a + b\`.
+- Resultado: \`10 + 20 + 12 = 42\`.
+
+### Erros comuns
+
+- Mutar objeto/array no state e não chamar o setter com um **novo** referencial.
+- Guardar no state o que dá para **calcular** só a partir de props ou de outro state (estado derivado desnecessário).
+- No editor da plataforma, esquecer o **valor inicial** \`, 0\` no \`reduce\` — sem ele, o primeiro passo pode se comportar de outro modo.${blocoPraticaDesafios([
+        '**Quiz:** o que o setter do useState costuma provocar no componente.',
+        '**Lacunas:** usar `...` (spread) para copiar o array e acrescentar `4`.',
+        '**Expressão no editor:** somar `[10, 20, 12]` com `.reduce((a,b)=>a+b, 0)`.',
+      ])}`,
     },
   });
 
@@ -239,7 +408,8 @@ setContagem((c) => c + 1);
     {
       type: ExerciseType.MULTIPLE_CHOICE,
       title: 'Efeito do setter',
-      prompt: 'Ao chamar o setter retornado por useState com um novo valor, o React tipicamente:',
+      prompt:
+        'Ao chamar o setter retornado por useState com um novo valor, o React tipicamente: *(Seção “useState em palavras simples”.)*',
       explanation: 'O setter dispara uma nova renderização com o estado atualizado.',
       xpReward: 16,
       gemReward: 2,
@@ -256,20 +426,25 @@ setContagem((c) => c + 1);
     {
       type: ExerciseType.CODE_FILL,
       title: 'Array spread',
-      prompt: 'Complete para copiar **arr** e adicionar o elemento **4** no final.',
+      prompt:
+        'Complete para copiar **arr** e adicionar o elemento **4** no final. *(Seção “Imutabilidade em arrays”.)*',
       explanation: 'Spread cria um novo array: `[...arr, 4]`.',
       xpReward: 20,
       gemReward: 2,
       payload: {
         template: 'const arr = [1, 2, 3];\nconst novo = [{{b1}}arr, 4];',
         blanks: [{ id: 'b1', answer: '...' }],
+        hints: [
+          'O operador de spread em arrays são **três pontos** antes do nome do array.',
+          'Sintaxe: `[...arr, 4]` — copia `arr` e coloca `4` no final.',
+        ],
       },
     },
     {
       type: ExerciseType.CODE_EDITOR,
       title: 'Soma com reduce',
       prompt:
-        'Escreva uma expressão que some os números **`[10, 20, 12]`** usando **`.reduce((a,b)=>a+b, 0)`**.',
+        'Escreva **uma expressão** que some os números **`[10, 20, 12]`** usando **`.reduce((a, b) => a + b, 0)`**. *(Veja a seção “Somar números… com reduce”.)*',
       explanation: '10+20+12 = 42.',
       xpReward: 26,
       gemReward: 3,
@@ -277,6 +452,10 @@ setContagem((c) => c + 1);
         language: 'javascript',
         starterCode: '',
         tests: [{ expected: '42' }],
+        hints: [
+          'Monte exatamente: `[10, 20, 12].reduce((a, b) => a + b, 0)` — ordem dos números e o `, 0` no final importam.',
+          'O `reduce` percorre o array acumulando a soma em `a`; o resultado final é um único número.',
+        ],
       },
     },
   ]);
@@ -286,29 +465,64 @@ setContagem((c) => c + 1);
       moduleId: modR2.id,
       slug: 'useeffect-visao-geral',
       title: 'useEffect — visão geral',
-      objective: 'Sincronizar o componente com o mundo externo com segurança.',
-      estimatedMinutes: 10,
+      objective:
+        'Explicar quando useEffect roda, dependências e timers; praticar setTimeout e JSON.stringify em JavaScript.',
+      estimatedMinutes: 22,
       orderIndex: 1,
-      contentMd: `## useEffect
+      contentMd: `## useEffect — visão geral
 
-\`useEffect(fn, deps)\` executa **efeitos colaterais** após o paint: buscar dados, assinar eventos, manipular DOM não declarativo, etc.
+### Contexto
+
+Com **useState** você guarda dados na tela. Com **useEffect** você **sincroniza** o componente com o **mundo externo**: rede, temporizadores, assinaturas, APIs do navegador, etc. Esta aula também ensina o **JavaScript** usado nos desafios: \`setTimeout\` e \`JSON.stringify\`.
+
+### O que \`useEffect\` faz?
+
+\`useEffect(fn, deps)\` agenda a função \`fn\` para rodar **depois** que o React **commitou** a atualização na tela (na prática: após o render, em momento adequado ao navegador). Por isso efeitos são bons para coisas que **não** precisam bloquear o primeiro paint.
 
 ### Array de dependências
 
-- **[]** — roda após montagem (e cleanup ao desmontar, se retornar função).
-- **[a, b]** — reexecuta quando \`a\` ou \`b\` mudam.
-- **omitir deps** (não recomendado) — comportamento legado; evite.
+- **\`[]\`** — efeito roda **após a montagem** (e, se você **retornar** uma função, essa função é o **cleanup** na desmontagem).
+- **\`[a, b]\`** — roda de novo quando \`a\` ou \`b\` mudam entre renders.
+- **Omitir o array** — comportamento legado e fonte de bugs; **evite** em código novo.
 
-### Limpeza
+### Limpeza (cleanup)
 
-Retorne uma função para remover listeners, abortar fetch, etc.
+Quando você cria intervalo, listener ou assinatura, **libere** no retorno:
 
 \`\`\`js
 useEffect(() => {
   const id = setInterval(tick, 1000);
   return () => clearInterval(id);
 }, []);
-\`\`\``,
+\`\`\`
+
+### JavaScript: \`setTimeout\`
+
+\`setTimeout(função, milissegundos)\` chama a função **uma vez** depois da espera:
+
+\`\`\`js
+const id = setTimeout(f, 1000); // chama f daqui a 1 segundo
+\`\`\`
+
+### JavaScript: \`JSON.stringify\`
+
+Converte valor JavaScript em **string JSON**. Para o objeto \`{ ok: true }\`:
+
+\`\`\`js
+JSON.stringify({ ok: true }); // string '{"ok":true}' (aspas duplas nos nomes de chave em JSON)
+\`\`\`
+
+O avaliador da plataforma compara o **resultado** da sua expressão com o esperado.
+
+### Erros comuns
+
+- Esquecer dependências e o efeito usar valores **velhos** (stale closures).
+- Não fazer cleanup de timer/subscription — vazamento de memória ou atualização em componente desmontado.
+- Confundir \`setTimeout\` com \`setInterval\` (este repete, aquele agenda uma vez).${blocoPraticaDesafios([
+        '**Quiz:** momento típico em que o useEffect executa o efeito.',
+        '**Lacunas:** nome da função que agenda `f` para daqui a 1000 ms.',
+        '**Expressão no editor:** produzir a mesma string que `JSON.stringify({ ok: true })`.',
+      ])}`,
     },
   });
 
@@ -316,7 +530,8 @@ useEffect(() => {
     {
       type: ExerciseType.MULTIPLE_CHOICE,
       title: 'Momento do efeito',
-      prompt: 'useEffect roda após o React:',
+      prompt:
+        'useEffect roda após o React: *(Seção “O que useEffect faz?”)*',
       explanation: 'Efeitos rodam após o commit no DOM (pós-render), não bloqueando o paint em muitos casos.',
       xpReward: 15,
       gemReward: 2,
@@ -333,26 +548,36 @@ useEffect(() => {
     {
       type: ExerciseType.CODE_FILL,
       title: 'Timer',
-      prompt: 'Complete para agendar uma função **f** daqui a 1000 ms.',
+      prompt:
+        'Complete para agendar uma função **f** daqui a 1000 ms. *(Seção “JavaScript: setTimeout”.)*',
       explanation: '`setTimeout(f, 1000)`.',
       xpReward: 18,
       gemReward: 2,
       payload: {
         template: 'const id = {{b1}}(f, 1000);',
         blanks: [{ id: 'b1', answer: 'setTimeout' }],
+        hints: [
+          'A função global começa com **set** e termina com **Timeout**.',
+          'Ordem dos argumentos: primeiro a função, depois os milissegundos.',
+        ],
       },
     },
     {
       type: ExerciseType.CODE_EDITOR,
       title: 'JSON de objeto',
-      prompt: 'Escreva uma expressão que produza o **mesmo** valor que `JSON.stringify({ ok: true })`.',
-      explanation: 'A string é `"{\\"ok\\":true}"` — use JSON.stringify({ ok: true }).',
+      prompt:
+        'Escreva **uma expressão** que produza o **mesmo** valor que `JSON.stringify({ ok: true })`. *(Seção “JSON.stringify”.)*',
+      explanation: 'Use `JSON.stringify({ ok: true })` — o resultado é a string JSON com aspas nas chaves.',
       xpReward: 24,
       gemReward: 3,
       payload: {
         language: 'javascript',
         starterCode: '',
         tests: [{ expected: '{"ok":true}' }],
+        hints: [
+          'A forma mais direta é repetir a chamada pedida: `JSON.stringify({ ok: true })`.',
+          'O resultado é uma **string**, não o objeto — por isso o texto fica entre aspas no protocolo JSON.',
+        ],
       },
     },
   ]);
@@ -377,19 +602,49 @@ useEffect(() => {
       moduleId: modR3.id,
       slug: 'inputs-controlados',
       title: 'Inputs controlados',
-      objective: 'Ligar valor do input ao estado React.',
-      estimatedMinutes: 8,
+      objective:
+        'Explicar input controlado com value + onChange; praticar o handler onChange e o método .trim() em strings JavaScript.',
+      estimatedMinutes: 18,
       orderIndex: 0,
-      contentMd: `## Input controlado
+      contentMd: `## Inputs controlados
 
-O **valor** vem do state e mudanças passam por **onChange**:
+### Contexto
+
+Formulários são parte essencial de qualquer sistema. Em React, o padrão **controlado** liga o valor do \`<input>\` ao **estado** do componente. Para o desafio do **editor**, você usará o método de string \`.trim()\` em JavaScript.
+
+### O que é um input controlado?
+
+- A prop \`value\` do input vem de uma **variável de estado** (ex.: \`texto\`).
+- Cada tecla ou alteração passa por \`onChange\`, que **atualiza** o estado (ex.: \`setTexto\`).
 
 \`\`\`jsx
 const [texto, setTexto] = useState("");
 return <input value={texto} onChange={(e) => setTexto(e.target.value)} />;
 \`\`\`
 
-Isso torna o estado a **fonte da verdade** e facilita validação, máscaras e testes.`,
+Assim, o estado é a **fonte da verdade**: validação, máscaras e testes ficam mais previsíveis.
+
+### Handler \`onChange\`
+
+Em React, convenciona-se usar a prop **\`onChange\`** (camelCase) recebendo uma função. O evento \`e\` traz \`e.target.value\` com o texto do campo.
+
+### JavaScript: \`.trim()\`
+
+Remove **espaços em branco no início e no fim** da string:
+
+\`\`\`js
+"  hi  ".trim(); // "hi"
+\`\`\`
+
+### Erros comuns
+
+- Input “semi-controlado”: \`value\` sem atualizar no \`onChange\` — o campo pode travar ou ficar inconsistente.
+- Esquecer que \`value\` em React espera **string** em inputs de texto (use \`""\` no estado inicial).
+- No editor, confundir aspas: o resultado pedido é a string \`hi\`, representada em JSON como \`"hi"\`.${blocoPraticaDesafios([
+        '**Quiz:** de onde vem o valor exibido em um input controlado típico.',
+        '**Lacunas:** nome da prop de evento usada no exemplo com `setV(e.target.value)`.',
+        '**Expressão no editor:** usar `.trim()` para remover espaços de `"  hi  "`.',
+      ])}`,
     },
   });
 
@@ -397,7 +652,8 @@ Isso torna o estado a **fonte da verdade** e facilita validação, máscaras e t
     {
       type: ExerciseType.MULTIPLE_CHOICE,
       title: 'Fonte da verdade',
-      prompt: 'Em um input controlado, o valor exibido costuma vir de:',
+      prompt:
+        'Em um input controlado, o valor exibido costuma vir de: *(Seção “O que é um input controlado?”)*',
       explanation: 'O state React controla o valor; onChange atualiza o state.',
       xpReward: 14,
       gemReward: 2,
@@ -409,26 +665,36 @@ Isso torna o estado a **fonte da verdade** e facilita validação, máscaras e t
     {
       type: ExerciseType.CODE_FILL,
       title: 'Evento de mudança',
-      prompt: 'Complete o nome do handler típico de mudança em elementos de formulário.',
+      prompt:
+        'Complete o nome do handler típico de mudança em elementos de formulário no React. *(Veja o exemplo com `onChange`.)*',
       explanation: 'Em React DOM, `onChange` captura alterações de valor.',
       xpReward: 17,
       gemReward: 2,
       payload: {
         template: '<input {{b1}}={(e) => setV(e.target.value)} />',
         blanks: [{ id: 'b1', answer: 'onChange' }],
+        hints: [
+          'O nome começa com **on** e termina com **Change**, em camelCase.',
+          'É o mesmo padrão de eventos sintéticos do React para campos de formulário.',
+        ],
       },
     },
     {
       type: ExerciseType.CODE_EDITOR,
       title: 'String trim',
-      prompt: 'Escreva uma expressão que retorne **`"  hi  "`** sem espaços nas pontas.',
-      explanation: '`"  hi  ".trim()` → `"hi"`; JSON.stringify dá "\\"hi\\"".',
+      prompt:
+        'Escreva **uma expressão** que retorne **`"  hi  "`** sem espaços nas pontas. *(Seção “JavaScript: .trim()”.)*',
+      explanation: '`"  hi  ".trim()` → `"hi"`.',
       xpReward: 22,
       gemReward: 2,
       payload: {
         language: 'javascript',
         starterCode: '',
         tests: [{ expected: '"hi"' }],
+        hints: [
+          'Chame o método **trim** na string literal `"  hi  "`.',
+          'Sintaxe: `"texto".trim()` — sem argumentos.',
+        ],
       },
     },
   ]);
@@ -438,12 +704,49 @@ Isso torna o estado a **fonte da verdade** e facilita validação, máscaras e t
       moduleId: modR3.id,
       slug: 'listas-keys',
       title: 'Listas e keys',
-      objective: 'Renderizar coleções com identidade estável.',
-      estimatedMinutes: 6,
+      objective:
+        'Explicar keys em listas React; praticar .map em arrays e .filter com resto da divisão (%).',
+      estimatedMinutes: 16,
       orderIndex: 1,
-      contentMd: `## Keys
+      contentMd: `## Listas e keys
 
-Ao mapear arrays para JSX, forneça \`key\` **estável e única** no contexto da lista (ids de entidade). Evite usar índice como key quando a ordem muda ou itens são inseridos/removidos no meio — pode causar bugs sutis de estado em filhos.`,
+### Contexto
+
+Listas aparecem em menus, feeds, tabelas e formulários dinâmicos. Em React, quando você gera vários irmãos com \`.map\`, cada item precisa de uma \`key\` adequada. Os desafios fixam **keys**, **\`.map\`** e **\`.filter\`** em JavaScript.
+
+### Para que serve \`key\`?
+
+\`key\` **não** é passada como prop para o seu componente filho no DOM — é uma dica **interna** do React para **reconciliar** a lista: saber qual elemento virtual corresponde a qual após uma atualização.
+
+Use valores **estáveis e únicos** na lista (ex.: \`id\` do banco). **Evite** usar só o **índice** quando a ordem muda ou itens entram/saem no meio — pode reutilizar instâncias erradas e gerar bugs de estado.
+
+### JavaScript: \`.map\`
+
+Transforma cada elemento e devolve um **novo** array:
+
+\`\`\`js
+[1, 2, 3].map((n) => n * 2); // [2, 4, 6]
+\`\`\`
+
+### JavaScript: \`.filter\` e números pares
+
+\`n % 2 === 0\` é verdadeiro para **pares**:
+
+\`\`\`js
+[1, 2, 3, 4].filter((n) => n % 2 === 0); // [2, 4]
+\`\`\`
+
+O avaliador compara o resultado com \`JSON.stringify\` do array \`[2,4]\`.
+
+### Erros comuns
+
+- Omitir \`key\` ou usar key duplicada na mesma lista.
+- Usar índice como key em lista que **reordena** ou recebe inserts no meio.
+- No editor, esquecer que o resultado do \`filter\` é um **array** — a expressão deve ser o array, não um texto.${blocoPraticaDesafios([
+        '**Quiz:** papel principal da prop `key` em listas.',
+        '**Lacunas:** método que transforma cada elemento do array.',
+        '**Expressão no editor:** filtrar pares de `[1,2,3,4]` com `.filter` e `% 2 === 0`.',
+      ])}`,
     },
   });
 
@@ -451,7 +754,8 @@ Ao mapear arrays para JSX, forneça \`key\` **estável e única** no contexto da
     {
       type: ExerciseType.MULTIPLE_CHOICE,
       title: 'Propósito da key',
-      prompt: 'A prop key ajuda o React principalmente a:',
+      prompt:
+        'A prop key ajuda o React principalmente a: *(Seção “Para que serve key?”)*',
       explanation: 'Keys ajudam a reconciliar qual item corresponde entre renders.',
       xpReward: 14,
       gemReward: 2,
@@ -468,26 +772,36 @@ Ao mapear arrays para JSX, forneça \`key\` **estável e única** no contexto da
     {
       type: ExerciseType.CODE_FILL,
       title: 'Método map',
-      prompt: 'Complete o método de array que transforma cada elemento.',
+      prompt:
+        'Complete o método de array que transforma cada elemento. *(Seção “JavaScript: .map”.)*',
       explanation: '`array.map(fn)` retorna um novo array.',
       xpReward: 18,
       gemReward: 2,
       payload: {
         template: 'const y = [1,2,3].{{b1}}(n => n * 2);',
         blanks: [{ id: 'b1', answer: 'map' }],
+        hints: [
+          'O método tem **três letras**: começa com **m** e termina com **p**.',
+          'É o mesmo nome do conceito “mapa”: percorre o array e devolve outro array.',
+        ],
       },
     },
     {
       type: ExerciseType.CODE_EDITOR,
       title: 'Filtrar pares',
-      prompt: 'Escreva uma expressão: filtre **`[1,2,3,4]`** mantendo apenas **pares** (use `.filter`).',
-      explanation: '`[1,2,3,4].filter(n => n % 2 === 0)` → `[2,4]`; JSON.stringify.',
+      prompt:
+        'Escreva **uma expressão**: filtre **`[1,2,3,4]`** mantendo apenas **pares** com `.filter` e `n % 2 === 0`. *(Seção “.filter e números pares”.)*',
+      explanation: '`[1,2,3,4].filter(n => n % 2 === 0)` → `[2,4]`.',
       xpReward: 26,
       gemReward: 3,
       payload: {
         language: 'javascript',
         starterCode: '',
         tests: [{ expected: '[2,4]' }],
+        hints: [
+          'Use exatamente: `[1,2,3,4].filter((n) => n % 2 === 0)` — parênteses opcionais em `n`.',
+          'Par = resto da divisão por 2 igual a zero.',
+        ],
       },
     },
   ]);
@@ -501,16 +815,44 @@ Ao mapear arrays para JSX, forneça \`key\` **estável e única** no contexto da
       moduleId: modR4.id,
       slug: 'semantica-html',
       title: 'Semântica e foco',
-      objective: 'Usar elementos corretos para leitores de tela e teclado.',
-      estimatedMinutes: 7,
+      objective:
+        'Diferenciar botão semântico de div clicável; usar type="button"; praticar String.prototype.includes em JavaScript.',
+      estimatedMinutes: 16,
       orderIndex: 0,
-      contentMd: `## Semântica
+      contentMd: `## Semântica e foco
 
-Prefira \`<button>\` para ações, \`<a>\` para navegação, cabeçalhos em ordem (\`h1\` → \`h2\`…). Isso melhora **SEO**, **acessibilidade** e manutenção.
+### Contexto
 
-### Foco
+**Acessibilidade** não é opcional em produtos usados por toda a sociedade — inclusive escolas. HTML **semântico** (\`button\`, \`a\`, cabeçalhos \`h1\`…\`h2\` em ordem) ajuda leitores de tela e teclado. O desafio do editor usa **\`.includes\`** em strings JavaScript.
 
-Gerencie foco em modais (trap), ofereça skip links e estados visíveis de :focus-visible.`,
+### Botão real vs. \`div\` clicável
+
+- **\`<button type="button">\`** tem **papel** de botão, recebe **foco** por teclado e responde a **Enter/Espaço** por padrão.
+- **\`<div onClick>\`** não é botão: precisa de \`role\`, \`tabIndex\` e tratamento de teclado para equivalência — mais fácil errar.
+
+Dentro de um **\`<form>\`**, o tipo padrão de \`<button>\` é **submit**. Para ações que **não** enviam o formulário, use **\`type="button"\`** e evite submit acidental.
+
+### Foco visível e modais
+
+Mantenha **:focus-visible** visível para quem navega sem mouse; em **modais**, “prenda” o foco dentro do diálogo até fechar.
+
+### JavaScript: \`.includes\`
+
+Verifica se uma **substring** aparece na string:
+
+\`\`\`js
+"accessibility".includes("access"); // true
+\`\`\`
+
+### Erros comuns
+
+- Simular botão só com \`div\` sem os requisitos de acessibilidade.
+- Esquecer \`type="button"\` e disparar **submit** sem querer.
+- No editor, retornar a **string** \`"true"\` em vez do booleano — o enunciado pede a expressão cujo valor é \`true\`.${blocoPraticaDesafios([
+        '**Quiz:** melhor elemento para ação com teclado e leitor de tela.',
+        '**Lacunas:** `type` do botão que não submete formulário.',
+        '**Expressão no editor:** avaliar `.includes` como no exemplo da seção.',
+      ])}`,
     },
   });
 
@@ -518,7 +860,8 @@ Gerencie foco em modais (trap), ofereça skip links e estados visíveis de :focu
     {
       type: ExerciseType.MULTIPLE_CHOICE,
       title: 'Botão vs div',
-      prompt: 'Para uma ação acionável por teclado e leitor de tela, prefira:',
+      prompt:
+        'Para uma ação acionável por teclado e leitor de tela, prefira: *(Seção “Botão real vs. div”.)*',
       explanation: '`button` tem papel, foco e tecla Enter/Espaço por padrão.',
       xpReward: 15,
       gemReward: 2,
@@ -530,26 +873,36 @@ Gerencie foco em modais (trap), ofereça skip links e estados visíveis de :focu
     {
       type: ExerciseType.CODE_FILL,
       title: 'Tipo de botão em formulário',
-      prompt: 'Complete o type recomendado para botão que NÃO submete formulário.',
+      prompt:
+        'Complete o **type** recomendado para botão que NÃO submete formulário. *(Seção sobre formulário.)*',
       explanation: '`type="button"` evita submit acidental.',
       xpReward: 16,
       gemReward: 2,
       payload: {
         template: '<button type="{{b1}}">Salvar rascunho</button>',
         blanks: [{ id: 'b1', answer: 'button' }],
+        hints: [
+          'O valor é a mesma palavra em inglês que nomeia o elemento HTML **button**.',
+          'Não é `submit` — esse enviaria o formulário.',
+        ],
       },
     },
     {
       type: ExerciseType.CODE_EDITOR,
       title: 'Includes em string',
-      prompt: 'Escreva uma expressão booleana: **`"accessibility".includes("access")`**.',
-      explanation: 'Deve ser `true`; JSON.stringify(true) é "true".',
+      prompt:
+        'Escreva **uma expressão** cujo valor seja o booleano da verificação **`"accessibility".includes("access")`**. *(Seção “JavaScript: .includes”.)*',
+      explanation: 'O resultado é `true`.',
       xpReward: 20,
       gemReward: 2,
       payload: {
         language: 'javascript',
         starterCode: '',
         tests: [{ expected: 'true' }],
+        hints: [
+          'Copie a expressão do enunciado: `"accessibility".includes("access")`.',
+          'O método `includes` devolve **true** ou **false** (booleano).',
+        ],
       },
     },
   ]);
@@ -559,14 +912,62 @@ Gerencie foco em modais (trap), ofereça skip links e estados visíveis de :focu
       moduleId: modR4.id,
       slug: 'performance-memo',
       title: 'Memoização quando faz sentido',
-      objective: 'Entender React.memo, useMemo e useCallback sem otimizar cedo demais.',
-      estimatedMinutes: 9,
+      objective:
+        'Explicar React.memo e quando otimizar; praticar === e chamar método de um objeto literal em JavaScript.',
+      estimatedMinutes: 20,
       orderIndex: 1,
-      contentMd: `## Quando memoizar
+      contentMd: `## Memoização quando faz sentido
 
-\`React.memo\` evita re-render de componentes puros quando props não mudam. \`useMemo\`/\`useCallback\` estabilizam referências.
+### Contexto
 
-**Medir primeiro**: otimização prematura complica o código. Use quando há evidência de custo (listas grandes, animações, drag-and-drop).`,
+À medida que interfaces crescem, **re-renders** podem ficar caros. **Memoização** (\`React.memo\`, \`useMemo\`, \`useCallback\`) é ferramenta para **evitar trabalho repetido** — mas usada sem critério, só **complica** o código. Esta aula fixa o **quando** memoizar e o JavaScript dos desafios (\`===\`, objeto com método).
+
+### React.memo (ideia)
+
+\`React.memo(Componente)\` memoriza um componente de função: se as **props** forem **iguais** às do render anterior, o React pode **pular** um novo render daquele subtree. Funciona melhor com **props estáveis** e componentes **puros** (mesmas props → mesma UI).
+
+### useMemo e useCallback (ideia rápida)
+
+- **useMemo** memoriza um **valor** calculado.
+- **useCallback** memoriza uma **função** (referência estável).
+
+Ambos ajudam quando você passa dados para filhos memoizados e quer evitar invalidar a memoização sem necessidade.
+
+### Quando **não** otimizar de cara
+
+**Meça ou observe** problema real (lista enorme, animação, arrastar e soltar). Otimização prematura:
+
+- Dificulta leitura para outros devs e alunos.
+- Pode **esconder** bugs de dependências ou props instáveis.
+
+### JavaScript: igualdade estrita \`===\`
+
+Compara **sem** converter tipos automaticamente:
+
+\`\`\`js
+3 === "3"; // false
+3 === 3;  // true
+\`\`\`
+
+### JavaScript: objeto com método e chamada
+
+Você pode criar um **objeto literal** com uma função e chamá-la na mesma expressão:
+
+\`\`\`js
+({ double: (n) => n * 2 }).double(21); // 42
+\`\`\`
+
+Em uma expressão única, o objeto precisa de **parênteses externos** em torno de \`{ ... }\` para o parser não confundir com bloco.
+
+### Erros comuns
+
+- Memoizar tudo “por precaução”.
+- Passar **objetos/ funções novas** inline como props e achar que \`memo\` resolve — referências mudam a cada render.
+- No editor, esquecer parênteses ao usar objeto literal como expressão.${blocoPraticaDesafios([
+        '**Quiz:** quando React.memo tende a ajudar.',
+        '**Lacunas:** operador de igualdade estrita.',
+        '**Expressão no editor:** chamar `.double(21)` em objeto `{ double: (n) => n * 2 }` (veja exemplo com parênteses).',
+      ])}`,
     },
   });
 
@@ -574,7 +975,8 @@ Gerencie foco em modais (trap), ofereça skip links e estados visíveis de :focu
     {
       type: ExerciseType.MULTIPLE_CHOICE,
       title: 'memo',
-      prompt: 'React.memo é mais útil quando:',
+      prompt:
+        'React.memo é mais útil quando: *(Seção “React.memo” e “Quando não otimizar”.)*',
       explanation: 'Memo ajuda quando re-renders são frequentes e o custo do subtree é alto.',
       xpReward: 14,
       gemReward: 2,
@@ -591,27 +993,36 @@ Gerencie foco em modais (trap), ofereça skip links e estados visíveis de :focu
     {
       type: ExerciseType.CODE_FILL,
       title: 'Igualdade estrita',
-      prompt: 'Complete o operador de igualdade **sem** coerção de tipos.',
+      prompt:
+        'Complete o operador de igualdade **sem** coerção de tipos. *(Seção “JavaScript: ===”.)*',
       explanation: '`===` compara sem coerção.',
       xpReward: 17,
       gemReward: 2,
       payload: {
         template: 'const ok = (a {{b1}} b);',
         blanks: [{ id: 'b1', answer: '===' }],
+        hints: [
+          'São **três** caracteres: igual, igual, igual.',
+          'Não use `==` — esse faz conversão de tipos.',
+        ],
       },
     },
     {
       type: ExerciseType.CODE_EDITOR,
       title: 'Objeto com método',
       prompt:
-        'Escreva uma expressão que retorne um objeto `{ double: (n)=> n*2 }` e depois chame **double(21)** (resultado **42**).',
-      explanation: 'Ex.: `(({ double: n => n*2 }).double(21))`',
+        'Escreva **uma expressão** que chame **double(21)** em um objeto literal `{ double: (n) => n * 2 }` e retorne **42**. *(Veja “Objeto com método e chamada” — use parênteses em volta do objeto.)*',
+      explanation: 'Ex.: `({ double: (n) => n * 2 }).double(21)`',
       xpReward: 28,
       gemReward: 3,
       payload: {
         language: 'javascript',
         starterCode: '',
         tests: [{ expected: '42' }],
+        hints: [
+          'Envolva o objeto em parênteses antes do `.double`: `({ double: (n) => n * 2 }).double(21)`.',
+          'A arrow function pode ser `(n) => n * 2` — o importante é chamar `.double(21)` no final.',
+        ],
       },
     },
   ]);
@@ -639,20 +1050,46 @@ Gerencie foco em modais (trap), ofereça skip links e estados visíveis de :focu
       moduleId: modA1.id,
       slug: 'notacao-assintotica',
       title: 'Notação assintótica',
-      objective: 'Comparar custos quando n cresce.',
-      estimatedMinutes: 10,
+      objective:
+        'Descrever Big-O em linguagem simples; relacionar busca binária a O(log n); usar Math.pow e soma aritmética no editor.',
+      estimatedMinutes: 18,
       orderIndex: 0,
-      contentMd: `## Big-O (intuição)
+      contentMd: `## Big-O (intuição) — uso em sala
 
-Descrevemos **como o tempo ou espaço crescem** com o tamanho da entrada \`n\`:
+### Contexto
 
-- **O(1)** — constante
-- **O(log n)** — dividir e conquistar (ex.: busca binária em array ordenado)
-- **O(n)** — percorrer uma vez
-- **O(n log n)** — ordenações eficientes comuns
-- **O(n²)** — loops aninhados ingênuos
+Esta aula é **pensamento computacional**: não precisa de matemática avançada, só de **comparar ideias** (“se eu dobro o tamanho da entrada, o que acontece com o trabalho?”). Os desafios usam **JavaScript** (\`Math.pow\`, soma).
 
-Focamos no **pior caso** e ignoramos constantes para comparar escalas.`,
+### O que medimos?
+
+A notação **Big-O** descreve **como o tempo ou a memória crescem** quando a entrada tem tamanho \`n\`. Comparamos **ordens de grandeza** no **pior caso** típico e **ignoramos constantes** pequenas (por isso dizemos “assintótico”).
+
+### Escalas comuns (decore a intuição)
+
+- **O(1)** — não depende de \`n\` (ex.: acessar índice fixo em array).
+- **O(log n)** — divide o problema a cada passo (ex.: **busca binária** em array **ordenado**).
+- **O(n)** — uma passagem linear sobre os dados.
+- **O(n log n)** — muitas ordenações eficientes.
+- **O(n²)** — dois loops aninhados ingênuos sobre \`n\`.
+
+### Busca em array ordenado
+
+Se o array está **ordenado** e você faz **muitas consultas**, **busca binária** (índices indo para o meio) costuma ser **O(log n)** por consulta, melhor que varrer tudo (**O(n)**) repetidas vezes.
+
+### JavaScript no editor
+
+- **Potência:** \`Math.pow(2, 5)\` calcula \`2^5\`.
+- **Soma:** \`1 + 2 + 3 + 4 + 5\` em uma expressão — o resultado é **15**.
+
+### Erros comuns
+
+- Achar que Big-O é tempo exato em segundos — é **comparação de crescimento**.
+- Confundir “melhor caso” e “pior caso” sem dizer qual está sendo usado.
+- Esquecer parênteses na soma: \`(a+b)\` quando mistura com divisão.${blocoPraticaDesafios([
+        '**Quiz:** estratégia típica em array ordenado com muitas buscas.',
+        '**Lacunas:** nome do método `Math` para potência (base e expoente).',
+        '**Expressão no editor:** somar 1+2+3+4+5.',
+      ])}`,
     },
   });
 
@@ -660,7 +1097,8 @@ Focamos no **pior caso** e ignoramos constantes para comparar escalas.`,
     {
       type: ExerciseType.MULTIPLE_CHOICE,
       title: 'Busca em array ordenado',
-      prompt: 'Para encontrar um valor em array **ordenado** com muitas consultas, costuma-se preferir:',
+      prompt:
+        'Para encontrar um valor em array **ordenado** com muitas consultas, costuma-se preferir: *(Seção “Busca em array ordenado”.)*',
       explanation: 'Busca binária é O(log n) por consulta; linear é O(n).',
       xpReward: 17,
       gemReward: 2,
@@ -677,7 +1115,8 @@ Focamos no **pior caso** e ignoramos constantes para comparar escalas.`,
     {
       type: ExerciseType.CODE_FILL,
       title: 'Potência de 2',
-      prompt: 'Complete: 2 elevado a 5 em JavaScript.',
+      prompt:
+        'Complete: 2 elevado a 5 em JavaScript com **Math**. *(Veja “JavaScript no editor”.)*',
       explanation: '`Math.pow(2, 5)` ou `2 ** 5`.',
       xpReward: 16,
       gemReward: 2,
@@ -689,7 +1128,8 @@ Focamos no **pior caso** e ignoramos constantes para comparar escalas.`,
     {
       type: ExerciseType.CODE_EDITOR,
       title: 'Soma 1 a 5',
-      prompt: 'Escreva uma expressão que some **1+2+3+4+5**.',
+      prompt:
+        'Escreva **uma expressão** que some **1+2+3+4+5**. *(Aritmética básica — resultado 15.)*',
       explanation: 'Resultado 15.',
       xpReward: 22,
       gemReward: 2,
@@ -702,14 +1142,39 @@ Focamos no **pior caso** e ignoramos constantes para comparar escalas.`,
       moduleId: modA1.id,
       slug: 'dois-ponteiros',
       title: 'Dois ponteiros',
-      objective: 'Resolver problemas em array ordenado com janelas móveis.',
-      estimatedMinutes: 9,
+      objective:
+        'Entender dois ponteiros em array ordenado; reconhecer laço while; calcular média aritmética em JS.',
+      estimatedMinutes: 16,
       orderIndex: 1,
-      contentMd: `## Técnica
+      contentMd: `## Dois ponteiros
 
-Em arrays **ordenados**, dois índices \`l\` e \`r\` podem caminhar para achar pares com soma alvo em **O(n)** em vez de O(n²).
+### Contexto
 
-Exemplo clássico: soma de par igual a \`target\` (com cuidados com duplicatas).`,
+Quando o enunciado envolve **array ordenado** e você precisa achar **pares** ou **intervalos**, a técnica de **dois ponteiros** (\`l\` e \`r\`) muitas vezes reduz **tempo** comparada a dois \`for\` aninhados. O desafio do editor pede só **média** — revise operações básicas.
+
+### Ideia
+
+Dois índices caminham pelo array conforme regras do problema (ex.: soma maior que alvo → mover um ponteiro). Em problemas adequados, passa de **O(n²)** para **O(n)**.
+
+Exemplo clássico: achar par cuja **soma** é \`target\` (há cuidados com duplicatas na implementação completa).
+
+### Laço \`while\`
+
+Em JavaScript, \`while (condição) { ... }\` repete enquanto a condição for verdadeira — comum em dois ponteiros: \`while (l < r)\`.
+
+### Média aritmética
+
+Média de \`10\` e \`20\`: \`(10 + 20) / 2\`.
+
+### Erros comuns
+
+- Usar dois ponteiros em array **não ordenado** sem adaptar a estratégia.
+- Esquecer **parênteses**: \`10+20/2\` não é a média.
+- Off-by-one nos índices ao implementar o algoritmo completo.${blocoPraticaDesafios([
+        '**Quiz:** o que a técnica costuma reduzir quando bem aplicada.',
+        '**Lacunas:** palavra-chave do laço “enquanto”.',
+        '**Expressão no editor:** média de 10 e 20.',
+      ])}`,
     },
   });
 
@@ -717,7 +1182,8 @@ Exemplo clássico: soma de par igual a \`target\` (com cuidados com duplicatas).
     {
       type: ExerciseType.MULTIPLE_CHOICE,
       title: 'Vantagem',
-      prompt: 'Dois ponteiros costuma reduzir:',
+      prompt:
+        'Dois ponteiros costuma reduzir: *(Seção “Ideia”.)*',
       explanation: 'Evita verificar todos os pares com loop duplo ingênuo.',
       xpReward: 15,
       gemReward: 2,
@@ -734,7 +1200,8 @@ Exemplo clássico: soma de par igual a \`target\` (com cuidados com duplicatas).
     {
       type: ExerciseType.CODE_FILL,
       title: 'While',
-      prompt: 'Complete a palavra-chave do laço: enquanto **l < r**.',
+      prompt:
+        'Complete a palavra-chave do laço: enquanto **l < r**. *(Seção “Laço while”.)*',
       explanation: '`while (l < r) { ... }`',
       xpReward: 14,
       gemReward: 1,
@@ -746,7 +1213,8 @@ Exemplo clássico: soma de par igual a \`target\` (com cuidados com duplicatas).
     {
       type: ExerciseType.CODE_EDITOR,
       title: 'Média de dois números',
-      prompt: 'Escreva uma expressão para a média de **10** e **20**.',
+      prompt:
+        'Escreva **uma expressão** para a média de **10** e **20**. *(Use parênteses: `(10+20)/2`.)*',
       explanation: '(10+20)/2 = 15.',
       xpReward: 20,
       gemReward: 2,
@@ -763,14 +1231,40 @@ Exemplo clássico: soma de par igual a \`target\` (com cuidados com duplicatas).
       moduleId: modA2.id,
       slug: 'pilha-stack',
       title: 'Pilha (stack)',
-      objective: 'LIFO: último a entrar, primeiro a sair.',
-      estimatedMinutes: 7,
+      objective:
+        'Definir pilha (LIFO); usar push/pop em JS; obter último caractere de string com .at(-1) ou índice.',
+      estimatedMinutes: 14,
       orderIndex: 0,
-      contentMd: `## Stack
+      contentMd: `## Pilha (stack)
 
-Operações típicas: **push** (topo), **pop** (topo), **peek**. Usada em parsing, DFS iterativo, undo, validação de parênteses.
+### Contexto
 
-Em JS, \`array.push/pop\` no final simula stack com amortizado O(1).`,
+**Pilha** é uma estrutura do dia a dia: pilha de pratos — o último que você coloca é o primeiro que tira (**LIFO**). Em computação, serve para **desfazer**, **validar parênteses**, **DFS iterativo**, etc. O editor pede **último caractere** de uma string em JavaScript.
+
+### Operações
+
+- **push** — empilha no **topo**.
+- **pop** — remove e devolve o do **topo**.
+- **peek** (conceitual) — olhar o topo sem remover.
+
+### Em JavaScript
+
+\`array.push(x)\` coloca no fim; \`array.pop()\` tira do fim — simula pilha com custo amortizado **O(1)** no fim do array.
+
+### Último caractere da string \`"abc"\`
+
+- Índices começam em 0: \`"abc"[2]\` é \`"c"\`.
+- Ou \`"abc".at(-1)\` (índice negativo conta do fim).
+
+### Erros comuns
+
+- Confundir pilha com **fila** (FIFO).
+- Usar \`shift\` pensando que é O(1) sempre — no array JS costuma ser mais caro que \`pop\` no fim.
+- No editor, devolver número em vez de string — o esperado é a string \`"c"\`.${blocoPraticaDesafios([
+        '**Quiz:** princípio LIFO vs FIFO.',
+        '**Lacunas:** método que remove o último elemento do array.',
+        '**Expressão no editor:** último caractere de `"abc"`.',
+      ])}`,
     },
   });
 
@@ -778,7 +1272,8 @@ Em JS, \`array.push/pop\` no final simula stack com amortizado O(1).`,
     {
       type: ExerciseType.MULTIPLE_CHOICE,
       title: 'Ordem',
-      prompt: 'Uma pilha segue o princípio:',
+      prompt:
+        'Uma pilha segue o princípio: *(Seção “Contexto” — LIFO.)*',
       explanation: 'LIFO — Last In First Out.',
       xpReward: 14,
       gemReward: 2,
@@ -790,7 +1285,8 @@ Em JS, \`array.push/pop\` no final simula stack com amortizado O(1).`,
     {
       type: ExerciseType.CODE_FILL,
       title: 'Remover do topo',
-      prompt: 'Complete o método que remove o último elemento do array.',
+      prompt:
+        'Complete o método que remove o **último** elemento do array. *(Simula o topo da pilha.)*',
       explanation: '`pop()` remove e retorna o último.',
       xpReward: 17,
       gemReward: 2,
@@ -802,8 +1298,9 @@ Em JS, \`array.push/pop\` no final simula stack com amortizado O(1).`,
     {
       type: ExerciseType.CODE_EDITOR,
       title: 'Último caractere',
-      prompt: 'Escreva uma expressão que retorne o último caractere da string **`"abc"`**.',
-      explanation: '`"abc".at(-1)` ou `"abc"[2]` → `"c"`; JSON.stringify é "\\"c\\"".',
+      prompt:
+        'Escreva **uma expressão** que retorne o último caractere da string **`"abc"`**. *(Veja “Último caractere” — `at(-1)` ou índice 2.)*',
+      explanation: '`"abc".at(-1)` ou `"abc"[2]` → `"c"`.',
       xpReward: 22,
       gemReward: 2,
       payload: { language: 'javascript', starterCode: '', tests: [{ expected: '"c"' }] },
@@ -815,14 +1312,35 @@ Em JS, \`array.push/pop\` no final simula stack com amortizado O(1).`,
       moduleId: modA2.id,
       slug: 'fila-queue',
       title: 'Fila (queue)',
-      objective: 'FIFO: primeiro a entrar, primeiro a sair.',
-      estimatedMinutes: 7,
+      objective:
+        'Definir fila (FIFO); relacionar BFS com fila; usar push e shift; interpretar retorno de shift.',
+      estimatedMinutes: 16,
       orderIndex: 1,
-      contentMd: `## Queue
+      contentMd: `## Fila (queue)
 
-Operações: **enqueue** (fim), **dequeue** (início). BFS em grafos usa fila.
+### Contexto
 
-Em JS, \`push\` + \`shift\` funciona mas \`shift\` pode ser O(n). Para performance, use **deque** (estrutura dedicada) ou índices de cabeça/cauda em array circular.`,
+**Fila** é a fila do banco: **FIFO** — primeiro a entrar, primeiro a sair. Em grafos, **BFS** (busca em largura) explora “camadas” e usa fila. Em JavaScript, \`push\` no fim e \`shift\` no início **imitam** fila, mas \`shift\` pode ser custoso em arrays muito grandes — em projetos reais há **deque** ou índices de cabeça/cauda.
+
+### Operações
+
+- **enqueue** — entrar na fila (no nosso exemplo, \`push\` no fim).
+- **dequeue** — sair da fila (no nosso exemplo, \`shift\` no início — retorna o elemento removido).
+
+### Exemplo mental para o desafio
+
+1. Comece com array \`[1]\`.
+2. \`push(2)\` → array vira \`[1, 2]\` (e \`push\` retorna o novo **length**, mas o desafio pede outra coisa).
+3. \`shift()\` remove o **primeiro** elemento (\`1\`) e **retorna** \`1\`.
+
+### Erros comuns
+
+- Confundir **shift** (tira do **início**) com **pop** (tira do **fim**).
+- Achar que BFS usa **pilha** — costuma ser o contrário (DFS profundo ↔ pilha, BFS em camadas ↔ fila).${blocoPraticaDesafios([
+        '**Quiz:** estrutura típica de BFS.',
+        '**Lacunas:** método que adiciona ao final do array.',
+        '**Expressão no editor:** em `[1]`, após `push(2)`, o valor retornado por `shift()`.',
+      ])}`,
     },
   });
 
@@ -830,7 +1348,8 @@ Em JS, \`push\` + \`shift\` funciona mas \`shift\` pode ser O(n). Para performan
     {
       type: ExerciseType.MULTIPLE_CHOICE,
       title: 'BFS',
-      prompt: 'A busca em largura (BFS) em grafos costuma usar:',
+      prompt:
+        'A busca em largura (BFS) em grafos costuma usar: *(Seção “Contexto”.)*',
       explanation: 'BFS explora camadas; fila é natural.',
       xpReward: 16,
       gemReward: 2,
@@ -842,7 +1361,8 @@ Em JS, \`push\` + \`shift\` funciona mas \`shift\` pode ser O(n). Para performan
     {
       type: ExerciseType.CODE_FILL,
       title: 'Adicionar ao fim',
-      prompt: 'Complete o método que adiciona no final do array.',
+      prompt:
+        'Complete o método que adiciona no **final** do array. *(Enqueue simplificado.)*',
       explanation: '`push`.',
       xpReward: 15,
       gemReward: 2,
@@ -854,14 +1374,20 @@ Em JS, \`push\` + \`shift\` funciona mas \`shift\` pode ser O(n). Para performan
     {
       type: ExerciseType.CODE_EDITOR,
       title: 'Fila simples',
-      prompt: 'Escreva uma expressão: comece com `[1]`, dê **push(2)**, depois **shift()** — valor retornado pelo shift.',
-      explanation: '`[1].push(2)` muta e retorna length; use cópia mental: após push [1,2], shift → 1.',
+      prompt:
+        'Escreva **uma expressão** que simule: fila começa como `[1]`, faça **push(2)** no mesmo array, depois retorne o que **shift()** devolve (deve ser **1**). *(Dica: use uma função arrow que recebe o array, vírgula e `push`/`shift`.)*',
+      explanation:
+        'Exemplo válido: `((q) => (q.push(2), q.shift()))([1])` — `push` retorna o novo length, mas o operador vírgula faz a expressão valer o resultado de `shift()`.',
       xpReward: 24,
       gemReward: 3,
       payload: {
         language: 'javascript',
         starterCode: '',
         tests: [{ expected: '1' }],
+        hints: [
+          'Use `((q) => (q.push(2), q.shift()))([1])` como modelo: uma arrow, vírgula entre `push` e `shift`, e chame com `[1]`.',
+          'O `shift()` sempre remove e devolve o **primeiro** elemento; após `push(2)`, a fila é `[1,2]`, então o primeiro é `1`.',
+        ],
       },
     },
   ]);
@@ -886,17 +1412,41 @@ Em JS, \`push\` + \`shift\` funciona mas \`shift\` pode ser O(n). Para performan
       moduleId: modA3.id,
       slug: 'map-frequency',
       title: 'Frequência com Map',
-      objective: 'Contar ocorrências em O(n).',
-      estimatedMinutes: 8,
+      objective:
+        'Contar ocorrências com Map; entender hash O(1) médio; usar Set e .size em JavaScript.',
+      estimatedMinutes: 18,
       orderIndex: 0,
-      contentMd: `## Map
+      contentMd: `## Map e frequência
 
-\`Map\` guarda pares chave→valor com chaves de qualquer tipo. Para frequência de caracteres:
+### Contexto
+
+Para saber **quantas vezes** cada letra aparece em uma palavra, não precisamos de papel: usamos uma **tabela** chave→valor. Em JavaScript, \`Map\` é ideal; **Set** guarda só **valores únicos** — o desafio do editor usa \`Set\` e \`.size\`.
+
+### Map em JavaScript
+
+\`Map\` guarda pares **chave → valor**. Padrão de frequência:
 
 \`\`\`js
 const m = new Map();
 for (const ch of str) m.set(ch, (m.get(ch) ?? 0) + 1);
-\`\`\``,
+\`\`\`
+
+### Hash tables (intuição)
+
+Em estruturas hash bem projetadas, **inserir e buscar** costumam ser **O(1) em média**; no pior teórico pode degradar se houver muitas colisões.
+
+### Set e \`.size\`
+
+\`new Set([1,1,2,2,3])\` guarda **1, 2, 3**. A propriedade \`.size\` devolve **3**.
+
+### Erros comuns
+
+- Usar objeto genérico \`{}\` como mapa quando chaves podem ser problemáticas — \`Map\` é mais previsível.
+- Confundir \`.length\` (array/string) com \`.size\` (**Set**/**Map**).${blocoPraticaDesafios([
+        '**Quiz:** ordem típica de operações em hash bem dimensionada.',
+        '**Lacunas:** construtor `new ___()` para mapa.',
+        '**Expressão no editor:** `new Set([1,1,2,2,3]).size`.',
+      ])}`,
     },
   });
 
@@ -904,7 +1454,8 @@ for (const ch of str) m.set(ch, (m.get(ch) ?? 0) + 1);
     {
       type: ExerciseType.MULTIPLE_CHOICE,
       title: 'Colisão conceitual',
-      prompt: 'Em uma tabela hash bem dimensionada, buscas/inserções médias costumam ser:',
+      prompt:
+        'Em uma tabela hash bem dimensionada, buscas/inserções **médias** costumam ser: *(Seção “Hash tables”.)*',
       explanation: 'Em média O(1) amortizado; pior caso pode degradar com muitas colisões.',
       xpReward: 16,
       gemReward: 2,
@@ -916,7 +1467,8 @@ for (const ch of str) m.set(ch, (m.get(ch) ?? 0) + 1);
     {
       type: ExerciseType.CODE_FILL,
       title: 'Novo Map',
-      prompt: 'Complete o construtor.',
+      prompt:
+        'Complete o construtor **Map** vazio. *(Seção “Map em JavaScript”.)*',
       explanation: '`new Map()`',
       xpReward: 14,
       gemReward: 1,
@@ -928,7 +1480,8 @@ for (const ch of str) m.set(ch, (m.get(ch) ?? 0) + 1);
     {
       type: ExerciseType.CODE_EDITOR,
       title: 'Tamanho do Set',
-      prompt: 'Escreva uma expressão: crie `new Set([1,1,2,2,3])` e retorne **`.size`**.',
+      prompt:
+        'Escreva **uma expressão**: crie `new Set([1,1,2,2,3])` e retorne **`.size`**. *(Seção “Set e .size”.)*',
       explanation: 'Set tem 3 elementos únicos.',
       xpReward: 22,
       gemReward: 2,
@@ -941,12 +1494,37 @@ for (const ch of str) m.set(ch, (m.get(ch) ?? 0) + 1);
       moduleId: modA3.id,
       slug: 'anagrama',
       title: 'Verificação de anagrama',
-      objective: 'Comparar assinaturas de frequência ou ordenação.',
-      estimatedMinutes: 9,
+      objective:
+        'Definir anagrama por frequência ou ordenação de letras; usar split, sort e join em JavaScript.',
+      estimatedMinutes: 18,
       orderIndex: 1,
-      contentMd: `## Ideia
+      contentMd: `## Anagramas
 
-Dois textos são anagramas se têm as mesmas letras com mesmas contagens. Compare mapas de frequência ou ordene os caracteres (atenção a Unicode/normalização em produção).`,
+### Contexto
+
+Duas palavras são **anagramas** se usam **as mesmas letras** nas **mesmas quantidades** (ordem diferente). Duas estratégias clássicas: **contar letras** com mapa de frequência ou **ordenar** as letras e comparar strings. O desafio do editor usa **split → sort → join**.
+
+### Frequência (ideia)
+
+Percorra cada letra e incremente contadores — tipicamente **O(n)** na soma dos tamanhos.
+
+### Ordenação de caracteres (ideia)
+
+1. \`split("")\` vira array de caracteres.
+2. \`sort()\` ordena lexicograficamente (atenção a locale em produção).
+3. \`join("")\` volta a string.
+
+Para \`"bac"\`, ordenar letras dá \`"abc"\`.
+
+### Erros comuns
+
+- Ignorar **espaços** ou **maiúsculas** em enunciados reais — aqui o foco é a técnica.
+- Achar que \`sort\` sem função serve para números grandes — para números, use comparador.
+- Unicode: normalização (NFC/NFD) importa em produto real.${blocoPraticaDesafios([
+        '**Quiz:** custo típico de contar frequência em string tamanho n.',
+        '**Lacunas:** método que divide string por delimitador.',
+        '**Expressão no editor:** `"bac".split("").sort().join("")`.',
+      ])}`,
     },
   });
 
@@ -954,7 +1532,8 @@ Dois textos são anagramas se têm as mesmas letras com mesmas contagens. Compar
     {
       type: ExerciseType.MULTIPLE_CHOICE,
       title: 'Custo típico',
-      prompt: 'Contar frequência de cada letra em strings de tamanho n costuma ser:',
+      prompt:
+        'Contar frequência de cada letra em strings de tamanho n costuma ser: *(Seção “Frequência”.)*',
       explanation: 'Uma passagem por string: O(n).',
       xpReward: 15,
       gemReward: 2,
@@ -966,7 +1545,8 @@ Dois textos são anagramas se têm as mesmas letras com mesmas contagens. Compar
     {
       type: ExerciseType.CODE_FILL,
       title: 'Dividir string',
-      prompt: 'Complete o método que separa por delimitador.',
+      prompt:
+        'Complete o método que separa por delimitador. *(Usado antes de processar letras.)*',
       explanation: '`split`',
       xpReward: 16,
       gemReward: 2,
@@ -978,8 +1558,9 @@ Dois textos são anagramas se têm as mesmas letras com mesmas contagens. Compar
     {
       type: ExerciseType.CODE_EDITOR,
       title: 'Ordenar caracteres',
-      prompt: 'Escreva uma expressão: **`"bac".split("").sort().join("")`**.',
-      explanation: 'Resultado `"abc"`; compare com JSON.stringify.',
+      prompt:
+        'Escreva **uma expressão** exatamente: **`"bac".split("").sort().join("")`**. *(Seção “Ordenação de caracteres”.)*',
+      explanation: 'Resultado `"abc"`.',
       xpReward: 24,
       gemReward: 3,
       payload: {
@@ -999,14 +1580,40 @@ Dois textos são anagramas se têm as mesmas letras com mesmas contagens. Compar
       moduleId: modA4.id,
       slug: 'fibonacci-topdown',
       title: 'Fibonacci e memoização',
-      objective: 'Evitar recomputação com cache.',
-      estimatedMinutes: 10,
+      objective:
+        'Explicar explosão recursiva em Fibonacci; operador ??; calcular F(6) com convenção F(0)=0, F(1)=1.',
+      estimatedMinutes: 20,
       orderIndex: 0,
-      contentMd: `## Memoização
+      contentMd: `## Fibonacci e memoização
 
-A recursão ingênua de Fibonacci repete subproblemas. Guarde resultados em **Map** ou array.
+### Contexto
 
-Também existe **bottom-up** (DP iterativo) com O(n) tempo e O(1) espaço extra com rolagem de variáveis.`,
+A sequência de **Fibonacci** aparece em matemática e em análise de algoritmos. A definição recursiva direta **recomputa** os mesmos valores muitas vezes — por isso usamos **memoização** (cache) ou **programação dinâmica** iterativa. O desafio do editor pede só **F(6)** com a convenção indicada.
+
+### Definição (nesta aula)
+
+- **F(0) = 0**
+- **F(1) = 1**
+- **F(n) = F(n-1) + F(n-2)** para n ≥ 2
+
+Valores: 0, 1, 1, 2, 3, 5, **8**, … → **F(6) = 8**.
+
+### Por que memoizar?
+
+Sem cache, a árvore de chamadas cresce **exponencialmente**. Com **Map** ou array guardando \`F(k)\` já calculados, cai para **O(n)** por problema.
+
+### Operador \`??\` (nullish coalescing)
+
+\`a ?? b\` devolve \`b\` quando \`a\` é \`null\` ou \`undefined\` — útil em caches (\`map.get(k) ?? valorPadrao\`).
+
+### Erros comuns
+
+- Trocar convenção (**F(0)** e **F(1)**) e errar o índice pedido.
+- Confundir \`??\` com \`||\` (\`||\` trata outros “falsy” como \`0\` ou \`""\`).${blocoPraticaDesafios([
+        '**Quiz:** complexidade da recursão ingênua de Fibonacci.',
+        '**Lacunas:** valor que junto com `undefined` dispara o `??`.',
+        '**Expressão no editor:** número F(6) na convenção F(0)=0, F(1)=1 — resultado 8.',
+      ])}`,
     },
   });
 
@@ -1014,7 +1621,8 @@ Também existe **bottom-up** (DP iterativo) com O(n) tempo e O(1) espaço extra 
     {
       type: ExerciseType.MULTIPLE_CHOICE,
       title: 'Problema da recursão ingênua',
-      prompt: 'fib(n) recursivo sem memo pode ter tempo:',
+      prompt:
+        'fib(n) recursivo sem memo pode ter tempo: *(Seção “Por que memoizar?”.)*',
       explanation: 'Árvore exponencial ~ O(φ^n).',
       xpReward: 17,
       gemReward: 2,
@@ -1026,7 +1634,8 @@ Também existe **bottom-up** (DP iterativo) com O(n) tempo e O(1) espaço extra 
     {
       type: ExerciseType.CODE_FILL,
       title: 'Operador nullish',
-      prompt: 'Complete: **a ?? b** retorna **b** quando **a** é ___ ou **undefined**.',
+      prompt:
+        'Complete: **a ?? b** retorna **b** quando **a** é ___ ou **undefined**. *(Seção sobre `??`.)*',
       explanation: 'Nullish coalescing: `null` ou `undefined`.',
       xpReward: 18,
       gemReward: 2,
@@ -1038,8 +1647,9 @@ Também existe **bottom-up** (DP iterativo) com O(n) tempo e O(1) espaço extra 
     {
       type: ExerciseType.CODE_EDITOR,
       title: 'Fib(6)',
-      prompt: 'Escreva uma expressão que calcule o 6º número de Fibonacci (começando F(0)=0, F(1)=1).',
-      explanation: 'Sequência 0,1,1,2,3,5,8 → F(6)=8.',
+      prompt:
+        'Escreva **uma expressão** cujo valor seja **F(6)** na sequência com **F(0)=0**, **F(1)=1**. *(Tabela na seção “Definição” — resultado 8.)*',
+      explanation: 'Sequência 0,1,1,2,3,5,8 → F(6)=8. Ex.: `8` ou `5+3`.',
       xpReward: 28,
       gemReward: 3,
       payload: { language: 'javascript', starterCode: '', tests: [{ expected: '8' }] },
@@ -1051,14 +1661,40 @@ Também existe **bottom-up** (DP iterativo) com O(n) tempo e O(1) espaço extra 
       moduleId: modA4.id,
       slug: 'janela-deslizante',
       title: 'Janela deslizante',
-      objective: 'Otimizar subarrays de tamanho fixo.',
-      estimatedMinutes: 9,
+      objective:
+        'Explicar janela deslizante em intervalos sobrepostos; usar slice; somar elementos de um array pequeno.',
+      estimatedMinutes: 18,
       orderIndex: 1,
-      contentMd: `## Sliding window
+      contentMd: `## Janela deslizante
 
-Para soma máxima de \`k\` elementos consecutivos, atualize a soma em O(1) ao deslizar: subtraia o que sai, some o que entra.
+### Contexto
 
-Generaliza para problemas com restrições em intervalos.`,
+Em muitos problemas você precisa da **soma** (ou outra métrica) de **k elementos seguidos** e depois **desloca** um passo: o elemento da esquerda **sai** e um novo **entra**. Em vez de somar tudo de novo (**O(k)** repetido), atualiza em **O(1)** reaproveitando a soma anterior — isso é **janela deslizante**.
+
+### Ideia
+
+- Some a primeira janela.
+- Para mover: **subtraia** o que saiu, **some** o que entrou.
+
+Generaliza para “maior soma”, “menor subarray com condição”, etc.
+
+### JavaScript: \`slice\`
+
+\`array.slice(início, fim)\` devolve **novo** recorte **sem** mudar o original — útil para inspecionar trechos.
+
+### Soma dos três primeiros
+
+Para \`[5, 1, 2]\`, a soma de todos os elementos é \`5+1+2=8\`.
+
+### Erros comuns
+
+- Confundir \`slice\` com \`splice\` (\`splice\` **muta** o array).
+- Janela com tamanho errado (off-by-one).
+- Não aproveitar a soma anterior quando o problema pede muitas janelas.${blocoPraticaDesafios([
+        '**Quiz:** quando a técnica costuma valer a pena.',
+        '**Lacunas:** método que extrai trecho sem mutar o array.',
+        '**Expressão no editor:** soma de `5+1+2`.',
+      ])}`,
     },
   });
 
@@ -1066,7 +1702,8 @@ Generaliza para problemas com restrições em intervalos.`,
     {
       type: ExerciseType.MULTIPLE_CHOICE,
       title: 'Quando usar',
-      prompt: 'Janela deslizante é adequada quando:',
+      prompt:
+        'Janela deslizante é adequada quando: *(Seção “Contexto”.)*',
       explanation: 'Subproblemas sobre intervalos contínuos se sobrepõem — reutilizar a soma.',
       xpReward: 15,
       gemReward: 2,
@@ -1083,7 +1720,8 @@ Generaliza para problemas com restrições em intervalos.`,
     {
       type: ExerciseType.CODE_FILL,
       title: 'Slice',
-      prompt: 'Complete o método que extrai parte do array sem mutar o original.',
+      prompt:
+        'Complete o método que extrai parte do array **sem mutar** o original. *(Seção “slice”.)*',
       explanation: '`slice`.',
       xpReward: 16,
       gemReward: 2,
@@ -1095,7 +1733,8 @@ Generaliza para problemas com restrições em intervalos.`,
     {
       type: ExerciseType.CODE_EDITOR,
       title: 'Soma janela 2',
-      prompt: 'Escreva uma expressão: some **`[5, 1, 2]`** (índices 0..2) — resultado **8**.',
+      prompt:
+        'Escreva **uma expressão** que some os elementos **`[5, 1, 2]`** *(5+1+2 = 8)*.',
       explanation: '5+1+2=8.',
       xpReward: 22,
       gemReward: 2,
@@ -1133,12 +1772,17 @@ async function seedNewTracksPart2(
       moduleId: modT1.id,
       slug: 'narrowing-typeof',
       title: 'Narrowing com typeof e truthiness',
-      objective: 'Refinar uniões para tipos específicos.',
-      estimatedMinutes: 9,
+      objective:
+        'Explicar narrowing em TypeScript; typeof de arrays em JS; operador ?? no editor.',
+      estimatedMinutes: 18,
       orderIndex: 0,
-      contentMd: `## Narrowing
+      contentMd: `## Narrowing com typeof e truthiness
 
-TypeScript **refina** tipos após checagens:
+### Contexto
+
+**TypeScript** é JavaScript com **tipos estáticos**. Muitas vezes uma variável pode ser **várias coisas** ao mesmo tempo (\`string | null\`, etc.). **Narrowing** é o processo em que, **depois** de um \`if\`, o compilador **afina** o tipo. Os desafios incluem **JavaScript real** (\`typeof\`, \`??\`) porque o editor da plataforma executa JS.
+
+### Exemplo guiado
 
 \`\`\`ts
 function len(x: string | string[] | null) {
@@ -1148,7 +1792,26 @@ function len(x: string | string[] | null) {
 }
 \`\`\`
 
-Use \`in\`, \`Array.isArray\`, discriminantes em uniões discriminadas.`,
+- Se \`x\` é “falsy”, tratamos como vazio.
+- Se \`typeof x === "string"\`, no ramo seguinte \`x\` é \`string\`.
+- Caso contrário, restou \`string[]\`.
+
+### typeof e arrays em JavaScript
+
+Em JS, \`typeof []\` é a string \`"object"\` (não existe \`"array"\` em \`typeof\`).
+
+### Operador \`??\` no editor
+
+\`null ?? "x"\` resulta em \`"x"\` porque \`null\` é **nullish**. (Diferente de \`0 ?? "x"\`, que permanece \`0\`.)
+
+### Erros comuns
+
+- Achar que \`typeof\` distingue \`array\` — use \`Array.isArray\`.
+- Confundir \`??\` com \`||\`.${blocoPraticaDesafios([
+        '**Quiz:** o que narrowing faz no fluxo do TypeScript.',
+        '**Lacunas:** resultado de `typeof []`.',
+        '**Expressão no editor:** `null ?? "x"`.',
+      ])}`,
     },
   });
 
@@ -1156,7 +1819,8 @@ Use \`in\`, \`Array.isArray\`, discriminantes em uniões discriminadas.`,
     {
       type: ExerciseType.MULTIPLE_CHOICE,
       title: 'Propósito do narrowing',
-      prompt: 'Narrowing permite ao TypeScript:',
+      prompt:
+        'Narrowing permite ao TypeScript: *(Seção “Contexto”.)*',
       explanation: 'Reduzir uniões para um tipo mais específico após checks.',
       xpReward: 16,
       gemReward: 2,
@@ -1198,10 +1862,17 @@ Use \`in\`, \`Array.isArray\`, discriminantes em uniões discriminadas.`,
       moduleId: modT1.id,
       slug: 'generics-funcoes',
       title: 'Generics em funções',
-      objective: 'Preservar relações entre tipos de entrada e saída.',
-      estimatedMinutes: 10,
+      objective:
+        'Explicar parâmetros de tipo <T>; ReadonlyArray; acessar primeiro elemento de array em JS.',
+      estimatedMinutes: 18,
       orderIndex: 1,
-      contentMd: `## Generics
+      contentMd: `## Generics em funções
+
+### Contexto
+
+**Generics** permitem escrever funções e tipos que funcionam para **vários tipos concretos**, mantendo **ligações** (o que entra relaciona com o que sai). Em sala: pense em “caixa genérica” que preserva o tipo do conteúdo.
+
+### Exemplo
 
 \`\`\`ts
 function primeiro<T>(arr: readonly T[]): T | undefined {
@@ -1209,7 +1880,20 @@ function primeiro<T>(arr: readonly T[]): T | undefined {
 }
 \`\`\`
 
-\`T\` é inferido pelo argumento. Generics evitam casts e mantêm segurança em coleções e factories.`,
+\`T\` é **inferido** pela passagem do argumento. \`readonly T[]\` (ou \`ReadonlyArray<T>\`) diz que o array não será mutado pela função.
+
+### No editor (JavaScript)
+
+O primeiro elemento de \`[7,8,9]\` é \`[7,8,9][0]\` → **7**.
+
+### Erros comuns
+
+- Usar \`any\` onde um generic resolveria com segurança.
+- Mutar array recebido quando a API promete não mutar — por isso \`readonly\` ajuda.${blocoPraticaDesafios([
+        '**Quiz:** inferência de T ao passar número.',
+        '**Lacunas:** `ReadonlyArray` — prefixo antes de `Array<number>`.',
+        '**Expressão no editor:** primeiro elemento de `[7,8,9]`.',
+      ])}`,
     },
   });
 
@@ -1217,7 +1901,8 @@ function primeiro<T>(arr: readonly T[]): T | undefined {
     {
       type: ExerciseType.MULTIPLE_CHOICE,
       title: 'Inferência',
-      prompt: 'Ao chamar `identity(123)` onde `identity<T>(x: T): T`, T costuma ser inferido como:',
+      prompt:
+        'Ao chamar `identity(123)` onde `identity<T>(x: T): T`, T costuma ser inferido como: *(Seção “Contexto”.)*',
       explanation: 'O literal/número leva a inferência de tipo.',
       xpReward: 15,
       gemReward: 2,
@@ -1229,7 +1914,8 @@ function primeiro<T>(arr: readonly T[]): T | undefined {
     {
       type: ExerciseType.CODE_FILL,
       title: 'Readonly array',
-      prompt: 'Complete o modificador de tipo utilitário para array somente leitura (TS).',
+      prompt:
+        'Complete o modificador de tipo utilitário para array somente leitura (TS). *(Veja `ReadonlyArray` na seção.)*',
       explanation: '`ReadonlyArray<T>` ou `readonly T[]`.',
       xpReward: 18,
       gemReward: 2,
@@ -1241,7 +1927,8 @@ function primeiro<T>(arr: readonly T[]): T | undefined {
     {
       type: ExerciseType.CODE_EDITOR,
       title: 'Primeiro elemento',
-      prompt: 'Escreva uma expressão que retorne o primeiro elemento de **`[7,8,9]`**.',
+      prompt:
+        'Escreva **uma expressão** que retorne o primeiro elemento de **`[7,8,9]`**. *(Índice 0.)*',
       explanation: '`[7,8,9][0]` → 7.',
       xpReward: 21,
       gemReward: 2,
@@ -1258,16 +1945,38 @@ function primeiro<T>(arr: readonly T[]): T | undefined {
       moduleId: modT2.id,
       slug: 'partial-pick',
       title: 'Partial, Pick e Omit',
-      objective: 'Derivar tipos sem duplicar campos.',
-      estimatedMinutes: 8,
+      objective:
+        'Definir Partial, Pick, Omit e keyof; usar Object.keys em JavaScript no editor.',
+      estimatedMinutes: 16,
       orderIndex: 0,
-      contentMd: `## Utilitários
+      contentMd: `## Partial, Pick e Omit
 
-- **Partial<T>** — todos os campos opcionais
-- **Pick<T, K>** — subconjunto de chaves
-- **Omit<T, K>** — remove chaves
+### Contexto
 
-Combine com ** keyof ** e mapeamentos para DRY em formulários e DTOs.`,
+Em TypeScript grande parte do trabalho é **modelar dados**. **Utility types** evitam copiar e colar definições: você **deriva** tipos a partir de outros. O desafio do editor usa **\`Object.keys\`** (runtime JavaScript).
+
+### Utilitários
+
+- **Partial com genérico** — todos os campos de T ficam **opcionais** (útil em PATCH parcial).
+- **Pick** — só um **subconjunto** de chaves K de T.
+- **Omit** — T **sem** as chaves K.
+
+### keyof
+
+**keyof T** é a **união dos nomes** das propriedades de T. Ex.: \`keyof { a: 1; b: 2 }\` é \`"a" | "b"\`.
+
+### Object.keys no editor
+
+\`Object.keys({ a: 1, b: 2 })\` devolve array de chaves; \`.length\` aqui é **2** (detalhes de tipagem de keys em TS são mais sutis — no JS runtime o comprimento reflete as próprias chaves enumeráveis).
+
+### Erros comuns
+
+- Achar que \`Partial\` muda dados em runtime — é **só tipo**.
+- Confundir \`Pick\` e \`Omit\`.${blocoPraticaDesafios([
+        '**Quiz:** uso típico de `Partial<User>`.',
+        '**Lacunas:** palavra-chave antes de `of` em `keyof`.',
+        '**Expressão no editor:** `Object.keys({a:1,b:2}).length`.',
+      ])}`,
     },
   });
 
@@ -1275,7 +1984,8 @@ Combine com ** keyof ** e mapeamentos para DRY em formulários e DTOs.`,
     {
       type: ExerciseType.MULTIPLE_CHOICE,
       title: 'Partial',
-      prompt: 'Partial<User> é útil para:',
+      prompt:
+        'Partial<User> é útil para: *(Seção “Partial”.)*',
       explanation: 'Updates parciais onde cada campo pode ser opcional.',
       xpReward: 15,
       gemReward: 2,
@@ -1317,14 +2027,36 @@ Combine com ** keyof ** e mapeamentos para DRY em formulários e DTOs.`,
       moduleId: modT2.id,
       slug: 'satisfies',
       title: 'satisfies e const assertions',
-      objective: 'Fixar formas literais sem perder inferência.',
-      estimatedMinutes: 9,
+      objective:
+        'Explicar satisfies e as const; Object.freeze em JS; .length de array no editor.',
+      estimatedMinutes: 18,
       orderIndex: 1,
-      contentMd: `## satisfies (TS 4.9+)
+      contentMd: `## satisfies e const assertions
 
-\`satisfies\` valida que um objeto **cumpre** um tipo sem **alargar** a inferência para o tipo alvo — preserva literais onde importa.
+### Contexto
 
-\`as const\` congela literais e torna tuplas readonly.`,
+Às vezes queremos **garantir** que um objeto “cabe” em um tipo **sem** perder o tipo **literal** estreito. O TypeScript moderno oferece \`satisfies\`. \`as const\` **congela** literais em tempo de compilação. Os desafios incluem \`Object.freeze\` (JS) e \`.length\`.
+
+### satisfies (TS 4.9+)
+
+\`satisfies\` **valida** a forma contra um tipo, mas tenta **preservar** inferência fina dos literais (diferente de anotar o valor com um tipo largo demais).
+
+### as const
+
+Em literais, \`as const\` tende a produzir **readonly** e tipos literais nos elementos.
+
+### Object.freeze (JavaScript)
+
+\`Object.freeze(obj)\` impede mudanças rasas em propriedades próprias — é **runtime**, não substitui tipos TS.
+
+### Erros comuns
+
+- Usar \`as any\` para “calçar” erros em vez de \`satisfies\`.
+- Achar que \`freeze\` torna objetos profundamente imutáveis — só **raso**.${blocoPraticaDesafios([
+        '**Quiz:** efeito típico de `as const` em array literal.',
+        '**Lacunas:** `Object.____` para congelar objeto.',
+        '**Expressão no editor:** `[1,2,3].length`.',
+      ])}`,
     },
   });
 
@@ -1332,7 +2064,8 @@ Combine com ** keyof ** e mapeamentos para DRY em formulários e DTOs.`,
     {
       type: ExerciseType.MULTIPLE_CHOICE,
       title: 'as const',
-      prompt: '`as const` em um array literal costuma:',
+      prompt:
+        '`as const` em um array literal costuma: *(Seção “as const”.)*',
       explanation: 'Torna o array readonly e preserva tipos literais dos elementos.',
       xpReward: 15,
       gemReward: 2,
@@ -1393,12 +2126,37 @@ Combine com ** keyof ** e mapeamentos para DRY em formulários e DTOs.`,
       moduleId: modT3.id,
       slug: 'esm-vs-cjs',
       title: 'ESM vs CJS no Node',
-      objective: 'Entender interop e extensões de arquivo.',
-      estimatedMinutes: 10,
+      objective:
+        'Diferenciar ESM e CJS; export nomeado; truthiness de [] com Boolean() no editor.',
+      estimatedMinutes: 18,
       orderIndex: 0,
-      contentMd: `## Módulos
+      contentMd: `## ESM vs CJS no Node
 
-**ESM** (\`import/export\`) é o padrão moderno; **CJS** (\`require\`) ainda é comum. Em projetos mistos, atenção a \`__dirname\`, \`import.meta.url\` e tipos de pacotes (\`"type": "module"\`).`,
+### Contexto
+
+Projetos Node e bundlers usam **módulos** para organizar código. **ESM** (\`import\` / \`export\`) é o padrão **moderno** na Web e cada vez mais no Node. **CJS** (\`require\` / \`module.exports\`) ainda aparece em pacotes legados. Em projetos mistos: \`import.meta.url\`, \`__dirname\` e o campo \`"type": "module"\` no \`package.json\` importam.
+
+### ESM
+
+- \`import\` carrega dependências.
+- \`export\` / \`export const\` expõe valores.
+
+### CJS (ideia)
+
+- \`require('pacote')\` e \`module.exports\`.
+
+### Editor: \`Boolean([])\`
+
+Em JavaScript, \`[]\` (array vazio) é um **objeto** e em contexto booleano é **truthy**. \`Boolean([])\` é \`true\`.
+
+### Erros comuns
+
+- Misturar sintaxes sem configurar o pacote ou bundler.
+- Achar que array vazio é “falso” em JS — não é.${blocoPraticaDesafios([
+        '**Quiz:** onde ler metadados de módulo em ESM.',
+        '**Lacunas:** palavra-chave antes de `const pi` para export nomeado.',
+        '**Expressão no editor:** `Boolean([])`.',
+      ])}`,
     },
   });
 
@@ -1406,7 +2164,8 @@ Combine com ** keyof ** e mapeamentos para DRY em formulários e DTOs.`,
     {
       type: ExerciseType.MULTIPLE_CHOICE,
       title: 'import.meta',
-      prompt: 'Em ESM, informações de módulo costumam vir de:',
+      prompt:
+        'Em ESM, informações de módulo costumam vir de: *(Seção “ESM”.)*',
       explanation: '`import.meta` (ex.: `import.meta.url`).',
       xpReward: 16,
       gemReward: 2,
@@ -1447,14 +2206,36 @@ Combine com ** keyof ** e mapeamentos para DRY em formulários e DTOs.`,
       moduleId: modT3.id,
       slug: 'strict-tsconfig',
       title: 'strict no tsconfig',
-      objective: 'Entender flags que endurecem a checagem.',
-      estimatedMinutes: 9,
+      objective:
+        'Explicar strict e strictNullChecks; anotação de retorno number; parseInt na base 10 no editor.',
+      estimatedMinutes: 18,
       orderIndex: 1,
-      contentMd: `## strict
+      contentMd: `## strict no tsconfig
 
-Com \`"strict": true\` você habilita um conjunto de verificações (incluindo \`noImplicitAny\` em versões recentes do conjunto). Isso pega erros cedo, mas pode exigir tipar imports e APIs legadas.
+### Contexto
 
-Combine com \`noUncheckedIndexedAccess\` e \`exactOptionalPropertyTypes\` conforme a maturidade do time.`,
+O arquivo \`tsconfig.json\` controla como o TypeScript **analisa** o projeto. Com \`"strict": true\`, várias flags rigorosas ligam de uma vez — você **encontra bugs mais cedo**, mas precisa **tipar** melhor (especialmente integrações legadas).
+
+### strictNullChecks (ideia)
+
+Com **strictNullChecks**, \`null\` e \`undefined\` não são “esquecidos” pelo compilador: se um valor pode não existir, você **testa** ou **normaliza** antes de usar.
+
+### Anotação de retorno
+
+\`function f(): number { return 1; }\` deixa explícito que a função retorna **number**.
+
+### parseInt no editor
+
+\`parseInt("42", 10)\` interpreta string na **base 10** e devolve **42** (número).
+
+### Erros comuns
+
+- Desligar strict só para “fazer compilar” — mascará débito técnico.
+- \`parseInt\` sem radix — em produção pode haver surpresas; use **10** para decimal.${blocoPraticaDesafios([
+        '**Quiz:** o que strictNullChecks enforça.',
+        '**Lacunas:** tipo de retorno `number` no exemplo.',
+        '**Expressão no editor:** `parseInt("42", 10)`.',
+      ])}`,
     },
   });
 
@@ -1462,7 +2243,8 @@ Combine com \`noUncheckedIndexedAccess\` e \`exactOptionalPropertyTypes\` confor
     {
       type: ExerciseType.MULTIPLE_CHOICE,
       title: 'strictNullChecks',
-      prompt: 'Com **strictNullChecks**, o TypeScript passa a exigir tratamento explícito de:',
+      prompt:
+        'Com **strictNullChecks**, o TypeScript passa a exigir tratamento explícito de: *(Seção “strictNullChecks”.)*',
       explanation: '`null` e `undefined` em fluxos onde podem ocorrer.',
       xpReward: 16,
       gemReward: 2,
@@ -1503,14 +2285,36 @@ Combine com \`noUncheckedIndexedAccess\` e \`exactOptionalPropertyTypes\` confor
       moduleId: modT4.id,
       slug: 'zod-intro',
       title: 'Validação em runtime (visão geral)',
-      objective: 'Combinar tipos estáticos com validação na borda.',
-      estimatedMinutes: 10,
+      objective:
+        'Justificar validação na borda; usar JSON.parse; acessar propriedade de objeto literal no editor.',
+      estimatedMinutes: 18,
       orderIndex: 0,
-      contentMd: `## Schema na borda
+      contentMd: `## Validação em runtime
 
-Bibliotecas como **Zod** ou **Valibot** permitem validar JSON de APIs em runtime e inferir tipos TypeScript. Assim você não confia cegamente em dados externos.
+### Contexto
 
-Fluxo típico: \`fetch\` → \`json()\` → \`schema.parse(data)\` → usar tipos estreitos.`,
+**TypeScript** some na hora de **executar**: o servidor ou a rede pode devolver **qualquer JSON**. Bibliotecas como **Zod** ou **Valibot** ajudam a **validar** na **borda** (quando os dados entram) e a inferir tipos. Sem isso, bugs aparecem longe da origem.
+
+### Fluxo típico
+
+\`fetch\` → \`response.json()\` → **validar** com schema → só então usar como tipo estreito.
+
+### JSON.parse
+
+\`JSON.parse('{"a":1}')\` converte **string JSON** em valor JavaScript.
+
+### Acesso a propriedade
+
+\`({ a: 1 }).a\` vale **1** — objeto literal com notação de ponto.
+
+### Erros comuns
+
+- Confundir **validação** com **conversão** — tipos não consertam dados inválidos sozinhos.
+- Confiar em resposta externa porque “compilou”.${blocoPraticaDesafios([
+        '**Quiz:** por que validar HTTP no cliente/servidor.',
+        '**Lacunas:** `JSON.____` para string → valor.',
+        '**Expressão no editor:** `({ a: 1 }).a`.',
+      ])}`,
     },
   });
 
@@ -1518,7 +2322,8 @@ Fluxo típico: \`fetch\` → \`json()\` → \`schema.parse(data)\` → usar tipo
     {
       type: ExerciseType.MULTIPLE_CHOICE,
       title: 'Por que validar',
-      prompt: 'Validar o corpo da resposta HTTP é importante porque:',
+      prompt:
+        'Validar o corpo da resposta HTTP é importante porque: *(Seção “Contexto”.)*',
       explanation: 'O servidor pode mudar, falhar ou ser comprometido; o cliente não controla o formato em runtime.',
       xpReward: 17,
       gemReward: 2,
@@ -1560,14 +2365,32 @@ Fluxo típico: \`fetch\` → \`json()\` → \`schema.parse(data)\` → usar tipo
       moduleId: modT4.id,
       slug: 'erros-result',
       title: 'Result e erros tipados',
-      objective: 'Modelar falhas sem exceções invisíveis.',
-      estimatedMinutes: 8,
+      objective:
+        'Explicar padrão Result e uniões discriminadas; throw em JS; acessar .ok em objeto literal.',
+      estimatedMinutes: 16,
       orderIndex: 1,
-      contentMd: `## Padrão Result
+      contentMd: `## Result e erros tipados
 
-Em vez de lançar para fluxos esperados, retorne \`{ ok: true, value }\` ou \`{ ok: false, error }\`. Isso documenta falhas na assinatura e facilita testes.
+### Contexto
 
-Em TS, uniões discriminadas com campo \`ok\` são um ótimo encaixe.`,
+Em muitos fluxos, **falha é esperada** (rede, validação, permissão). O padrão **Result** (ou similar) retorna **\`{ ok: true, value }\`** ou **\`{ ok: false, error }\`** em vez de só **lançar** exceção. Em TypeScript, **uniões discriminadas** com campo \`ok\` permitem **narrowing** seguro com \`if (r.ok)\`.
+
+### throw em JavaScript
+
+\`throw new Error("falhou")\` interrompe o fluxo até um \`try/catch\` — use com parcimônia para casos **excepcionais**.
+
+### Editor
+
+\`({ ok: true }).ok\` → **true**.
+
+### Erros comuns
+
+- Usar exceção para controle de fluxo comum.
+- Esquecer de tratar o ramo \`ok: false\`.${blocoPraticaDesafios([
+        '**Quiz:** papel do campo discriminador em uniões.',
+        '**Lacunas:** palavra-chave antes de `new Error`.',
+        '**Expressão no editor:** `({ ok: true }).ok`.',
+      ])}`,
     },
   });
 
@@ -1575,7 +2398,8 @@ Em TS, uniões discriminadas com campo \`ok\` são um ótimo encaixe.`,
     {
       type: ExerciseType.MULTIPLE_CHOICE,
       title: 'Discriminação',
-      prompt: 'Uma união discriminada usa um campo comum (ex.: kind/status) para:',
+      prompt:
+        'Uma união discriminada usa um campo comum (ex.: kind/status) para: *(Seção “Contexto”.)*',
       explanation: 'Permitir narrowing seguro em cada ramo.',
       xpReward: 15,
       gemReward: 2,
@@ -1635,14 +2459,48 @@ Em TS, uniões discriminadas com campo \`ok\` são um ótimo encaixe.`,
       moduleId: modApi1.id,
       slug: 'rest-recursos',
       title: 'REST como recursos',
-      objective: 'Modelar URLs e métodos em torno de recursos.',
-      estimatedMinutes: 9,
+      objective:
+        'Explicar recursos, verbos HTTP, idempotência; status 204; .toUpperCase() no editor.',
+      estimatedMinutes: 20,
       orderIndex: 0,
-      contentMd: `## REST pragmático
+      contentMd: `## REST como recursos
 
-**Recursos** são substantivos (\`/users\`, \`/orders/:id\`). **Verbos** HTTP expressam a intenção: GET ler, POST criar, PUT/PATCH substituir/atualizar, DELETE remover.
+### Contexto
 
-**Idempotência**: repetir GET/PUT/DELETE com o mesmo efeito é seguro em muitos designs; POST de criação normalmente não.`,
+**REST** (estilo comum em APIs web) organiza o sistema em **recursos** nomeados por **URLs** e operações com **verbos HTTP**. Esta aula usa linguagem de **sala de aula**; os desafios fixam **POST vs GET**, **código 204** e uma expressão **JavaScript** simples.
+
+### Recursos e URLs
+
+- Substantivos: \`/users\`, \`/orders/42\`.
+- Identificadores (\`:id\`) apontam **qual** instância.
+
+### Verbos (intenção)
+
+- **GET** — ler (não deve alterar estado no servidor idealmente).
+- **POST** — **criar** recurso (ou ações, dependendo do design).
+- **PUT/PATCH** — substituir/atualizar.
+- **DELETE** — remover.
+
+### Idempotência (ideia)
+
+Repetir **GET** ou muitos **DELETE** idempotentes com o mesmo efeito é “seguro” em desenho comum. **POST** de **criação** costuma **não** ser idempotente (cada chamada pode criar de novo).
+
+### Status **204 No Content**
+
+Sucesso **sem corpo** — comum após DELETE bem-sucedido em algumas APIs.
+
+### Editor: \`toUpperCase\`
+
+\`"GET".toUpperCase()\` continua \`"GET"\` — exercício de expressão.
+
+### Erros comuns
+
+- Usar **GET** para apagar ou criar com efeitos colaterais.
+- Confundir **PUT** (substituição total típica) com **PATCH** (parcial).${blocoPraticaDesafios([
+        '**Quiz:** método mais comum para criar recurso RESTful.',
+        '**Lacunas:** código de sucesso sem corpo.',
+        '**Expressão no editor:** `"GET".toUpperCase()`.',
+      ])}`,
     },
   });
 
@@ -1650,7 +2508,8 @@ Em TS, uniões discriminadas com campo \`ok\` são um ótimo encaixe.`,
     {
       type: ExerciseType.MULTIPLE_CHOICE,
       title: 'Criação',
-      prompt: 'Qual método HTTP é o mais comum para **criar** um recurso em APIs RESTful?',
+      prompt:
+        'Qual método HTTP é o mais comum para **criar** um recurso em APIs RESTful? *(Seção “Verbos”.)*',
       explanation: 'POST no coleção (`/items`) com corpo costuma criar.',
       xpReward: 16,
       gemReward: 2,

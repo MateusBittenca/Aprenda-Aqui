@@ -189,10 +189,27 @@ export function LessonPage() {
             ) : null}
           </div>
           {lesson.objective && (
-            <p className="mt-5 max-w-3xl border-l-4 border-indigo-300/80 pl-4 text-base leading-relaxed text-slate-600">
-              {lesson.objective}
-            </p>
+            <div className="mt-5 max-w-3xl space-y-2 border-l-4 border-indigo-300/80 pl-4">
+              <p className="text-xs font-bold uppercase tracking-wide text-indigo-800">Objetivo da aula</p>
+              <p className="text-base leading-relaxed text-slate-600">{lesson.objective}</p>
+            </div>
           )}
+          {total > 0 ? (
+            <div className="mt-6 max-w-3xl rounded-2xl border border-indigo-100 bg-indigo-50/60 px-4 py-4 text-left ring-1 ring-indigo-100/80">
+              <p className="text-xs font-bold uppercase tracking-wide text-indigo-900">O que você vai praticar</p>
+              <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-slate-700">
+                {lesson.exercises.map((ex) => (
+                  <li key={ex.id}>
+                    <span className="font-medium text-slate-800">{ex.title}</span>
+                    <span className="text-slate-500">
+                      {' '}
+                      ({ex.type === 'MULTIPLE_CHOICE' ? 'quiz' : ex.type === 'CODE_FILL' ? 'lacunas' : 'editor de código'})
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
         </div>
       </header>
 
@@ -304,6 +321,20 @@ export function LessonPage() {
       <FeedbackDrawer
         open={openFeedback}
         result={feedback}
+        exerciseId={active?.id ?? null}
+        onExplanationUnlocked={(p) => {
+          setFeedback((f) =>
+            f
+              ? {
+                  ...f,
+                  explanation: p.explanation,
+                  requiresGemForFullExplanation: false,
+                  hintTier: undefined,
+                }
+              : f,
+          );
+          useAuthStore.getState().patchUser({ gems: p.gemsRemaining });
+        }}
         onClose={() => {
           setOpenFeedback(false);
           if (feedback?.correct && lesson) {

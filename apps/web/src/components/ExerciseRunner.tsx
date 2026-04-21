@@ -17,6 +17,12 @@ export type SubmitResult = {
   lessonCompleted?: boolean;
   leveledUp?: boolean;
   newLevel?: number;
+  /** Mensagem curta do avaliador (ex.: erro de sintaxe/execução no editor de código). */
+  evaluatorDetail?: string;
+  /** Só após o 3º erro em exercício com dicas progressivas, até gastar 1 gema. */
+  requiresGemForFullExplanation?: boolean;
+  /** 1 ou 2 = dica gratuita; 3 = pedido de gema. */
+  hintTier?: number;
 };
 
 type Props = {

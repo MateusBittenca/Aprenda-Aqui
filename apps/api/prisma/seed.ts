@@ -103,6 +103,10 @@ Use \`<!DOCTYPE html>\` para indicar HTML5.`,
           template:
             '<!DOCTYPE html>\n<html>\n  <head>\n    <{{b1}}>Aprendendo Web</{{b1}}>\n  </head>\n  <body></body>\n</html>',
           blanks: [{ id: 'b1', answer: 'title' }],
+          hints: [
+            'O enunciado fala do **título na aba** do navegador — em HTML isso costuma ser um par de tags no `<head>`.',
+            'O nome da tag é igual à palavra **title** em inglês (cinco letras, minúsculas no código).',
+          ],
         },
       },
       {
@@ -119,6 +123,10 @@ Use \`<!DOCTYPE html>\` para indicar HTML5.`,
           language: 'javascript',
           starterCode: '',
           tests: [{ expected: '42' }],
+          hints: [
+            'O resultado precisa ser o **número** 42, não texto — não use aspas ao redor do número.',
+            'Use uma **expressão** que some, multiplique ou combine valores até chegar em 42 (ex.: soma de dois números).',
+          ],
         },
       },
     ],
@@ -256,6 +264,10 @@ console.log(sum(2, 3));
         payload: {
           template: "const fs = {{b1}}('fs');",
           blanks: [{ id: 'b1', answer: 'require' }],
+          hints: [
+            'Em **CommonJS**, a função que carrega um módulo costuma ter 7 letras e começa com **r**.',
+            'A lacuna fica antes dos parênteses: é a palavra-chave usada em `const x = …(\'pacote\')`.',
+          ],
         },
       },
       {
@@ -272,6 +284,10 @@ console.log(sum(2, 3));
           language: 'javascript',
           starterCode: '',
           tests: [{ expected: '42' }],
+          hints: [
+            'Some **10** e **32** com o operador `+`; o resultado é um único número.',
+            'Escreva só a expressão (ex.: `a + b`), sem `console.log` nem ponto e vírgula obrigatório.',
+          ],
         },
       },
     ],

@@ -1,12 +1,40 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link, Navigate, useParams } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import {
+  ArrowLeft,
+  Award,
+  BookOpen,
+  Flame,
+  Gem,
+  GitCompare,
+  ListChecks,
+  Trophy,
+  Zap,
+} from 'lucide-react';
 import { apiFetch, requireToken } from '../lib/api';
 import { useAuthHydration, useAuthStore } from '../stores/authStore';
 import type { ComparePayload } from '../types/social';
 import { Avatar } from '../components/Avatar';
 import { ErrorState } from '../components/ui/ErrorState';
 import { PageLoader } from '../components/ui/PageLoader';
+
+const cardShadow = 'shadow-[0_20px_40px_rgba(44,47,49,0.06)]';
+
+type MetricDef = {
+  key: string;
+  label: string;
+  Icon: LucideIcon;
+  you: number;
+  them: number;
+  format: (n: number) => string;
+};
+
+function leaderFor(you: number, them: number): 'you' | 'them' | 'tie' {
+  if (you > them) return 'you';
+  if (them > you) return 'them';
+  return 'tie';
+}
 
 export function ComparePage() {
   const { userId } = useParams<{ userId: string }>();
@@ -30,55 +58,260 @@ export function ComparePage() {
     return <ErrorState title="Não foi possível comparar." error={error instanceof Error ? error : new Error()} />;
   }
 
-  const rows: { label: string; you: string | number; them: string | number }[] = [
-    { label: 'Nível', you: data.you.level, them: data.them.level },
-    { label: 'XP total', you: data.you.xpTotal.toLocaleString('pt-BR'), them: data.them.xpTotal.toLocaleString('pt-BR') },
-    { label: 'Gemas', you: data.you.gems, them: data.them.gems },
-    { label: 'Sequência (dias)', you: data.you.currentStreak, them: data.them.currentStreak },
-    { label: 'Recorde sequência', you: data.you.longestStreak, them: data.them.longestStreak },
-    { label: 'Aulas concluídas', you: data.you.completedLessons, them: data.them.completedLessons },
-    { label: 'Exercícios resolvidos', you: data.you.solvedExercises, them: data.them.solvedExercises },
+  const metrics: MetricDef[] = [
+    {
+      key: 'level',
+      label: 'Nível',
+      Icon: Trophy,
+      you: data.you.level,
+      them: data.them.level,
+      format: (n) => String(n),
+    },
+    {
+      key: 'xp',
+      label: 'XP total',
+      Icon: Zap,
+      you: data.you.xpTotal,
+      them: data.them.xpTotal,
+      format: (n) => n.toLocaleString('pt-BR'),
+    },
+    {
+      key: 'gems',
+      label: 'Gemas',
+      Icon: Gem,
+      you: data.you.gems,
+      them: data.them.gems,
+      format: (n) => String(n),
+    },
+    {
+      key: 'streak',
+      label: 'Sequência (dias)',
+      Icon: Flame,
+      you: data.you.currentStreak,
+      them: data.them.currentStreak,
+      format: (n) => String(n),
+    },
+    {
+      key: 'longest',
+      label: 'Recorde sequência',
+      Icon: Award,
+      you: data.you.longestStreak,
+      them: data.them.longestStreak,
+      format: (n) => String(n),
+    },
+    {
+      key: 'lessons',
+      label: 'Aulas concluídas',
+      Icon: BookOpen,
+      you: data.you.completedLessons,
+      them: data.them.completedLessons,
+      format: (n) => String(n),
+    },
+    {
+      key: 'exercises',
+      label: 'Exercícios resolvidos',
+      Icon: ListChecks,
+      you: data.you.solvedExercises,
+      them: data.them.solvedExercises,
+      format: (n) => String(n),
+    },
   ];
 
+  let youLeadCount = 0;
+  let themLeadCount = 0;
+  for (const m of metrics) {
+    const L = leaderFor(m.you, m.them);
+    if (L === 'you') youLeadCount += 1;
+    else if (L === 'them') themLeadCount += 1;
+  }
+
+  const themFirst = data.them.displayName.split(/\s+/)[0] ?? data.them.displayName;
+
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="relative mx-auto max-w-3xl pb-10">
+      <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 rounded-full bg-violet-400/15 blur-3xl" aria-hidden />
+      <div className="pointer-events-none absolute left-0 top-32 h-48 w-48 rounded-full bg-indigo-400/10 blur-3xl" aria-hidden />
+
       <Link
         to={`/app/users/${userId}`}
-        className="inline-flex items-center gap-1 text-sm font-medium text-slate-600 hover:text-indigo-600"
+        className="relative mb-6 inline-flex items-center gap-2 text-sm font-semibold text-indigo-700 transition hover:text-indigo-900"
       >
-        <ChevronLeft className="h-4 w-4" aria-hidden />
+        <ArrowLeft className="h-4 w-4" aria-hidden />
         Voltar ao perfil de {data.them.displayName}
       </Link>
 
-      <h1 className="text-2xl font-bold text-slate-900">Comparar progresso</h1>
+      <header className="relative mb-6 space-y-2">
+        <div className="flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-700 shadow-sm ring-1 ring-indigo-200/60">
+            <GitCompare className="h-5 w-5" aria-hidden />
+          </span>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Comparar progresso</h1>
+            <p className="text-sm text-slate-600">
+              Suas estatísticas ficam abaixo do seu avatar e as do amigo abaixo do avatar dele.
+            </p>
+          </div>
+        </div>
+        <p className="rounded-xl border border-indigo-100 bg-indigo-50/80 px-4 py-3 text-sm text-indigo-950">
+          <span className="font-semibold text-indigo-900">Resumo:</span>{' '}
+          Você lidera em <strong className="tabular-nums">{youLeadCount}</strong> de {metrics.length} métricas
+          {themLeadCount > 0 ? (
+            <>
+              {' '}
+              · {themFirst} lidera em <strong className="tabular-nums">{themLeadCount}</strong>
+            </>
+          ) : null}
+          {youLeadCount + themLeadCount < metrics.length ? (
+            <>
+              {' '}
+              · {metrics.length - youLeadCount - themLeadCount} empate
+              {metrics.length - youLeadCount - themLeadCount === 1 ? '' : 's'}
+            </>
+          ) : null}
+        </p>
+      </header>
 
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="grid grid-cols-3 gap-2 border-b border-slate-100 bg-slate-50 px-4 py-3 text-center text-xs font-bold uppercase tracking-wide text-slate-500">
-          <span className="text-left">Métrica</span>
-          <span>Você</span>
-          <span>{data.them.displayName}</span>
+      <div
+        className={`relative overflow-hidden rounded-[1.35rem] border border-slate-200/90 bg-white/90 backdrop-blur-sm ${cardShadow}`}
+      >
+        <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-indigo-500/10" aria-hidden />
+
+        <div className="relative px-4 py-6 sm:px-6 sm:py-8">
+          <div className="grid gap-8 lg:grid-cols-[1fr_auto_1fr] lg:items-start lg:gap-6">
+            {/* Coluna: Você */}
+            <section aria-labelledby="compare-you-heading" className="flex min-w-0 flex-col">
+              <div className="flex flex-col items-center border-b border-slate-100 pb-5 text-center lg:border-b-0 lg:pb-4">
+                <div className="relative">
+                  <div className="rounded-2xl border-2 border-white p-0.5 shadow-md ring-2 ring-indigo-100">
+                    <Avatar userId={data.you.id} displayName={data.you.displayName} colorKey={data.you.avatarColorKey} size="lg" />
+                  </div>
+                  {youLeadCount > themLeadCount ? (
+                    <span
+                      className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-[10px] font-black text-amber-950 shadow-md ring-2 ring-white"
+                      title="À frente no placar geral"
+                    >
+                      1º
+                    </span>
+                  ) : null}
+                </div>
+                <h2 id="compare-you-heading" className="mt-3 text-xs font-bold uppercase tracking-wide text-slate-500">
+                  Você
+                </h2>
+              </div>
+
+              <ul className="mt-1 w-full space-y-2.5">
+                {metrics.map((m) => {
+                  const L = leaderFor(m.you, m.them);
+                  const max = Math.max(m.you, m.them, 1);
+                  const youBar = (m.you / max) * 100;
+                  return (
+                    <li key={`you-${m.key}`}>
+                      <div
+                        className={`rounded-xl px-3 py-2.5 ring-1 transition-colors ${
+                          L === 'you'
+                            ? 'bg-indigo-50/90 ring-indigo-200/70'
+                            : L === 'tie'
+                              ? 'bg-slate-50/90 ring-slate-200/80'
+                              : 'bg-white ring-slate-200/80'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex min-w-0 items-center gap-2">
+                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100/90 text-slate-600 ring-1 ring-slate-200/70">
+                              <m.Icon className="h-3.5 w-3.5" aria-hidden />
+                            </span>
+                            <span className="text-sm font-medium leading-snug text-slate-700">{m.label}</span>
+                          </div>
+                          <span
+                            className={`shrink-0 tabular-nums text-base font-bold ${
+                              L === 'you' ? 'text-indigo-900' : 'text-slate-800'
+                            }`}
+                          >
+                            {m.format(m.you)}
+                          </span>
+                        </div>
+                        <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-slate-200/90">
+                          <div className="h-full rounded-full bg-indigo-500" style={{ width: `${youBar}%` }} />
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+
+            <div
+              className="flex flex-col items-center justify-center gap-0 border-y border-slate-100 py-5 lg:min-h-[4rem] lg:border-y-0 lg:py-2"
+              aria-hidden
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-500 shadow-inner ring-1 ring-slate-200/80 lg:sticky lg:top-4 lg:h-12 lg:w-12 lg:text-xs">
+                vs
+              </div>
+            </div>
+
+            {/* Coluna: Amigo */}
+            <section aria-labelledby="compare-them-heading" className="flex min-w-0 flex-col">
+              <div className="flex flex-col items-center border-b border-slate-100 pb-5 text-center lg:border-b-0 lg:pb-4">
+                <div className="relative">
+                  <div className="rounded-2xl border-2 border-white p-0.5 shadow-md ring-2 ring-violet-100">
+                    <Avatar userId={data.them.id} displayName={data.them.displayName} colorKey={data.them.avatarColorKey} size="lg" />
+                  </div>
+                  {themLeadCount > youLeadCount ? (
+                    <span
+                      className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-[10px] font-black text-amber-950 shadow-md ring-2 ring-white"
+                      title="À frente no placar geral"
+                    >
+                      1º
+                    </span>
+                  ) : null}
+                </div>
+                <h2 id="compare-them-heading" className="mt-3 line-clamp-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+                  {data.them.displayName}
+                </h2>
+              </div>
+
+              <ul className="mt-1 w-full space-y-2.5">
+                {metrics.map((m) => {
+                  const L = leaderFor(m.you, m.them);
+                  const max = Math.max(m.you, m.them, 1);
+                  const themBar = (m.them / max) * 100;
+                  return (
+                    <li key={`them-${m.key}`}>
+                      <div
+                        className={`rounded-xl px-3 py-2.5 ring-1 transition-colors ${
+                          L === 'them'
+                            ? 'bg-violet-50/90 ring-violet-200/70'
+                            : L === 'tie'
+                              ? 'bg-slate-50/90 ring-slate-200/80'
+                              : 'bg-white ring-slate-200/80'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex min-w-0 items-center gap-2">
+                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100/90 text-slate-600 ring-1 ring-slate-200/70">
+                              <m.Icon className="h-3.5 w-3.5" aria-hidden />
+                            </span>
+                            <span className="text-sm font-medium leading-snug text-slate-700">{m.label}</span>
+                          </div>
+                          <span
+                            className={`shrink-0 tabular-nums text-base font-bold ${
+                              L === 'them' ? 'text-violet-900' : 'text-slate-800'
+                            }`}
+                          >
+                            {m.format(m.them)}
+                          </span>
+                        </div>
+                        <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-slate-200/90">
+                          <div className="h-full rounded-full bg-violet-500" style={{ width: `${themBar}%` }} />
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          </div>
         </div>
-        <div className="grid grid-cols-3 items-center gap-2 border-b border-slate-100 px-4 py-4">
-          <span />
-          <div className="flex flex-col items-center gap-1">
-            <Avatar userId={data.you.id} displayName={data.you.displayName} colorKey={data.you.avatarColorKey} size="md" />
-            <span className="text-xs font-semibold text-slate-800">Você</span>
-          </div>
-          <div className="flex flex-col items-center gap-1">
-            <Avatar userId={data.them.id} displayName={data.them.displayName} colorKey={data.them.avatarColorKey} size="md" />
-            <span className="text-xs font-semibold text-slate-800 line-clamp-2">{data.them.displayName}</span>
-          </div>
-        </div>
-        {rows.map((row) => (
-          <div
-            key={row.label}
-            className="grid grid-cols-3 gap-2 border-b border-slate-50 px-4 py-3 text-sm last:border-0"
-          >
-            <span className="text-slate-600">{row.label}</span>
-            <span className="text-center font-bold tabular-nums text-slate-900">{row.you}</span>
-            <span className="text-center font-bold tabular-nums text-indigo-700">{row.them}</span>
-          </div>
-        ))}
       </div>
     </div>
   );

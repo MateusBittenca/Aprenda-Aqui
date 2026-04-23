@@ -160,6 +160,11 @@ export function CourseCatalogPage() {
         <input
           id="catalog-search"
           type="search"
+          inputMode="search"
+          enterKeyHint="search"
+          autoCapitalize="off"
+          autoCorrect="off"
+          spellCheck={false}
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Buscar por nome ou tema…"
@@ -176,7 +181,6 @@ export function CourseCatalogPage() {
         <ul className="relative grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 wide:gap-8">
           {filtered.map((c) => {
             const v = getCourseVisual(c.slug);
-            const modCount = c._count.modules;
             return (
               <li key={c.id} className="flex min-h-[300px]">
                 <CatalogCourseCard
@@ -186,7 +190,11 @@ export function CourseCatalogPage() {
                   description={c.description}
                   tagline={c.tagline}
                   visual={v}
-                  moduleCount={modCount}
+                  difficulty={c.difficulty}
+                  moduleCount={c._count.modules}
+                  lessonCount={c.stats.lessonCount}
+                  totalMinutes={c.stats.totalMinutes}
+                  enrollmentCount={c.enrollmentCount}
                   enrolled={c.enrolled}
                   canEnroll={c.canEnrollInCourse}
                 />
@@ -232,7 +240,6 @@ export function CourseCatalogPage() {
                   >
                     {items.map((c) => {
                       const v = getCourseVisual(c.slug);
-                      const modCount = c._count.modules;
                       return (
                         <li
                           key={c.id}
@@ -245,7 +252,11 @@ export function CourseCatalogPage() {
                             description={c.description}
                             tagline={c.tagline}
                             visual={v}
-                            moduleCount={modCount}
+                            difficulty={c.difficulty}
+                            moduleCount={c._count.modules}
+                            lessonCount={c.stats.lessonCount}
+                            totalMinutes={c.stats.totalMinutes}
+                            enrollmentCount={c.enrollmentCount}
                             enrolled={c.enrolled}
                             canEnroll={c.canEnrollInCourse}
                           />

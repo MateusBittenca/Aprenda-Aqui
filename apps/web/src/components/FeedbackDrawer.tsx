@@ -6,8 +6,10 @@ import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
 import type { SubmitResult } from './ExerciseRunner';
 import { fireLevelUpConfetti, fireConfetti } from '../lib/confetti';
+import { playCorrect, playLevelUp, playWrong } from '../lib/sounds';
 import { apiFetch, ApiError } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
+import { useUiPreferences } from '../stores/uiPreferencesStore';
 
 type Props = {
   open: boolean;
@@ -50,6 +52,7 @@ export function FeedbackDrawer({
 }: Props) {
   const titleId = useId();
   const token = useAuthStore((s) => s.token);
+  const soundEnabled = useUiPreferences((s) => s.soundEnabled);
   const [revealLoading, setRevealLoading] = useState(false);
   const messageSeed = useMemo(() => {
     if (!open || !result) return 0;
@@ -71,16 +74,37 @@ export function FeedbackDrawer({
     };
     window.addEventListener('keydown', onKey);
 
+    /**
+     * Trava scroll do body enquanto o drawer está aberto. Importante no mobile:
+     * sem isso o body "pula" quando o usuário arrasta dentro do sheet e alcança
+     * a borda, além de deixar o fundo visualmente estático sob o backdrop.
+     */
+    const { body, documentElement: html } = document;
+    const prevBodyOverflow = body.style.overflow;
+    const prevHtmlOverflow = html.style.overflow;
+    body.style.overflow = 'hidden';
+    html.style.overflow = 'hidden';
+
     if (result.correct) {
       if (result.leveledUp) {
         fireLevelUpConfetti();
+        if (soundEnabled) playLevelUp();
       } else if (result.lessonCompleted || result.rewardsApplied) {
         fireConfetti();
+        if (soundEnabled) playCorrect();
+      } else if (soundEnabled) {
+        playCorrect();
       }
+    } else if (soundEnabled) {
+      playWrong();
     }
 
-    return () => window.removeEventListener('keydown', onKey);
-  }, [open, result, onClose]);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      body.style.overflow = prevBodyOverflow;
+      html.style.overflow = prevHtmlOverflow;
+    };
+  }, [open, result, onClose, soundEnabled]);
 
   if (!open || !result) return null;
   const ok = result.correct;

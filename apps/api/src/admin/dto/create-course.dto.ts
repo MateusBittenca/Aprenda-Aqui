@@ -1,5 +1,7 @@
+import { CourseDifficulty } from '@prisma/client';
 import {
   IsBoolean,
+  IsEnum,
   IsInt,
   IsOptional,
   IsString,
@@ -50,6 +52,10 @@ export class CreateCourseDto {
   @IsOptional()
   @IsBoolean()
   isFree?: boolean;
+
+  @IsOptional()
+  @IsEnum(CourseDifficulty)
+  difficulty?: CourseDifficulty;
 
   /** Se true (padrão), matrícula automática no login para usuários existentes e novos cadastros. */
   @IsOptional()

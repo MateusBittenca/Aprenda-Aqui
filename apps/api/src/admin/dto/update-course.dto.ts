@@ -1,5 +1,7 @@
+import { CourseDifficulty } from '@prisma/client';
 import {
   IsBoolean,
+  IsEnum,
   IsInt,
   IsOptional,
   IsString,
@@ -42,6 +44,10 @@ export class UpdateCourseDto {
   @IsOptional()
   @IsBoolean()
   isFree?: boolean;
+
+  @IsOptional()
+  @IsEnum(CourseDifficulty)
+  difficulty?: CourseDifficulty;
 
   @IsOptional()
   @IsBoolean()

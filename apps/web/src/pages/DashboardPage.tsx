@@ -17,6 +17,7 @@ import {
   Trophy,
   Zap,
 } from 'lucide-react';
+import { DailyGiftCard } from '../components/DailyGiftCard';
 import { XpTrajectoryModal } from '../components/XpTrajectoryModal';
 import { getNextRankThreshold, getRankForLevel } from '../lib/levelTitles';
 import { ErrorState } from '../components/ui/ErrorState';
@@ -109,6 +110,7 @@ export function DashboardPage() {
   return (
     <div className="stagger-children min-w-0 space-y-6 overflow-x-hidden">
       <HeroSection data={data} />
+      <DailyGiftCard />
       <XPSection data={data} />
       <StatsRow data={data} progress={progress} />
       <GoalsSection progress={progress} />

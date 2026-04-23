@@ -159,3 +159,34 @@ export function getCourseCategory(slug: string, visual: CourseVisual): CourseCat
 
 /** Ordem estável das categorias no catálogo (mais "aproachável" primeiro). */
 export const COURSE_CATEGORY_ORDER: CourseCategory[] = ['Frontend', 'Backend', 'Dados', 'Fundamentos'];
+
+/** Rótulo PT-BR para o enum `CourseDifficulty` do backend. */
+export function difficultyLabel(difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'): string {
+  switch (difficulty) {
+    case 'BEGINNER':
+      return 'Iniciante';
+    case 'INTERMEDIATE':
+      return 'Intermediário';
+    case 'ADVANCED':
+      return 'Avançado';
+  }
+}
+
+/** Formata duração total em minutos como "3h", "3h 20min" ou "45min". */
+export function formatCourseDuration(totalMinutes: number): string {
+  if (!Number.isFinite(totalMinutes) || totalMinutes <= 0) return '—';
+  const h = Math.floor(totalMinutes / 60);
+  const m = Math.round(totalMinutes % 60);
+  if (h === 0) return `${m}min`;
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}min`;
+}
+
+/** Formata contagem de matriculados de forma compacta (ex.: 127, 1,2k). */
+export function formatEnrollmentCount(n: number): string {
+  if (!Number.isFinite(n) || n < 0) return '0';
+  if (n < 1000) return String(n);
+  const thousands = n / 1000;
+  const formatted = thousands >= 10 ? thousands.toFixed(0) : thousands.toFixed(1).replace('.', ',');
+  return `${formatted}k`;
+}

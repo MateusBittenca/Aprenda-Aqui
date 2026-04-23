@@ -14,6 +14,7 @@ import {
   CurrentUser,
   JwtUser,
 } from '../common/decorators/current-user.decorator';
+import { GamificationService } from '../gamification/gamification.service';
 import { UpdateMeDto } from './dto/update-me.dto';
 import { SocialService } from './social.service';
 import { UsersService } from './users.service';
@@ -25,6 +26,7 @@ export class UsersController {
     private readonly users: UsersService,
     private readonly catalog: CatalogService,
     private readonly social: SocialService,
+    private readonly gamification: GamificationService,
   ) {}
 
   @Get()
@@ -57,6 +59,16 @@ export class UsersController {
   @Get('courses/:courseId')
   getCourse(@CurrentUser() user: JwtUser, @Param('courseId') courseId: string) {
     return this.catalog.getCourseForUser(courseId, user.userId);
+  }
+
+  @Get('daily-gift')
+  getDailyGiftStatus(@CurrentUser() user: JwtUser) {
+    return this.gamification.getDailyGiftStatus(user.userId);
+  }
+
+  @Post('daily-gift/claim')
+  claimDailyGift(@CurrentUser() user: JwtUser) {
+    return this.gamification.claimDailyGift(user.userId);
   }
 }
 

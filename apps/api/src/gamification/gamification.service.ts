@@ -131,6 +131,138 @@ export class GamificationService {
     return { gemsRemaining };
   }
 
+  /**
+   * Escala de gemas por dia dentro do ciclo de 7 dias (reseta se pular um dia civil).
+   * Escolhida para crescer de forma perceptível mas não inflacionar economia interna.
+   */
+  private readonly dailyGiftAmounts = [5, 7, 10, 15, 20, 25, 30];
+
+  /**
+   * Retorna o estado do presente diário para o usuário.
+   * - `canClaim`: se pode reclamar agora (nunca reclamou ou já é outro dia civil).
+   * - `dayInCycle`: dia do ciclo (1..7) que o resgate atual ativaria.
+   * - `amount`: gemas que seriam creditadas neste resgate.
+   * - `willResetCycle`: se o próximo resgate vai reiniciar o ciclo (perdeu um dia).
+   */
+  async getDailyGiftStatus(userId: string): Promise<{
+    canClaim: boolean;
+    dayInCycle: number;
+    amount: number;
+    willResetCycle: boolean;
+    cycleAmounts: number[];
+    alreadyClaimedToday: boolean;
+  }> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        timezone: true,
+        lastDailyGiftAt: true,
+        dailyGiftStreak: true,
+      },
+    });
+    if (!user) throw new NotFoundException('Usuário não encontrado');
+
+    const tz = this.safeTimeZone(user.timezone);
+    const todayYmd = this.calendarDateInTimeZone(new Date(), tz);
+    const lastYmd = user.lastDailyGiftAt
+      ? this.calendarDateInTimeZone(user.lastDailyGiftAt, tz)
+      : null;
+
+    const next = this.computeNextCyclePosition(user.dailyGiftStreak, lastYmd, todayYmd);
+
+    return {
+      canClaim: next.canClaim,
+      dayInCycle: next.dayInCycle,
+      amount: this.dailyGiftAmounts[next.dayInCycle - 1],
+      willResetCycle: next.willResetCycle,
+      cycleAmounts: this.dailyGiftAmounts,
+      alreadyClaimedToday: !next.canClaim,
+    };
+  }
+
+  /**
+   * Resgata o presente diário, creditando as gemas correspondentes ao dia do ciclo.
+   * Idempotente no mesmo dia civil: lança 400 se já foi reclamado hoje.
+   */
+  async claimDailyGift(userId: string): Promise<{
+    amount: number;
+    dayInCycle: number;
+    gemsTotal: number;
+    cycleAmounts: number[];
+  }> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        gems: true,
+        timezone: true,
+        lastDailyGiftAt: true,
+        dailyGiftStreak: true,
+      },
+    });
+    if (!user) throw new NotFoundException('Usuário não encontrado');
+
+    const tz = this.safeTimeZone(user.timezone);
+    const now = new Date();
+    const todayYmd = this.calendarDateInTimeZone(now, tz);
+    const lastYmd = user.lastDailyGiftAt
+      ? this.calendarDateInTimeZone(user.lastDailyGiftAt, tz)
+      : null;
+
+    const next = this.computeNextCyclePosition(user.dailyGiftStreak, lastYmd, todayYmd);
+    if (!next.canClaim) {
+      throw new BadRequestException('Presente diário já foi resgatado hoje.');
+    }
+
+    const amount = this.dailyGiftAmounts[next.dayInCycle - 1];
+    const gemsTotal = user.gems + amount;
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        gems: gemsTotal,
+        lastDailyGiftAt: now,
+        dailyGiftStreak: next.dayInCycle,
+      },
+    });
+
+    return {
+      amount,
+      dayInCycle: next.dayInCycle,
+      gemsTotal,
+      cycleAmounts: this.dailyGiftAmounts,
+    };
+  }
+
+  /**
+   * Deriva qual posição do ciclo o próximo resgate ocuparia.
+   * Regra:
+   *   - nunca reclamou → dia 1;
+   *   - reclamou hoje → não pode (retorna o estado "projetado" mas canClaim=false);
+   *   - reclamou ontem → avança 1, fazendo wrap ao fim do ciclo;
+   *   - gap ≥ 2 dias → volta pro dia 1 (cycle reset).
+   */
+  private computeNextCyclePosition(
+    currentStreak: number,
+    lastYmd: string | null,
+    todayYmd: string,
+  ): { canClaim: boolean; dayInCycle: number; willResetCycle: boolean } {
+    const total = this.dailyGiftAmounts.length;
+    if (!lastYmd) {
+      return { canClaim: true, dayInCycle: 1, willResetCycle: false };
+    }
+    const diff = this.civilDaysBetween(lastYmd, todayYmd);
+    if (diff <= 0) {
+      const current = Math.min(Math.max(currentStreak || 1, 1), total);
+      return { canClaim: false, dayInCycle: current, willResetCycle: false };
+    }
+    if (diff === 1) {
+      const prev = Math.min(Math.max(currentStreak || 0, 0), total);
+      const nextDay = prev >= total ? 1 : prev + 1;
+      return { canClaim: true, dayInCycle: nextDay, willResetCycle: prev >= total };
+    }
+    return { canClaim: true, dayInCycle: 1, willResetCycle: true };
+  }
+
   async applyXpAndGems(
     userId: string,
     xp: number,

@@ -12,6 +12,12 @@ enum UserRole {
   ADMIN
 }
 
+enum CourseDifficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
 model User {
   id               String   @id @default(cuid())
   email            String   @unique
@@ -29,6 +35,10 @@ model User {
   currentStreak    Int      @default(0)
   longestStreak    Int      @default(0)
   lastActivityDate DateTime?
+  /// Último instante em que o usuário resgatou o presente diário (quaisquer que sejam as regras vigentes).
+  lastDailyGiftAt  DateTime?
+  /// Dia atual do ciclo de presente diário (1..7). Avança a cada resgate consecutivo; reseta para 1 se pular um dia.
+  dailyGiftStreak  Int      @default(0)
   /** Atualizado pelo heartbeat do app; usado para “online agora”. */
   lastSeenAt       DateTime?
   createdAt        DateTime @default(now())
@@ -68,6 +78,8 @@ model Course {
   overviewMd  String?  @db.LongText
   orderIndex  Int      @default(0)
   isFree      Boolean  @default(true)
+  /// Nível sugerido do curso; exibido como micrometadado no card e em filtros futuros.
+  difficulty  CourseDifficulty @default(BEGINNER)
   /// Se true, novos logins e cadastros são matriculados automaticamente neste curso (quando isFree).
   autoEnrollOnAuth Boolean @default(true)
   modules     Module[]

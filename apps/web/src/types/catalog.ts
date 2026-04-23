@@ -15,6 +15,8 @@ export type ModuleDetail = {
   lessons: LessonRef[];
 };
 
+export type CourseDifficulty = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+
 /** Lista pública GET /catalog/courses */
 export type CatalogCourseSummary = {
   id: string;
@@ -25,7 +27,14 @@ export type CatalogCourseSummary = {
   orderIndex: number;
   isFree: boolean;
   coverImageUrl: string | null;
+  difficulty: CourseDifficulty;
   _count: { modules: number; enrollments: number };
+  /** Total de inscritos — espelho de `_count.enrollments` em forma direta. */
+  enrollmentCount: number;
+  stats: {
+    lessonCount: number;
+    totalMinutes: number;
+  };
 };
 
 /** GET /catalog/courses/:id — detalhe para landing */
@@ -39,6 +48,7 @@ export type CourseCatalogDetail = {
   overviewMd: string | null;
   orderIndex: number;
   isFree: boolean;
+  difficulty: CourseDifficulty;
   modules: ModuleDetail[];
   enrollmentCount: number;
   stats: {

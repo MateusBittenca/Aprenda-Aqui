@@ -14,6 +14,7 @@ import {
   Settings2,
   Shield,
   UserRound,
+  Volume2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { twMerge } from 'tailwind-merge';
@@ -72,6 +73,8 @@ export function SettingsPage() {
   const timezoneRef = useRef<HTMLInputElement>(null);
   const reduceMotion = useUiPreferences((s) => s.reduceMotion);
   const setReduceMotion = useUiPreferences((s) => s.setReduceMotion);
+  const soundEnabled = useUiPreferences((s) => s.soundEnabled);
+  const setSoundEnabled = useUiPreferences((s) => s.setSoundEnabled);
   const [tab, setTab] = useState<SettingsTab>('conta');
   const [avatarColorKey, setAvatarColorKey] = useState('auto');
 
@@ -424,6 +427,42 @@ export function SettingsPage() {
                     </p>
                   </div>
                 </label>
+
+                <label className="mt-3 flex cursor-pointer gap-4 rounded-xl border border-slate-200 bg-white p-4 transition hover:border-violet-200">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
+                    <Volume2 className="h-5 w-5" aria-hidden />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-3">
+                      <span className="text-sm font-semibold text-slate-900">Sons de gamificação</span>
+                      <input
+                        type="checkbox"
+                        checked={soundEnabled}
+                        onChange={async (e) => {
+                          const next = e.target.checked;
+                          setSoundEnabled(next);
+                          if (next) {
+                            /**
+                             * Toca um tom curto no próprio gesto de habilitar — garante que o
+                             * AudioContext saia do estado suspended em navegadores com política
+                             * de autoplay estrita (Safari/iOS).
+                             */
+                            const { playCorrect } = await import('../lib/sounds');
+                            playCorrect();
+                            toast.success('Sons ativados.');
+                          } else {
+                            toast.success('Sons desativados.');
+                          }
+                        }}
+                        className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-primary focus:ring-primary"
+                      />
+                    </div>
+                    <p className="mt-2 text-sm text-slate-600">
+                      Tons curtos em acerto, erro e subida de nível. Gerados no navegador, sem baixar arquivos.
+                    </p>
+                  </div>
+                </label>
+
                 <p className="mt-4 text-sm text-slate-600">
                   <span className="font-semibold text-slate-800">Idioma:</span> Português (Brasil). Outros idiomas podem
                   ser adicionados no futuro.

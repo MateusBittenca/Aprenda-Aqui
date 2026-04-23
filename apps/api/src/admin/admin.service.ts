@@ -118,6 +118,7 @@ export class AdminService {
         orderIndex,
         isFree,
         autoEnrollOnAuth,
+        ...(dto.difficulty !== undefined && { difficulty: dto.difficulty }),
       },
     });
     if (isFree && autoEnrollOnAuth)
@@ -142,6 +143,7 @@ export class AdminService {
         ...(dto.overviewMd !== undefined && { overviewMd: dto.overviewMd }),
         ...(dto.orderIndex !== undefined && { orderIndex: dto.orderIndex }),
         ...(dto.isFree !== undefined && { isFree: dto.isFree }),
+        ...(dto.difficulty !== undefined && { difficulty: dto.difficulty }),
         ...(dto.autoEnrollOnAuth !== undefined && {
           autoEnrollOnAuth: dto.autoEnrollOnAuth,
         }),

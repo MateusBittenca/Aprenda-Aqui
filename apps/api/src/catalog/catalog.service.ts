@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { withCoursePresentation } from './course-detail.util';
+import { computeCourseStats, withCoursePresentation } from './course-detail.util';
 
 @Injectable()
 export class CatalogService {
@@ -74,7 +74,18 @@ export class CatalogService {
           orderIndex: true,
           isFree: true,
           coverImageUrl: true,
-          _count: { select: { modules: true } },
+          difficulty: true,
+          _count: { select: { modules: true, enrollments: true } },
+          modules: {
+            select: {
+              lessons: {
+                select: {
+                  estimatedMinutes: true,
+                  _count: { select: { exercises: true } },
+                },
+              },
+            },
+          },
         },
       }),
       this.prisma.userCourseEnrollment.findMany({
@@ -83,11 +94,19 @@ export class CatalogService {
       }),
     ]);
     const enrolledSet = new Set(mine.map((m) => m.courseId));
-    return courses.map((c) => ({
-      ...c,
-      enrolled: enrolledSet.has(c.id),
-      canEnrollInCourse: c.isFree,
-    }));
+    return courses.map((c) => {
+      const { modules, _count, ...rest } = c;
+      const stats = computeCourseStats(modules);
+      return {
+        ...rest,
+        /** Mantém `_count` (legacy) porque telas admin e o próprio catálogo leem `_count.modules`. */
+        _count: { modules: _count.modules, enrollments: _count.enrollments },
+        enrollmentCount: _count.enrollments,
+        stats,
+        enrolled: enrolledSet.has(c.id),
+        canEnrollInCourse: c.isFree,
+      };
+    });
   }
 
   /** Conteúdo do curso para estudo: exige matrícula no curso (ou curso gratuito acessível após matrícula explícita — mesma regra que aulas). */

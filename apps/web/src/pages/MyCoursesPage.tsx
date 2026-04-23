@@ -193,6 +193,10 @@ export function MyCoursesPage() {
                       description={c.description ?? c.tagline}
                       visual={v}
                       progressPct={c.progress.pct}
+                      difficulty={c.difficulty}
+                      lessonCount={c.stats.lessonCount}
+                      totalMinutes={c.stats.totalMinutes}
+                      enrollmentCount={c.enrollmentCount}
                       enrolledAt={c.enrolledAt}
                       nextLessonTitle={c.nextLessonTitle}
                     />
@@ -288,7 +292,7 @@ function WeekStrip({
     key: string;
     label: string;
     value: number | string;
-    Icon: typeof Sparkles;
+    Icon: typeof CheckCircle2;
     accent: string;
     bg: string;
     ring: string;

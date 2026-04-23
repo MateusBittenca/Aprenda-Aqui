@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch, requireToken } from '../lib/api';
 import { useAuthHydration, useAuthStore } from '../stores/authStore';
+import type { CourseDifficulty } from '../types/catalog';
 
 export type EnrolledCourse = {
   id: string;
@@ -8,10 +9,14 @@ export type EnrolledCourse = {
   title: string;
   description: string | null;
   tagline: string | null;
+  difficulty: CourseDifficulty;
   lessonPreview: string[];
   /** Primeira aula ainda não concluída (ordem do curso) */
   nextLessonTitle: string | null;
   enrolledAt: string;
+  enrollmentCount: number;
+  moduleCount: number;
+  stats: { lessonCount: number; totalMinutes: number };
   progress: { completed: number; total: number; pct: number };
 };
 

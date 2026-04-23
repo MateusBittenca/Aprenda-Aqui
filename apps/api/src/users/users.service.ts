@@ -50,12 +50,17 @@ export class UsersService {
         include: {
           course: {
             include: {
+              _count: { select: { enrollments: true } },
               modules: {
                 orderBy: { orderIndex: 'asc' },
                 include: {
                   lessons: {
                     orderBy: { orderIndex: 'asc' },
-                    select: { id: true, title: true },
+                    select: {
+                      id: true,
+                      title: true,
+                      estimatedMinutes: true,
+                    },
                   },
                 },
               },
@@ -96,15 +101,26 @@ export class UsersService {
       const lessonPreview = orderedLessons.slice(0, 3).map((l) => l.title);
       const nextLesson = orderedLessons.find((l) => !completedSet.has(l.id));
       const nextLessonTitle = nextLesson ? nextLesson.title : null;
+      const totalMinutes = orderedLessons.reduce(
+        (acc, l) => acc + (l.estimatedMinutes ?? 0),
+        0,
+      );
       return {
         id: course.id,
         slug: course.slug,
         title: course.title,
         description: course.description,
         tagline: course.tagline,
+        difficulty: course.difficulty,
         enrolledAt,
         lessonPreview,
         nextLessonTitle,
+        enrollmentCount: course._count.enrollments,
+        moduleCount: course.modules.length,
+        stats: {
+          lessonCount: total,
+          totalMinutes,
+        },
         progress: {
           completed,
           total,

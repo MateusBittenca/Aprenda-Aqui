@@ -1,8 +1,15 @@
 import { Link } from 'react-router-dom';
 import { twMerge } from 'tailwind-merge';
-import { CheckCircle2, Flame, Sparkles } from 'lucide-react';
+import { BookOpen, CheckCircle2, Clock, Flame, Sparkles, Users } from 'lucide-react';
 import type { CourseVisual } from '../config/trackVisuals';
-import { courseCardAccentFor } from '../lib/courseCardAccent';
+import {
+  courseCardAccentFor,
+  difficultyLabel,
+  formatCourseDuration,
+  formatEnrollmentCount,
+  getCourseCategory,
+} from '../lib/courseCardAccent';
+import type { CourseDifficulty } from '../types/catalog';
 
 export type MyCourseCardProps = {
   to: string;
@@ -11,6 +18,10 @@ export type MyCourseCardProps = {
   visual: CourseVisual;
   slug: string;
   progressPct: number;
+  difficulty: CourseDifficulty;
+  lessonCount: number;
+  totalMinutes: number;
+  enrollmentCount: number;
   /** Usado para badge "Recém-matriculado" (até 5 dias). */
   enrolledAt?: string | null;
   /** Primeira aula ainda não concluída — usado como "dica da próxima aula". */
@@ -62,14 +73,20 @@ export function MyCourseCard({
   visual,
   slug,
   progressPct,
+  difficulty,
+  lessonCount,
+  totalMinutes,
+  enrollmentCount,
   enrolledAt,
   nextLessonTitle,
 }: MyCourseCardProps) {
   const Icon = visual.Icon;
   const a = courseCardAccentFor(slug, visual);
+  const category = getCourseCategory(slug, visual);
   const pct = Math.min(100, Math.max(0, Math.round(progressPct)));
   const empty = pct === 0;
   const badge = resolveBadge(pct, enrolledAt);
+  const hasDuration = totalMinutes > 0;
 
   /** Map da cor da stroke do anel a partir da paleta do curso (derivada do fillClass). */
   const ringStrokeClass = a.fillClass.includes('indigo')
@@ -151,7 +168,7 @@ export function MyCourseCard({
             a.labelClass,
           )}
         >
-          {a.categoryLabel}
+          {category} · {difficultyLabel(difficulty)}
         </span>
 
         <div className="flex min-h-0 flex-1 flex-col">
@@ -171,7 +188,30 @@ export function MyCourseCard({
           </div>
         </div>
 
-        <div className="mt-6 shrink-0 space-y-2">
+        <dl
+          className="mt-5 flex shrink-0 flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-slate-100 pt-3 text-xs font-medium text-slate-500"
+          aria-label="Metadados do curso"
+        >
+          {hasDuration ? (
+            <div className="flex items-center gap-1">
+              <Clock className="h-3.5 w-3.5 text-slate-400" aria-hidden />
+              <dt className="sr-only">Duração total</dt>
+              <dd>{formatCourseDuration(totalMinutes)}</dd>
+            </div>
+          ) : null}
+          <div className="flex items-center gap-1">
+            <BookOpen className="h-3.5 w-3.5 text-slate-400" aria-hidden />
+            <dt className="sr-only">Aulas</dt>
+            <dd>{lessonCount} aulas</dd>
+          </div>
+          <div className="flex items-center gap-1">
+            <Users className="h-3.5 w-3.5 text-slate-400" aria-hidden />
+            <dt className="sr-only">Alunos matriculados</dt>
+            <dd>{formatEnrollmentCount(enrollmentCount)} alunos</dd>
+          </div>
+        </dl>
+
+        <div className="mt-4 shrink-0 space-y-2">
           <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-slate-400">
             <span>Progresso</span>
             <span className={twMerge('tabular-nums', empty ? 'text-slate-400' : a.pctClass)}>{pct}%</span>

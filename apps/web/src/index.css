@@ -44,13 +44,36 @@
   /**
    * Barra de abas primária no app: rolagem horizontal leve se não couber,
    * sem barra visível (evita “duas fileiras” que comem altura no mobile).
+   * A máscara gradiente cria um fade de ~16px nas extremidades como affordance
+   * de rolagem lateral (só visível quando há overflow real).
    */
   .nav-tabs-scroll {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 16px,
+      #000 calc(100% - 16px),
+      transparent 100%
+    );
+            mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 16px,
+      #000 calc(100% - 16px),
+      transparent 100%
+    );
   }
   .nav-tabs-scroll::-webkit-scrollbar {
     display: none;
+  }
+  /** A partir de lg não há overflow horizontal (a nav volta a wrap) — remove a máscara. */
+  @media (min-width: 1024px) {
+    .nav-tabs-scroll {
+      -webkit-mask-image: none;
+              mask-image: none;
+    }
   }
 
   /* Fundo neutro + grade discreta (tokens alinhados ao app shell) */

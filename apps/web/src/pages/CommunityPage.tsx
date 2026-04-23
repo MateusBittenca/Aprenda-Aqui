@@ -176,10 +176,15 @@ export function CommunityPage() {
           <Search className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-indigo-400" />
           <input
             type="search"
+            inputMode="search"
+            enterKeyHint="search"
+            autoCapitalize="off"
+            autoCorrect="off"
+            spellCheck={false}
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Digite pelo menos 2 letras do nome…"
-            className="w-full rounded-[1.15rem] border-0 bg-transparent py-4 pl-14 pr-4 text-sm text-slate-900 outline-none ring-0 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-400/30"
+            className="min-h-11 w-full rounded-[1.15rem] border-0 bg-transparent py-4 pl-14 pr-4 text-sm text-slate-900 outline-none ring-0 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-400/30"
             aria-label="Buscar pessoas"
           />
         </div>

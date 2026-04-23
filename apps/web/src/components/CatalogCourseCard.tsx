@@ -1,8 +1,15 @@
 import { Link } from 'react-router-dom';
 import { twMerge } from 'tailwind-merge';
-import { BookmarkCheck, Lock } from 'lucide-react';
+import { BookmarkCheck, BookOpen, Clock, Lock, Users } from 'lucide-react';
 import type { CourseVisual } from '../config/trackVisuals';
-import { courseCardAccentFor } from '../lib/courseCardAccent';
+import {
+  courseCardAccentFor,
+  difficultyLabel,
+  formatCourseDuration,
+  formatEnrollmentCount,
+  getCourseCategory,
+} from '../lib/courseCardAccent';
+import type { CourseDifficulty } from '../types/catalog';
 
 export type CatalogCourseCardProps = {
   to: string;
@@ -11,6 +18,11 @@ export type CatalogCourseCardProps = {
   description: string | null | undefined;
   tagline: string | null | undefined;
   visual: CourseVisual;
+  difficulty: CourseDifficulty;
+  /** Total de aulas (preferencial). Fallback para `moduleCount` quando ausente. */
+  lessonCount?: number;
+  totalMinutes?: number;
+  enrollmentCount: number;
   moduleCount: number;
   enrolled: boolean;
   canEnroll: boolean;
@@ -25,6 +37,10 @@ export function CatalogCourseCard({
   description,
   tagline,
   visual,
+  difficulty,
+  lessonCount,
+  totalMinutes,
+  enrollmentCount,
   moduleCount,
   enrolled,
   canEnroll,
@@ -32,16 +48,10 @@ export function CatalogCourseCard({
 }: CatalogCourseCardProps) {
   const Icon = visual.Icon;
   const a = courseCardAccentFor(slug, visual);
+  const category = getCourseCategory(slug, visual);
   const blurb = description ?? tagline;
-  const barPct = enrolled ? 100 : 0;
-
-  const statusRight = !canEnroll
-    ? 'Indisponível'
-    : enrolled
-      ? `${moduleCount} mód. · Na lista`
-      : `${moduleCount} mód.`;
-
-  const statusClass = !canEnroll ? 'text-amber-600' : enrolled ? 'text-emerald-600' : a.pctClass;
+  const hasDuration = typeof totalMinutes === 'number' && totalMinutes > 0;
+  const lessonOrModuleLabel = lessonCount ? `${lessonCount} aulas` : `${moduleCount} mód.`;
 
   return (
     <Link
@@ -84,7 +94,7 @@ export function CatalogCourseCard({
             a.labelClass,
           )}
         >
-          {a.categoryLabel}
+          {category} · {difficultyLabel(difficulty)}
         </span>
         <div className="flex min-h-0 flex-1 flex-col">
           <h2 className="font-headline line-clamp-2 min-h-[3.25rem] text-xl font-bold leading-snug tracking-tight text-indigo-950">
@@ -98,21 +108,28 @@ export function CatalogCourseCard({
             )}
           </div>
         </div>
-        <div className="mt-6 shrink-0 space-y-2">
-          <div className="flex items-center justify-between gap-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
-            <span>Matrícula</span>
-            <span className={twMerge('min-w-0 text-right normal-case tracking-normal', statusClass)}>{statusRight}</span>
+        <dl
+          className="mt-5 flex shrink-0 flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-slate-100 pt-3 text-xs font-medium text-slate-500"
+          aria-label="Metadados do curso"
+        >
+          {hasDuration ? (
+            <div className="flex items-center gap-1">
+              <Clock className="h-3.5 w-3.5 text-slate-400" aria-hidden />
+              <dt className="sr-only">Duração total</dt>
+              <dd>{formatCourseDuration(totalMinutes as number)}</dd>
+            </div>
+          ) : null}
+          <div className="flex items-center gap-1">
+            <BookOpen className="h-3.5 w-3.5 text-slate-400" aria-hidden />
+            <dt className="sr-only">Aulas ou módulos</dt>
+            <dd>{lessonOrModuleLabel}</dd>
           </div>
-          <div className={twMerge('h-1 overflow-hidden rounded-full', barPct === 0 ? 'bg-slate-100' : a.trackClass)}>
-            <div
-              className={twMerge(
-                'h-full rounded-full transition-[width] duration-700 ease-out',
-                barPct === 0 ? 'bg-slate-200' : a.fillClass,
-              )}
-              style={{ width: `${barPct}%` }}
-            />
+          <div className="flex items-center gap-1">
+            <Users className="h-3.5 w-3.5 text-slate-400" aria-hidden />
+            <dt className="sr-only">Alunos matriculados</dt>
+            <dd>{formatEnrollmentCount(enrollmentCount)} alunos</dd>
           </div>
-        </div>
+        </dl>
       </article>
     </Link>
   );

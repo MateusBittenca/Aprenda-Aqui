@@ -9,6 +9,8 @@ export type CourseCardAccent = {
   trackClass: string;
   fillClass: string;
   pctClass: string;
+  /** Cor sólida do blob decorativo (usada no ResumeHero de Meus cursos). */
+  blobClass: string;
 };
 
 const SLUG_CATEGORY: Record<string, string> = {
@@ -29,6 +31,7 @@ const FRONT_PALETTES: Omit<CourseCardAccent, 'categoryLabel'>[] = [
     trackClass: 'bg-indigo-50',
     fillClass: 'bg-gradient-to-r from-indigo-500 to-purple-500',
     pctClass: 'text-indigo-600',
+    blobClass: 'bg-indigo-200/40',
   },
   {
     iconBox: 'from-purple-100 to-purple-50',
@@ -37,6 +40,7 @@ const FRONT_PALETTES: Omit<CourseCardAccent, 'categoryLabel'>[] = [
     trackClass: 'bg-purple-50',
     fillClass: 'bg-gradient-to-r from-purple-500 to-pink-500',
     pctClass: 'text-purple-600',
+    blobClass: 'bg-purple-200/40',
   },
   {
     iconBox: 'from-sky-100 to-sky-50',
@@ -45,6 +49,7 @@ const FRONT_PALETTES: Omit<CourseCardAccent, 'categoryLabel'>[] = [
     trackClass: 'bg-sky-50',
     fillClass: 'bg-gradient-to-r from-sky-500 to-cyan-500',
     pctClass: 'text-sky-600',
+    blobClass: 'bg-sky-200/40',
   },
   {
     iconBox: 'from-amber-100 to-amber-50',
@@ -53,6 +58,7 @@ const FRONT_PALETTES: Omit<CourseCardAccent, 'categoryLabel'>[] = [
     trackClass: 'bg-amber-50',
     fillClass: 'bg-gradient-to-r from-amber-500 to-orange-500',
     pctClass: 'text-amber-600',
+    blobClass: 'bg-amber-200/40',
   },
   {
     iconBox: 'from-cyan-100 to-cyan-50',
@@ -61,6 +67,7 @@ const FRONT_PALETTES: Omit<CourseCardAccent, 'categoryLabel'>[] = [
     trackClass: 'bg-cyan-50',
     fillClass: 'bg-gradient-to-r from-cyan-500 to-blue-500',
     pctClass: 'text-cyan-600',
+    blobClass: 'bg-cyan-200/40',
   },
   {
     iconBox: 'from-pink-100 to-pink-50',
@@ -69,6 +76,7 @@ const FRONT_PALETTES: Omit<CourseCardAccent, 'categoryLabel'>[] = [
     trackClass: 'bg-pink-50',
     fillClass: 'bg-gradient-to-r from-pink-500 to-rose-500',
     pctClass: 'text-pink-600',
+    blobClass: 'bg-pink-200/40',
   },
 ];
 
@@ -80,6 +88,7 @@ const BACKEND_PALETTES: Omit<CourseCardAccent, 'categoryLabel'>[] = [
     trackClass: 'bg-violet-50',
     fillClass: 'bg-gradient-to-r from-violet-500 to-indigo-600',
     pctClass: 'text-violet-600',
+    blobClass: 'bg-violet-200/40',
   },
   {
     iconBox: 'from-indigo-100 to-indigo-50',
@@ -88,6 +97,7 @@ const BACKEND_PALETTES: Omit<CourseCardAccent, 'categoryLabel'>[] = [
     trackClass: 'bg-indigo-50',
     fillClass: 'bg-gradient-to-r from-indigo-500 to-violet-500',
     pctClass: 'text-indigo-600',
+    blobClass: 'bg-indigo-200/40',
   },
 ];
 
@@ -99,6 +109,7 @@ const DADOS_PALETTES: Omit<CourseCardAccent, 'categoryLabel'>[] = [
     trackClass: 'bg-emerald-50',
     fillClass: 'bg-gradient-to-r from-emerald-500 to-teal-500',
     pctClass: 'text-emerald-600',
+    blobClass: 'bg-emerald-200/40',
   },
   {
     iconBox: 'from-teal-100 to-teal-50',
@@ -107,6 +118,7 @@ const DADOS_PALETTES: Omit<CourseCardAccent, 'categoryLabel'>[] = [
     trackClass: 'bg-teal-50',
     fillClass: 'bg-gradient-to-r from-teal-500 to-cyan-600',
     pctClass: 'text-teal-600',
+    blobClass: 'bg-teal-200/40',
   },
 ];
 
@@ -123,3 +135,27 @@ export function courseCardAccentFor(slug: string, visual: CourseVisual): CourseC
   const p = pool[hashSlug(slug) % pool.length];
   return { categoryLabel, ...p };
 }
+
+/** Agrupamento macro usado nas prateleiras do catálogo e nos chips de filtro. */
+export type CourseCategory = 'Frontend' | 'Backend' | 'Dados' | 'Fundamentos';
+
+const FUNDAMENTOS_SLUGS = new Set([
+  'algoritmos-logica',
+  'complexidade-arrays',
+  'strings-mapas',
+  'qualidade-testes',
+  'testes-piramide',
+  'ci-observabilidade',
+  'ferramentas',
+  'git-essencial',
+]);
+
+export function getCourseCategory(slug: string, visual: CourseVisual): CourseCategory {
+  if (FUNDAMENTOS_SLUGS.has(slug)) return 'Fundamentos';
+  if (visual.Icon === Server) return 'Backend';
+  if (visual.Icon === Database) return 'Dados';
+  return 'Frontend';
+}
+
+/** Ordem estável das categorias no catálogo (mais "aproachável" primeiro). */
+export const COURSE_CATEGORY_ORDER: CourseCategory[] = ['Frontend', 'Backend', 'Dados', 'Fundamentos'];

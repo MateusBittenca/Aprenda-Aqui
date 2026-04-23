@@ -11,7 +11,7 @@ export function ErrorState({
 }) {
   return (
     <div
-      className="mx-auto max-w-lg rounded-2xl border border-red-200 bg-red-50/80 p-6 text-center shadow-sm"
+      className="mx-auto max-w-lg rounded-2xl border border-red-200 bg-red-50/80 p-6 text-center shadow-sm animate-fade-up"
       role="alert"
       aria-live="assertive"
     >

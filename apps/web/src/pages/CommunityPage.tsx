@@ -21,7 +21,7 @@ function OnlineRow({ u }: { u: OnlineUser }) {
         <span className="relative shrink-0">
           <Avatar userId={u.id} displayName={u.displayName} colorKey={u.avatarColorKey} size="sm" />
           <span
-            className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-emerald-500"
+            className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-emerald-500 animate-ring-pulse"
             title="Online"
             aria-hidden
           />

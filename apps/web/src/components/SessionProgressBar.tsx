@@ -48,17 +48,21 @@ export function SessionProgressBar({ current, total, className }: Props) {
       </div>
       <div
         className={clsx(
-          'h-3 overflow-hidden rounded-full ring-1',
+          'relative h-3 overflow-hidden rounded-full ring-1',
           done ? 'bg-emerald-100 ring-emerald-200/60' : 'bg-slate-200/80 ring-slate-200/50',
         )}
       >
         <div
           className={clsx(
-            'h-full rounded-full transition-all duration-700 ease-out',
+            'relative h-full overflow-hidden rounded-full transition-all duration-700 ease-ios-out',
             done ? 'bg-emerald-500' : 'bg-indigo-600',
           )}
           style={{ width: `${pct}%` }}
-        />
+        >
+          {!done && pct > 0 && (
+            <span className="absolute inset-0 shimmer-line" aria-hidden />
+          )}
+        </div>
       </div>
     </div>
   );

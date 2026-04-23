@@ -91,7 +91,7 @@ export function FeedbackDrawer({
       <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
         <button
           type="button"
-          className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+          className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm animate-fade-in"
           aria-label="Fechar diálogo"
           onClick={onClose}
         />
@@ -100,7 +100,7 @@ export function FeedbackDrawer({
           aria-modal="true"
           aria-labelledby={titleId}
           className={clsx(
-            'relative z-10 w-full max-w-lg rounded-t-3xl p-6 shadow-2xl sm:rounded-3xl',
+            'relative z-10 w-full max-w-lg rounded-t-3xl p-6 shadow-2xl sm:rounded-3xl animate-sheet-up',
             ok
               ? result.leveledUp
                 ? 'bg-amber-500 text-white ring-2 ring-amber-700/30'
@@ -113,16 +113,16 @@ export function FeedbackDrawer({
             <div className="flex items-center gap-3">
               {ok ? (
                 result.leveledUp ? (
-                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 text-2xl">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 text-2xl animate-pop">
                     <Trophy className="h-6 w-6 text-yellow-200" />
                   </span>
                 ) : (
-                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 text-2xl">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 text-2xl animate-pop">
                     <Star className="h-6 w-6 text-yellow-200" />
                   </span>
                 )
               ) : (
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-2xl">
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-2xl animate-scale-in">
                   🤔
                 </span>
               )}

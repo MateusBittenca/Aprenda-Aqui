@@ -18,16 +18,17 @@ export function OnlineFriendsHeaderMenu() {
 
   useEffect(() => {
     if (!open) return;
-    const onDoc = (e: MouseEvent) => {
+    /** pointerdown cobre mouse + toque; mousedown falha ou atrasa em alguns mobile browsers */
+    const onDocPointer = (e: PointerEvent) => {
       if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false);
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setOpen(false);
     };
-    document.addEventListener('mousedown', onDoc);
+    document.addEventListener('pointerdown', onDocPointer);
     document.addEventListener('keydown', onKey);
     return () => {
-      document.removeEventListener('mousedown', onDoc);
+      document.removeEventListener('pointerdown', onDocPointer);
       document.removeEventListener('keydown', onKey);
     };
   }, [open]);
@@ -49,7 +50,7 @@ export function OnlineFriendsHeaderMenu() {
         <UsersRound className="h-5 w-5 shrink-0" strokeWidth={2.25} aria-hidden />
         {hasOnline ? (
           <span
-            className="absolute right-1.5 top-1.5 h-2.5 w-2.5 rounded-full border-2 border-surface-container-lowest bg-emerald-500"
+            className="absolute right-1.5 top-1.5 h-2.5 w-2.5 rounded-full border-2 border-surface-container-lowest bg-emerald-500 animate-ring-pulse"
             title="Alguém que você segue está online"
             aria-hidden
           />
@@ -60,7 +61,7 @@ export function OnlineFriendsHeaderMenu() {
         <div
           role="menu"
           aria-label="Amigos online"
-          className="absolute right-0 top-[calc(100%+0.35rem)] z-[50] w-[min(calc(100vw-2rem),18rem)] overflow-hidden rounded-2xl border border-slate-200/90 bg-surface-container-lowest py-2 shadow-elevated"
+          className="absolute right-0 top-[calc(100%+0.35rem)] z-[55] w-[min(calc(100vw-2rem),18rem)] overflow-hidden rounded-2xl border border-slate-200/90 bg-surface-container-lowest py-2 shadow-elevated origin-top-right animate-scale-in"
         >
           <div className="border-b border-slate-100 px-4 pb-2 pt-1">
             <p className="text-sm font-bold text-slate-900">Amigos online</p>

@@ -97,53 +97,62 @@ export function AppLayout() {
             <BrandLogo size="sm" linkTo="/app" />
           </div>
           {user && (
-            <div className="nav-tabs-scroll flex min-w-0 max-w-full flex-1 items-center justify-end overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] sm:max-w-none sm:overflow-visible">
-              <div className="flex flex-nowrap items-center justify-end gap-1.5 text-sm sm:gap-2">
-              {user.role === 'ADMIN' && (
+            <div className="flex min-w-0 max-w-full flex-1 items-center justify-end gap-1.5 sm:max-w-none sm:gap-2">
+              {/*
+                Stats rolam na horizontal no mobile; amigos + avatar ficam FORA do overflow-x-auto.
+                Caso contrário o dropdown absoluto do OnlineFriendsHeaderMenu é recortado (overflow
+                em um eixo costuma forçar clip no outro em browsers mobile).
+              */}
+              <div className="nav-tabs-scroll flex min-w-0 flex-1 items-center justify-end overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] sm:overflow-visible">
+                <div className="flex flex-nowrap items-center justify-end gap-1.5 text-sm sm:gap-2">
+                  {user.role === 'ADMIN' && (
+                    <Link
+                      to="/admin"
+                      className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 font-medium text-amber-900 transition hover:bg-amber-100 sm:min-h-0 sm:min-w-0 sm:px-3 sm:py-2"
+                    >
+                      <Settings2 className="h-4 w-4 shrink-0" aria-hidden />
+                      <span className="sr-only sm:not-sr-only">Admin</span>
+                    </Link>
+                  )}
+                  {!hideGlobalStats && (
+                    <>
+                      <StreakBadge streak={user.currentStreak} weekDays={me?.streakWeekDays} />
+                      <span
+                        title={`${user.gems} gemas`}
+                        className="inline-flex items-center gap-1 rounded-full bg-sky-50 px-2 py-0.5 font-medium text-sky-600"
+                      >
+                        <Gem className="h-4 w-4" aria-hidden />
+                        {user.gems}
+                      </span>
+                      <span
+                        title={getRankForLevel(user.level).description}
+                        className="hidden min-h-11 flex-col justify-center rounded-full bg-blue-50 px-2.5 py-1 sm:flex"
+                      >
+                        <span className="text-xs font-semibold leading-tight text-blue-700">Nv. {user.level}</span>
+                        <span className="max-w-[7rem] truncate text-xs font-medium leading-tight text-blue-600/90">
+                          {getRankForLevel(user.level).name}
+                        </span>
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
+              <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+                <OnlineFriendsHeaderMenu />
                 <Link
-                  to="/admin"
-                  className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 font-medium text-amber-900 transition hover:bg-amber-100 sm:min-h-0 sm:min-w-0 sm:px-3 sm:py-2"
+                  to="/app/me"
+                  title="Ver perfil"
+                  aria-label="Abrir perfil"
+                  className="press-tactile inline-flex min-h-11 min-w-11 items-center justify-center rounded-2xl focus-ring-primary"
                 >
-                  <Settings2 className="h-4 w-4 shrink-0" aria-hidden />
-                  <span className="sr-only sm:not-sr-only">Admin</span>
+                  <Avatar
+                    userId={user.id}
+                    displayName={user.displayName}
+                    colorKey={user.avatarColorKey}
+                    size="sm"
+                    className="ring-2 ring-white transition duration-300 ease-ios-out hover:ring-blue-400"
+                  />
                 </Link>
-              )}
-              <OnlineFriendsHeaderMenu />
-              {!hideGlobalStats && (
-                <>
-                  <StreakBadge streak={user.currentStreak} weekDays={me?.streakWeekDays} />
-                  <span
-                    title={`${user.gems} gemas`}
-                    className="inline-flex items-center gap-1 rounded-full bg-sky-50 px-2 py-0.5 font-medium text-sky-600"
-                  >
-                    <Gem className="h-4 w-4" aria-hidden />
-                    {user.gems}
-                  </span>
-                  <span
-                    title={getRankForLevel(user.level).description}
-                    className="hidden min-h-11 flex-col justify-center rounded-full bg-blue-50 px-2.5 py-1 sm:flex"
-                  >
-                    <span className="text-xs font-semibold leading-tight text-blue-700">Nv. {user.level}</span>
-                    <span className="max-w-[7rem] truncate text-xs font-medium leading-tight text-blue-600/90">
-                      {getRankForLevel(user.level).name}
-                    </span>
-                  </span>
-                </>
-              )}
-              <Link
-                to="/app/me"
-                title="Ver perfil"
-                aria-label="Abrir perfil"
-                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-              >
-                <Avatar
-                  userId={user.id}
-                  displayName={user.displayName}
-                  colorKey={user.avatarColorKey}
-                  size="sm"
-                  className="ring-2 ring-white hover:ring-blue-400 transition"
-                />
-              </Link>
               </div>
             </div>
           )}
@@ -192,8 +201,8 @@ function AppNavLink({
       className={({ isActive }) =>
         [
           /* Até lg: só ícone; texto só no nome acessível (aria-label) + a partir de lg na própria linha */
-          'inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition max-lg:justify-center max-lg:px-3.5 lg:px-3',
-          'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+          'press-tactile inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition duration-300 ease-ios-out max-lg:justify-center max-lg:px-3.5 lg:px-3',
+          'focus-ring-primary',
           isActive ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface',
         ].join(' ')
       }

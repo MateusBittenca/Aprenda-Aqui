@@ -58,13 +58,157 @@
     background-color: theme('colors.surface');
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22'%3E%3Ccircle cx='2' cy='2' r='1' fill='%23c5cdd6'/%3E%3C/svg%3E");
   }
+
+  /**
+   * Hover lift: elevação suave em cards/botões clicáveis (estilo Apple).
+   * Combina translate Y, shadow e easing ios-out; só em dispositivos com hover real
+   * (evita estado preso em toque em mobile). `will-change` só no hover para não
+   * criar layers persistentes que geram scrollbar transitória.
+   */
+  .hover-lift {
+    transition-property: transform, box-shadow, border-color;
+    transition-duration: 300ms;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  @media (hover: hover) {
+    .hover-lift:hover {
+      transform: translate3d(0, -2px, 0);
+      box-shadow: theme('boxShadow.lifted');
+      will-change: transform;
+    }
+  }
+
+  /**
+   * Press tátil: feedback curto ao clique (escala sutil).
+   * Usado junto com transition existente — não substitui outros estados.
+   */
+  .press-tactile {
+    transition-property: transform;
+    transition-duration: 140ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .press-tactile:active {
+    transform: scale(0.97);
+  }
+
+  /**
+   * Shimmer aplicável em skeletons e barras de progresso (overlay de brilho).
+   * Requer `bg-size` grande para o deslocamento ficar perceptível.
+   */
+  .shimmer-line {
+    background-image: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.55) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2.4s linear infinite;
+  }
+
+  /**
+   * Anel de foco padronizado (legível em fundo claro, discreto em escuro).
+   * Usado em botões/ícones clicáveis no header.
+   */
+  .focus-ring-primary {
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
+  }
+
+  /**
+   * Shine sweep: passa um brilho diagonal no hover (estilo iOS "ao tocar um cartão").
+   * Exige `position: relative` e `overflow: hidden` no elemento host.
+   */
+  .shine-sweep {
+    position: relative;
+    isolation: isolate;
+  }
+  .shine-sweep::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      115deg,
+      transparent 35%,
+      rgba(255, 255, 255, 0.5) 50%,
+      transparent 65%
+    );
+    transform: translateX(-110%);
+    transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+    mix-blend-mode: soft-light;
+  }
+  @media (hover: hover) {
+    .group:hover .shine-sweep::after,
+    .shine-sweep:hover::after {
+      transform: translateX(110%);
+    }
+  }
+
+  /**
+   * Snap horizontal: prateleiras tipo Netflix/Duolingo com momentum e snap
+   * no início de cada card. Esconde a scrollbar em navegadores que permitem.
+   */
+  .snap-shelf {
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 1rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+  .snap-shelf > * {
+    scroll-snap-align: start;
+  }
+  .snap-shelf::-webkit-scrollbar {
+    height: 6px;
+  }
+  .snap-shelf::-webkit-scrollbar-thumb {
+    background-color: rgb(203 213 225 / 0.6);
+    border-radius: 9999px;
+  }
+  .snap-shelf::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(148 163 184 / 0.8);
+  }
+
+  /**
+   * Stagger de entrada: aplique em um container e os filhos aparecem em cascata.
+   * Combina `.animate-fade-up` já disponível via Tailwind extend; os delays por posição
+   * mantêm o ritmo iOS (janela curta, ~60ms por item).
+   * `overflow-clip` no container impede a barra de rolagem transitória no Chrome
+   * durante o deslocamento Y inicial dos filhos.
+   */
+  .stagger-children {
+    overflow: clip;
+  }
+  .stagger-children > * {
+    animation: fade-up 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+  .stagger-children > *:nth-child(2) { animation-delay: 60ms; }
+  .stagger-children > *:nth-child(3) { animation-delay: 120ms; }
+  .stagger-children > *:nth-child(4) { animation-delay: 180ms; }
+  .stagger-children > *:nth-child(5) { animation-delay: 240ms; }
+  .stagger-children > *:nth-child(6) { animation-delay: 300ms; }
+  .stagger-children > *:nth-child(7) { animation-delay: 360ms; }
+  .stagger-children > *:nth-child(8) { animation-delay: 420ms; }
 }
 
 /* Menos movimento para quem prefere — melhora conforto sem quebrar layout */
 @media (prefers-reduced-motion: reduce) {
   .animate-bounce,
-  .animate-pulse {
+  .animate-pulse,
+  .animate-float,
+  .animate-float-delayed,
+  .animate-float-slow,
+  .animate-shimmer,
+  .animate-ring-pulse,
+  .shimmer-line {
     animation: none !important;
+  }
+  .shine-sweep::after {
+    display: none !important;
+  }
+  .hover-lift:hover {
+    transform: none !important;
   }
 }
 
@@ -80,6 +224,10 @@ html.reduce-interface-motion *::after {
 html.reduce-interface-motion * {
   transition-duration: 80ms !important;
   transition-delay: 0ms !important;
+}
+
+html.reduce-interface-motion .hover-lift:hover {
+  transform: none !important;
 }
 
 body {

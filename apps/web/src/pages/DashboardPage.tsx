@@ -107,7 +107,7 @@ export function DashboardPage() {
   if (!data) return null;
 
   return (
-    <div className="min-w-0 space-y-6 overflow-x-hidden">
+    <div className="stagger-children min-w-0 space-y-6 overflow-x-hidden">
       <HeroSection data={data} />
       <XPSection data={data} />
       <StatsRow data={data} progress={progress} />
@@ -166,7 +166,7 @@ function XPSection({ data }: { data: MeProfile }) {
       <button
         type="button"
         onClick={() => setTrajOpen(true)}
-        className="w-full rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-5 text-left shadow-elevated transition hover:border-primary/25 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 sm:p-6"
+        className="hover-lift press-tactile w-full rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-5 text-left shadow-elevated hover:border-primary/25 focus-ring-primary sm:p-6"
       >
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-3">
           <div className="min-w-0">
@@ -187,9 +187,11 @@ function XPSection({ data }: { data: MeProfile }) {
         </div>
         <div className="mt-4 h-3.5 overflow-hidden rounded-full bg-slate-100">
           <div
-            className="h-full rounded-full bg-primary transition-all duration-700"
+            className="relative h-full overflow-hidden rounded-full bg-primary transition-all duration-700 ease-ios-out"
             style={{ width: `${pct}%` }}
-          />
+          >
+            {pct > 0 && pct < 100 && <span className="absolute inset-0 shimmer-line" aria-hidden />}
+          </div>
         </div>
         <div className="mt-3 flex flex-col gap-1 border-t border-slate-100 pt-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-slate-400">{data.xpTotal.toLocaleString('pt-BR')} XP total acumulado</p>
@@ -220,7 +222,7 @@ function StatsRow({ data, progress }: { data: MeProfile; progress?: UserProgress
   const solvedEx = progress?.exercises.filter((e) => e.solved).length ?? 0;
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+    <div className="stagger-children grid grid-cols-2 gap-3 sm:grid-cols-4">
       <StatKpi icon={<Flame className="h-5 w-5 text-amber-500" />} label="Ofensiva" value={`${data.currentStreak}d`} sub={`Recorde: ${data.longestStreak}d`} accent="amber" />
       <StatKpi icon={<Gem className="h-5 w-5 text-sky-500" />} label="Gemas" value={String(data.gems)} sub="coletadas" accent="sky" />
       <StatKpi icon={<GraduationCap className="h-5 w-5 text-emerald-600" />} label="Aulas" value={String(completedLessons)} sub="concluídas" accent="emerald" />
@@ -249,7 +251,7 @@ function StatKpi({
     violet: 'bg-violet-50',
   };
   return (
-    <div className={`rounded-2xl border border-slate-200/60 ${bg[accent] ?? 'bg-surface-container-lowest'} p-4 shadow-elevated`}>
+    <div className={`hover-lift rounded-2xl border border-slate-200/60 ${bg[accent] ?? 'bg-surface-container-lowest'} p-4 shadow-elevated`}>
       <div className="flex items-center gap-1.5">{icon}<span className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</span></div>
       <p className="mt-2 text-2xl font-black tabular-nums text-slate-900">{value}</p>
       <p className="text-xs text-slate-500">{sub}</p>
@@ -379,7 +381,7 @@ function CourseCard({ course }: { course: EnrolledCourse }) {
   return (
     <Link
       to={`/app/my-courses/${course.slug}`}
-      className="group flex flex-col rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-5 shadow-elevated transition hover:-translate-y-0.5 hover:shadow-md"
+      className="hover-lift group flex flex-col rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-5 shadow-elevated"
     >
       <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Curso</p>
       <h3 className="mt-1 font-bold text-on-surface group-hover:text-primary">{course.title}</h3>
@@ -528,13 +530,14 @@ function BadgesSection({ data, progress }: { data: MeProfile; progress?: UserPro
           <div
             key={badge.id}
             title={`${badge.name}: ${badge.description}`}
-            className={`flex flex-col items-center rounded-2xl border p-2.5 text-center transition ${
+            className={twMerge(
+              'flex flex-col items-center rounded-2xl border p-2.5 text-center transition duration-300 ease-ios-out',
               badge.earned
-                ? RARITY_STYLE[badge.rarity]
-                : 'border-slate-100 bg-slate-50 opacity-40 grayscale'
-            }`}
+                ? `${RARITY_STYLE[badge.rarity]} hover-lift`
+                : 'border-slate-100 bg-slate-50 opacity-40 grayscale',
+            )}
           >
-            <span className="text-2xl">{badge.icon}</span>
+            <span className={twMerge('text-2xl', badge.earned && 'animate-pop')}>{badge.icon}</span>
             <p className="mt-1 text-xs font-bold leading-tight text-slate-700">{badge.name}</p>
             {badge.progress && !badge.earned && (
               <p className="mt-0.5 text-xs tabular-nums text-slate-400">

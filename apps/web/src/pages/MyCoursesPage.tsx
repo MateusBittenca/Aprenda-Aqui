@@ -1,40 +1,105 @@
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, BookOpen } from 'lucide-react';
+import { twMerge } from 'tailwind-merge';
+import { ArrowRight, BookOpen, CheckCircle2, Flame, Target } from 'lucide-react';
 import { getCourseVisual } from '../config/trackVisuals';
 import { MyCourseCard } from '../components/MyCourseCard';
 import { ErrorState } from '../components/ui/ErrorState';
 import { PageLoader } from '../components/ui/PageLoader';
 import { EmptyState } from '../components/ui/EmptyState';
-import { useAuthHydration } from '../stores/authStore';
-import { useEnrolledCourses } from '../hooks/useEnrolledCourses';
+import { useAuthHydration, useAuthStore } from '../stores/authStore';
+import { useEnrolledCourses, type EnrolledCourse } from '../hooks/useEnrolledCourses';
 import { useProgress } from '../hooks/useProgress';
+import {
+  COURSE_CATEGORY_ORDER,
+  courseCardAccentFor,
+  getCourseCategory,
+  type CourseCategory,
+} from '../lib/courseCardAccent';
+
+type StatusFilter = 'in_progress' | 'done' | 'all';
+
+function startOfWeek() {
+  const now = new Date();
+  const d = new Date(now);
+  d.setDate(now.getDate() - now.getDay());
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
 
 function isThisWeek(dateStr: string | null) {
   if (!dateStr) return false;
-  const d = new Date(dateStr);
-  const now = new Date();
-  const startOfWeek = new Date(now);
-  startOfWeek.setDate(now.getDate() - now.getDay());
-  startOfWeek.setHours(0, 0, 0, 0);
-  return d >= startOfWeek;
+  return new Date(dateStr) >= startOfWeek();
+}
+
+/** Escolhe o curso mais natural para "continuar": em progresso mais recente,
+ *  senão o último matriculado com pct < 100. */
+function pickResumeCourse(list: EnrolledCourse[]): EnrolledCourse | null {
+  const active = list.filter((c) => c.progress.pct > 0 && c.progress.pct < 100);
+  const pool = active.length > 0 ? active : list.filter((c) => c.progress.pct < 100);
+  if (pool.length === 0) return null;
+  return [...pool].sort(
+    (a, b) => new Date(b.enrolledAt).getTime() - new Date(a.enrolledAt).getTime(),
+  )[0];
 }
 
 export function MyCoursesPage() {
   const hydrated = useAuthHydration();
   const { data, isLoading, isError, error } = useEnrolledCourses();
   const { data: progress, isLoading: progressLoading } = useProgress();
+  const currentStreak = useAuthStore((s) => s.user?.currentStreak ?? 0);
 
-  const weekLessons =
-    progress?.lessons.filter((l) => l.completed && isThisWeek(l.completedAt)).length ?? 0;
+  const [status, setStatus] = useState<StatusFilter>('all');
+  const [category, setCategory] = useState<CourseCategory | 'all'>('all');
 
-  if (!hydrated) {
-    return <PageLoader label="Carregando sessão…" />;
-  }
+  const weekLessons = useMemo(
+    () => progress?.lessons.filter((l) => l.completed && isThisWeek(l.completedAt)).length ?? 0,
+    [progress],
+  );
+  const weekExercises = useMemo(
+    () => progress?.exercises.filter((e) => e.solved && isThisWeek(e.solvedAt)).length ?? 0,
+    [progress],
+  );
 
-  if (isLoading) {
-    return <PageLoader label="Carregando seus cursos…" />;
-  }
+  const counts = useMemo(() => {
+    if (!data) return { all: 0, in_progress: 0, done: 0 };
+    let done = 0;
+    let inP = 0;
+    for (const c of data) {
+      if (c.progress.pct >= 100) done++;
+      else inP++;
+    }
+    return { all: data.length, in_progress: inP, done };
+  }, [data]);
 
+  const categoryCounts = useMemo(() => {
+    const map = new Map<CourseCategory, number>();
+    for (const cat of COURSE_CATEGORY_ORDER) map.set(cat, 0);
+    for (const c of data ?? []) {
+      const v = getCourseVisual(c.slug);
+      const cat = getCourseCategory(c.slug, v);
+      map.set(cat, (map.get(cat) ?? 0) + 1);
+    }
+    return map;
+  }, [data]);
+
+  const visible = useMemo(() => {
+    if (!data) return [];
+    return data.filter((c) => {
+      if (status === 'in_progress' && c.progress.pct >= 100) return false;
+      if (status === 'done' && c.progress.pct < 100) return false;
+      if (category !== 'all') {
+        const v = getCourseVisual(c.slug);
+        if (getCourseCategory(c.slug, v) !== category) return false;
+      }
+      return true;
+    });
+  }, [data, status, category]);
+
+  const resume = useMemo(() => (data ? pickResumeCourse(data) : null), [data]);
+
+  if (!hydrated) return <PageLoader label="Carregando sessão…" />;
+  if (isLoading) return <PageLoader label="Carregando seus cursos…" />;
   if (isError || !data) {
     return <ErrorState title="Não foi possível carregar os cursos." error={error ?? new Error('Sem dados')} />;
   }
@@ -48,7 +113,7 @@ export function MyCoursesPage() {
         aria-hidden
       />
 
-      <header className="relative mb-10 flex flex-col gap-6 md:mb-12 md:flex-row md:items-end md:justify-between">
+      <header className="relative mb-8 flex flex-col gap-6 md:mb-10 md:flex-row md:items-end md:justify-between">
         <div className="max-w-2xl">
           <h1 className="font-headline text-3xl font-extrabold tracking-tight text-indigo-950 sm:text-4xl md:text-[2.75rem] md:leading-tight">
             Meus Cursos
@@ -72,17 +137,6 @@ export function MyCoursesPage() {
             </Link>
           </p>
         </div>
-        <div
-          className="flex shrink-0 items-center gap-2 rounded-2xl border border-white/60 bg-white/80 px-5 py-3 shadow-[0_40px_40px_-10px_rgba(30,27,75,0.06)] backdrop-blur-xl md:px-6"
-          aria-live="polite"
-        >
-          <span className="min-w-[2ch] text-2xl font-bold tabular-nums text-indigo-600">
-            {progressLoading && progress === undefined ? '—' : weekLessons}
-          </span>
-          <span className="max-w-[10rem] text-xs font-semibold uppercase leading-tight tracking-wide text-slate-500">
-            Aulas esta semana
-          </span>
-        </div>
       </header>
 
       {count === 0 ? (
@@ -93,7 +147,7 @@ export function MyCoursesPage() {
           action={
             <Link
               to="/app/courses"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-indigo-950 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-950/25 transition hover:bg-indigo-900"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary-dim"
             >
               Explorar catálogo
               <ArrowRight className="h-4 w-4" aria-hidden />
@@ -101,24 +155,311 @@ export function MyCoursesPage() {
           }
         />
       ) : (
-        <ul className="relative grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {data.map((c) => {
-            const v = getCourseVisual(c.slug);
-            return (
-              <li key={c.id} className="flex min-h-[300px]">
-                <MyCourseCard
-                  to={`/app/my-courses/${c.slug}`}
-                  slug={c.slug}
-                  title={c.title}
-                  description={c.description ?? c.tagline}
-                  visual={v}
-                  progressPct={c.progress.pct}
-                />
-              </li>
-            );
-          })}
-        </ul>
+        <div className="relative space-y-8">
+          {resume ? <ResumeHero course={resume} /> : null}
+
+          <WeekStrip
+            lessons={weekLessons}
+            exercises={weekExercises}
+            streak={currentStreak}
+            loading={progressLoading && progress === undefined}
+          />
+
+          <div className="space-y-4">
+            <StatusTabs current={status} onChange={setStatus} counts={counts} />
+            <CategoryChips
+              current={category}
+              onChange={setCategory}
+              counts={categoryCounts}
+              total={counts.all}
+            />
+          </div>
+
+          {visible.length === 0 ? (
+            <div className="rounded-[24px] border border-dashed border-slate-200 bg-white/70 py-16 text-center backdrop-blur-sm">
+              <p className="text-sm font-medium text-slate-700">Nenhum curso nessa combinação de filtros.</p>
+              <p className="mt-1 text-xs text-slate-500">Ajuste a aba ou a categoria.</p>
+            </div>
+          ) : (
+            <ul className="relative grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {visible.map((c) => {
+                const v = getCourseVisual(c.slug);
+                return (
+                  <li key={c.id} className="flex min-h-[300px]">
+                    <MyCourseCard
+                      to={`/app/my-courses/${c.slug}`}
+                      slug={c.slug}
+                      title={c.title}
+                      description={c.description ?? c.tagline}
+                      visual={v}
+                      progressPct={c.progress.pct}
+                      enrolledAt={c.enrolledAt}
+                      nextLessonTitle={c.nextLessonTitle}
+                    />
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
       )}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Subcomponentes locais                                               */
+/* ------------------------------------------------------------------ */
+
+function ResumeHero({ course }: { course: EnrolledCourse }) {
+  const v = getCourseVisual(course.slug);
+  const a = courseCardAccentFor(course.slug, v);
+  const Icon = v.Icon;
+  const pct = Math.min(100, Math.max(0, Math.round(course.progress.pct)));
+  const done = course.progress.completed;
+  const total = course.progress.total;
+  const label = pct === 0 ? 'Começar' : 'Continuar';
+
+  return (
+    <Link
+      to={`/app/my-courses/${course.slug}`}
+      className="group block rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
+    >
+      <article className="flex flex-col gap-5 rounded-2xl border border-surface-container-high bg-white p-5 shadow-card transition duration-300 ease-ios-out hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-elevated sm:flex-row sm:items-center sm:gap-6 sm:p-6">
+        <div
+          className={twMerge(
+            'inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br',
+            a.iconBox,
+          )}
+        >
+          <Icon className={twMerge('h-6 w-6', a.iconColor)} strokeWidth={1.75} aria-hidden />
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-on-surface-variant">
+            {pct === 0 ? 'Começar agora' : 'Continue de onde parou'}
+          </div>
+          <h2 className="font-headline mt-0.5 line-clamp-1 text-lg font-bold text-on-surface sm:text-xl">
+            {course.title}
+          </h2>
+          {course.nextLessonTitle && pct < 100 ? (
+            <p className="mt-1 line-clamp-1 text-sm text-on-surface-variant">
+              Próxima aula: {course.nextLessonTitle}
+            </p>
+          ) : null}
+
+          <div className="mt-3 flex items-center gap-3">
+            <div className="h-1 flex-1 overflow-hidden rounded-full bg-surface-container-low">
+              <div
+                className="h-full rounded-full bg-primary transition-[width] duration-700 ease-out"
+                style={{ width: `${Math.max(pct, 3)}%` }}
+              />
+            </div>
+            <span className="shrink-0 text-xs font-semibold tabular-nums text-on-surface-variant">
+              {done}/{total}
+            </span>
+          </div>
+        </div>
+
+        <span className="inline-flex shrink-0 items-center gap-1.5 self-start rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition group-hover:bg-primary-dim sm:self-center">
+          {label}
+          <ArrowRight
+            className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5"
+            aria-hidden
+          />
+        </span>
+      </article>
+    </Link>
+  );
+}
+
+function WeekStrip({
+  lessons,
+  exercises,
+  streak,
+  loading,
+}: {
+  lessons: number;
+  exercises: number;
+  streak: number;
+  loading: boolean;
+}) {
+  const items: Array<{
+    key: string;
+    label: string;
+    value: number | string;
+    Icon: typeof Sparkles;
+    accent: string;
+    bg: string;
+    ring: string;
+  }> = [
+    {
+      key: 'lessons',
+      label: 'Aulas na semana',
+      value: loading ? '—' : lessons,
+      Icon: CheckCircle2,
+      accent: 'text-emerald-700',
+      bg: 'bg-emerald-50',
+      ring: 'ring-emerald-200/70',
+    },
+    {
+      key: 'exercises',
+      label: 'Exercícios na semana',
+      value: loading ? '—' : exercises,
+      Icon: Target,
+      accent: 'text-indigo-700',
+      bg: 'bg-indigo-50',
+      ring: 'ring-indigo-200/70',
+    },
+    {
+      key: 'streak',
+      label: 'Dias seguidos',
+      value: streak,
+      Icon: Flame,
+      accent: 'text-amber-700',
+      bg: 'bg-amber-50',
+      ring: 'ring-amber-200/70',
+    },
+  ];
+
+  return (
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      {items.map((it) => {
+        const ItemIcon = it.Icon;
+        return (
+          <div
+            key={it.key}
+            className="hover-lift flex items-center gap-3 rounded-2xl border border-white/60 bg-white/85 px-4 py-3 shadow-[0_40px_40px_-10px_rgba(30,27,75,0.06)] backdrop-blur-xl"
+          >
+            <span
+              className={twMerge(
+                'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ring-1',
+                it.bg,
+                it.ring,
+              )}
+            >
+              <ItemIcon className={twMerge('h-5 w-5', it.accent)} strokeWidth={2} aria-hidden />
+            </span>
+            <div className="min-w-0">
+              <div
+                className={twMerge('text-xl font-extrabold leading-none tabular-nums', it.accent)}
+              >
+                {it.value}
+              </div>
+              <div className="mt-1 text-[0.68rem] font-semibold uppercase tracking-wide text-slate-500">
+                {it.label}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function StatusTabs({
+  current,
+  onChange,
+  counts,
+}: {
+  current: StatusFilter;
+  onChange: (s: StatusFilter) => void;
+  counts: { all: number; in_progress: number; done: number };
+}) {
+  const tabs: Array<{ key: StatusFilter; label: string; count: number }> = [
+    { key: 'all', label: 'Todos', count: counts.all },
+    { key: 'in_progress', label: 'Em andamento', count: counts.in_progress },
+    { key: 'done', label: 'Concluídos', count: counts.done },
+  ];
+
+  return (
+    <div
+      role="tablist"
+      aria-label="Filtrar por status"
+      className="inline-flex w-full max-w-full gap-1 overflow-x-auto rounded-2xl border border-white/60 bg-white/80 p-1 shadow-sm backdrop-blur-xl sm:w-auto"
+    >
+      {tabs.map((t) => {
+        const active = current === t.key;
+        return (
+          <button
+            key={t.key}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            onClick={() => onChange(t.key)}
+            className={twMerge(
+              'press-tactile focus-ring-primary inline-flex shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition duration-300 ease-ios-out',
+              active
+                ? 'bg-primary text-white shadow-sm shadow-primary/25'
+                : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface',
+            )}
+          >
+            {t.label}
+            <span
+              className={twMerge(
+                'inline-flex min-w-[1.5rem] items-center justify-center rounded-full px-1.5 py-0.5 text-[0.68rem] font-bold tabular-nums',
+                active ? 'bg-white/20 text-white' : 'bg-surface-container-low text-on-surface-variant',
+              )}
+            >
+              {t.count}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function CategoryChips({
+  current,
+  onChange,
+  counts,
+  total,
+}: {
+  current: CourseCategory | 'all';
+  onChange: (c: CourseCategory | 'all') => void;
+  counts: Map<CourseCategory, number>;
+  total: number;
+}) {
+  const categories: Array<{ key: CourseCategory | 'all'; label: string; count: number }> = [
+    { key: 'all', label: 'Todas as trilhas', count: total },
+    ...COURSE_CATEGORY_ORDER.filter((c) => (counts.get(c) ?? 0) > 0).map((c) => ({
+      key: c,
+      label: c === 'Fundamentos' ? 'Fundamentos' : c,
+      count: counts.get(c) ?? 0,
+    })),
+  ];
+
+  if (categories.length <= 2) return null;
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {categories.map((c) => {
+        const active = current === c.key;
+        return (
+          <button
+            key={c.key}
+            type="button"
+            onClick={() => onChange(c.key)}
+            className={twMerge(
+              'press-tactile focus-ring-primary inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition duration-300 ease-ios-out',
+              active
+                ? 'border-primary bg-primary text-white shadow-sm shadow-primary/25'
+                : 'border-surface-container-high bg-white text-on-surface-variant hover:border-primary/40 hover:text-primary',
+            )}
+          >
+            {c.label}
+            <span
+              className={twMerge(
+                'tabular-nums',
+                active ? 'text-white/70' : 'text-on-surface-variant/70',
+              )}
+            >
+              {c.count}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }

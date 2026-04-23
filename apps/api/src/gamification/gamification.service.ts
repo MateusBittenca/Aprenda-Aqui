@@ -13,9 +13,28 @@ export class GamificationService {
   /**
    * Registra estudo no dia civil do usuário (fuso em `User.timezone`, fallback UTC)
    * e atualiza sequência — alinhado a apps como Duolingo (meia-noite local).
+   * Aceita snapshot do usuário para evitar re-query quando já foi carregado.
    */
-  async recordDailyActivity(userId: string): Promise<void> {
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+  async recordDailyActivity(
+    userId: string,
+    userSnapshot?: {
+      timezone: string | null;
+      lastActivityDate: Date | null;
+      currentStreak: number;
+      longestStreak: number;
+    },
+  ): Promise<void> {
+    const user =
+      userSnapshot ??
+      (await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          timezone: true,
+          lastActivityDate: true,
+          currentStreak: true,
+          longestStreak: true,
+        },
+      }));
     if (!user) return;
 
     const tz = this.safeTimeZone(user.timezone);
@@ -124,7 +143,18 @@ export class GamificationService {
     previousLevel: number;
     leveledUp: boolean;
   }> {
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        xpTotal: true,
+        gems: true,
+        level: true,
+        timezone: true,
+        lastActivityDate: true,
+        currentStreak: true,
+        longestStreak: true,
+      },
+    });
     if (!user) throw new NotFoundException('Usuário não encontrado');
 
     const previousLevel = user.level;
@@ -137,7 +167,7 @@ export class GamificationService {
       data: { xpTotal, gems: gemsTotal, level },
     });
 
-    await this.recordDailyActivity(userId);
+    await this.recordDailyActivity(userId, user);
 
     return {
       xpGained: xp,

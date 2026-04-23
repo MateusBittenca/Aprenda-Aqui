@@ -30,8 +30,9 @@ export class AdminService {
 
   // ─── Users ──────────────────────────────────────────────────────────────────
 
-  listUsers() {
+  listUsers(take = 200) {
     return this.prisma.user.findMany({
+      take,
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,
@@ -52,7 +53,9 @@ export class AdminService {
   }
 
   async createStudentUser(dto: CreateStudentUserDto) {
-    return this.createUser(dto, UserRole.USER);
+    const user = await this.createUser(dto, UserRole.USER);
+    await this.enrollInAutoEnrollCourses(user.id);
+    return user;
   }
 
   private async createUser(
@@ -74,6 +77,18 @@ export class AdminService {
         role: true,
         createdAt: true,
       },
+    });
+  }
+
+  private async enrollInAutoEnrollCourses(userId: string): Promise<void> {
+    const courses = await this.prisma.course.findMany({
+      where: { autoEnrollOnAuth: true, isFree: true },
+      select: { id: true },
+    });
+    if (courses.length === 0) return;
+    await this.prisma.userCourseEnrollment.createMany({
+      data: courses.map((c) => ({ userId, courseId: c.id })),
+      skipDuplicates: true,
     });
   }
 
@@ -135,7 +150,10 @@ export class AdminService {
   }
 
   private async enrollAllUsersInCourse(courseId: string) {
-    const users = await this.prisma.user.findMany({ select: { id: true } });
+    const users = await this.prisma.user.findMany({
+      where: { role: UserRole.USER },
+      select: { id: true },
+    });
     if (users.length === 0) return;
     await this.prisma.userCourseEnrollment.createMany({
       data: users.map((u) => ({ userId: u.id, courseId })),

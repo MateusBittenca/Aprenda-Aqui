@@ -302,8 +302,8 @@ function GoalItem({ label, done, current, total }: { label: string; done: boolea
     <li>
       <div className="flex items-center gap-2">
         {done
-          ? <CheckCircle2 className="h-4.5 w-4.5 shrink-0 text-emerald-500" />
-          : <Circle className="h-4.5 w-4.5 shrink-0 text-slate-300" />
+          ? <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-500" />
+          : <Circle className="h-5 w-5 shrink-0 text-slate-300" />
         }
         <span className={`text-sm font-medium ${done ? 'text-emerald-700 line-through' : 'text-slate-700'}`}>
           {label}

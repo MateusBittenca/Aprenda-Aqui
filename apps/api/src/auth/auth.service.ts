@@ -32,8 +32,23 @@ export class AuthService {
         displayName: dto.displayName,
       },
     });
+
+    await this.enrollInAutoEnrollCourses(user.id);
+
     const token = await this.signToken(user.id, user.email);
     return { accessToken: token, user: this.sanitizeUser(user) };
+  }
+
+  private async enrollInAutoEnrollCourses(userId: string): Promise<void> {
+    const courses = await this.prisma.course.findMany({
+      where: { autoEnrollOnAuth: true, isFree: true },
+      select: { id: true },
+    });
+    if (courses.length === 0) return;
+    await this.prisma.userCourseEnrollment.createMany({
+      data: courses.map((c) => ({ userId, courseId: c.id })),
+      skipDuplicates: true,
+    });
   }
 
   async login(dto: LoginDto) {

@@ -14,6 +14,7 @@ export class UsersService {
   async getLeaderboard(requestingUserId: string) {
     const [top, requestingUser, total] = await Promise.all([
       this.prisma.user.findMany({
+        where: { role: 'USER' },
         take: 20,
         orderBy: [{ xpTotal: 'desc' }, { level: 'desc' }],
         select: {
@@ -29,12 +30,14 @@ export class UsersService {
         where: { id: requestingUserId },
         select: { xpTotal: true },
       }),
-      this.prisma.user.count(),
+      this.prisma.user.count({ where: { role: 'USER' } }),
     ]);
 
     const myXp = requestingUser?.xpTotal ?? 0;
     const myRank =
-      (await this.prisma.user.count({ where: { xpTotal: { gt: myXp } } })) + 1;
+      (await this.prisma.user.count({
+        where: { role: 'USER', xpTotal: { gt: myXp } },
+      })) + 1;
 
     return { top, myRank, total };
   }

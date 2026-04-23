@@ -79,7 +79,7 @@ export function CommunityPage() {
     enabled: hydrated && !!token && q.trim().length >= 2,
   });
 
-  const online = useOnlineUsers();
+  const online = useOnlineUsers('all');
 
   const following = useQuery({
     queryKey: ['users', user?.id, 'following'],

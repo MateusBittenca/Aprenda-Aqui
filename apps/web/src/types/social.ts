@@ -59,4 +59,5 @@ export type OnlineUser = {
 export type OnlineUsersPayload = {
   users: OnlineUser[];
   windowMinutes: number;
+  scope: 'all' | 'following';
 };

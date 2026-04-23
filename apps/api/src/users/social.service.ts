@@ -226,14 +226,26 @@ export class SocialService {
   /**
    * Usuários considerados online: lastSeenAt nos últimos `windowMinutes` minutos.
    * Só perfis com busca na comunidade ativa; apenas papel USER.
+   * `scope=following`: só quem o viewer segue (amigos na rede).
    */
-  async listOnlineUsers(viewerId: string, windowMinutes = 3) {
+  async listOnlineUsers(
+    viewerId: string,
+    windowMinutes = 3,
+    scope: 'all' | 'following' = 'all',
+  ) {
     const threshold = new Date(Date.now() - windowMinutes * 60 * 1000);
     const rows = await this.prisma.user.findMany({
       where: {
         role: 'USER',
         showInSearch: true,
         lastSeenAt: { gte: threshold },
+        ...(scope === 'following'
+          ? {
+              followerLinks: {
+                some: { followerId: viewerId },
+              },
+            }
+          : {}),
       },
       select: {
         id: true,
@@ -253,6 +265,7 @@ export class SocialService {
         isSelf: r.id === viewerId,
       })),
       windowMinutes,
+      scope,
     };
   }
 }

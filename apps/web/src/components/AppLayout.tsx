@@ -19,6 +19,7 @@ import { useMe } from '../hooks/useMe';
 import { getRankForLevel } from '../lib/levelTitles';
 import { useUiPreferences } from '../stores/uiPreferencesStore';
 import { usePresenceHeartbeat } from '../hooks/usePresenceHeartbeat';
+import { OnlineFriendsHeaderMenu } from './OnlineFriendsHeaderMenu';
 
 function StreakBadge({ streak, weekDays }: { streak: number; weekDays?: boolean[] }) {
   const color =
@@ -107,6 +108,7 @@ export function AppLayout() {
                   <span className="sr-only sm:not-sr-only">Admin</span>
                 </Link>
               )}
+              <OnlineFriendsHeaderMenu />
               {!hideGlobalStats && (
                 <>
                   <StreakBadge streak={user.currentStreak} weekDays={me?.streakWeekDays} />

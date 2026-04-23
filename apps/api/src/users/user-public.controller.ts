@@ -25,8 +25,9 @@ export class UserPublicController {
   }
 
   @Get('online')
-  online(@CurrentUser() user: JwtUser) {
-    return this.social.listOnlineUsers(user.userId);
+  online(@CurrentUser() user: JwtUser, @Query('scope') scope?: string) {
+    const s = scope === 'following' ? 'following' : 'all';
+    return this.social.listOnlineUsers(user.userId, 3, s);
   }
 
   @Get(':userId/compare')

@@ -16,7 +16,6 @@ import {
   Target,
   Trophy,
   Zap,
-  Radio,
 } from 'lucide-react';
 import { XpTrajectoryModal } from '../components/XpTrajectoryModal';
 import { getNextRankThreshold, getRankForLevel } from '../lib/levelTitles';
@@ -27,7 +26,6 @@ import { useMe } from '../hooks/useMe';
 import { useProgress } from '../hooks/useProgress';
 import { useEnrolledCourses } from '../hooks/useEnrolledCourses';
 import { useLeaderboard } from '../hooks/useLeaderboard';
-import { useOnlineUsers } from '../hooks/useOnlineUsers';
 import { computeBadges, RARITY_STYLE } from '../lib/badges';
 import type { MeProfile } from '../types/user';
 import type { UserProgress } from '../hooks/useProgress';
@@ -111,46 +109,12 @@ export function DashboardPage() {
   return (
     <div className="min-w-0 space-y-6 overflow-x-hidden">
       <HeroSection data={data} />
-      <OnlinePresenceCard />
       <XPSection data={data} />
       <StatsRow data={data} progress={progress} />
       <GoalsSection progress={progress} />
       <CoursesSection enrolled={enrolled ?? []} loading={enrolledLoading} />
       <BottomGrid data={data} progress={progress} lb={lb} />
     </div>
-  );
-}
-
-function OnlinePresenceCard() {
-  const { data, isLoading } = useOnlineUsers();
-  const windowM = data?.windowMinutes ?? 3;
-  const users = data?.users ?? [];
-  const others = users.filter((u) => !u.isSelf).length;
-
-  const subtitle = (() => {
-    if (isLoading) return 'Carregando…';
-    if (users.length === 0) return 'Ninguém com perfil visível nos últimos minutos';
-    if (others === 0) return `Só você aparece agora (últimos ${windowM} min)`;
-    return `${others} ${others === 1 ? 'pessoa' : 'pessoas'} com o app aberto agora`;
-  })();
-
-  return (
-    <Link
-      to="/app/community"
-      className="flex items-center justify-between gap-3 rounded-2xl border border-emerald-200/70 bg-gradient-to-r from-emerald-50/90 to-teal-50/50 px-4 py-3 shadow-sm transition hover:border-emerald-300 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
-    >
-      <div className="flex min-w-0 items-center gap-3">
-        <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-md">
-          <Radio className="h-5 w-5" aria-hidden />
-          <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-400" aria-hidden />
-        </span>
-        <div className="min-w-0">
-          <p className="text-sm font-bold text-emerald-950">Quem está online</p>
-          <p className="text-xs text-emerald-800/80">{subtitle}</p>
-        </div>
-      </div>
-      <span className="shrink-0 text-xs font-semibold text-emerald-700">Comunidade →</span>
-    </Link>
   );
 }
 

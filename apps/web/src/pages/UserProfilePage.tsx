@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import {
@@ -21,6 +22,8 @@ import { getRankForLevel } from '../lib/levelTitles';
 import { Avatar } from '../components/Avatar';
 import { ErrorState } from '../components/ui/ErrorState';
 import { PageLoader } from '../components/ui/PageLoader';
+import { FollowListModal } from '../components/FollowListModal';
+import type { FollowListKind } from '../hooks/useFollowList';
 
 const cardShadow = 'shadow-[0_20px_40px_rgba(44,47,49,0.06)]';
 
@@ -30,6 +33,7 @@ export function UserProfilePage() {
   const me = useAuthStore((s) => s.user);
   const hydrated = useAuthHydration();
   const queryClient = useQueryClient();
+  const [followModalKind, setFollowModalKind] = useState<FollowListKind | null>(null);
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['users', userId, 'profile'],
@@ -139,14 +143,24 @@ export function UserProfilePage() {
                 )}
 
                 <div className="mt-5 flex flex-wrap justify-center gap-2 sm:justify-start">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-sm text-slate-700">
+                  <button
+                    type="button"
+                    onClick={() => setFollowModalKind('followers')}
+                    aria-label="Ver seguidores"
+                    className="press-tactile focus-ring-primary inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-sm text-slate-700 transition duration-300 ease-ios-out hover:bg-indigo-50 hover:text-indigo-700"
+                  >
                     <span className="font-bold tabular-nums text-slate-900">{data.followerCount}</span>
                     seguidores
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-sm text-slate-700">
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFollowModalKind('following')}
+                    aria-label="Ver seguindo"
+                    className="press-tactile focus-ring-primary inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-sm text-slate-700 transition duration-300 ease-ios-out hover:bg-indigo-50 hover:text-indigo-700"
+                  >
                     <span className="font-bold tabular-nums text-slate-900">{data.followingCount}</span>
                     seguindo
-                  </span>
+                  </button>
                 </div>
 
                 <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
@@ -286,6 +300,16 @@ export function UserProfilePage() {
           </div>
         </aside>
       </div>
+
+      <FollowListModal
+        open={followModalKind !== null}
+        userId={data.id}
+        initialKind={followModalKind ?? 'followers'}
+        followerCount={data.followerCount}
+        followingCount={data.followingCount}
+        ownerDisplayName={data.displayName}
+        onClose={() => setFollowModalKind(null)}
+      />
     </div>
   );
 }

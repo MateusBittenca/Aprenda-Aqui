@@ -70,6 +70,11 @@ export class UsersController {
   claimDailyGift(@CurrentUser() user: JwtUser) {
     return this.gamification.claimDailyGift(user.userId);
   }
+
+  @Get('daily-goal')
+  getDailyGoal(@CurrentUser() user: JwtUser) {
+    return this.gamification.getDailyGoal(user.userId);
+  }
 }
 
 @Controller('leaderboard')

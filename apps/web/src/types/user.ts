@@ -20,6 +20,8 @@ export type MeProfile = {
   streakWeekDays: boolean[];
   lastActivityDate: string | null;
   createdAt: string;
+  followerCount: number;
+  followingCount: number;
   xpProgress: {
     level: number;
     currentBandXp: number;

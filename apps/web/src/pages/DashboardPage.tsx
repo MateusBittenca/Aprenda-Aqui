@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { twMerge } from 'tailwind-merge';
 import {
@@ -9,15 +9,14 @@ import {
   Flame,
   Gem,
   GraduationCap,
-  Map,
   Medal,
-  ShoppingBag,
   Sparkles,
   Target,
   Trophy,
   Zap,
 } from 'lucide-react';
 import { DailyGiftCard } from '../components/DailyGiftCard';
+import { ResumeHero } from '../components/ResumeHero';
 import { XpTrajectoryModal } from '../components/XpTrajectoryModal';
 import { getNextRankThreshold, getRankForLevel } from '../lib/levelTitles';
 import { ErrorState } from '../components/ui/ErrorState';
@@ -27,7 +26,9 @@ import { useMe } from '../hooks/useMe';
 import { useProgress } from '../hooks/useProgress';
 import { useEnrolledCourses } from '../hooks/useEnrolledCourses';
 import { useLeaderboard } from '../hooks/useLeaderboard';
-import { computeBadges, RARITY_STYLE } from '../lib/badges';
+import { useDailyGoal, type DailyGoal } from '../hooks/useDailyGoal';
+import { computeBadges, RARITY_STYLE, type Badge } from '../lib/badges';
+import { pickResumeCourse } from '../lib/resumeCourse';
 import type { MeProfile } from '../types/user';
 import type { UserProgress } from '../hooks/useProgress';
 import type { EnrolledCourse } from '../hooks/useEnrolledCourses';
@@ -44,16 +45,6 @@ function isToday(dateStr: string | null) {
     d.getMonth() === now.getMonth() &&
     d.getDate() === now.getDate()
   );
-}
-
-function isThisWeek(dateStr: string | null) {
-  if (!dateStr) return false;
-  const d = new Date(dateStr);
-  const now = new Date();
-  const startOfWeek = new Date(now);
-  startOfWeek.setDate(now.getDate() - now.getDay());
-  startOfWeek.setHours(0, 0, 0, 0);
-  return d >= startOfWeek;
 }
 
 function streakMessage(streak: number) {
@@ -92,6 +83,12 @@ export function DashboardPage() {
   const { data: progress } = useProgress();
   const { data: enrolled, isLoading: enrolledLoading } = useEnrolledCourses();
   const { data: lb } = useLeaderboard();
+  const { data: goal } = useDailyGoal();
+
+  const resume = useMemo(
+    () => (enrolled ? pickResumeCourse(enrolled) : null),
+    [enrolled],
+  );
 
   if (!hydrated || isLoading) return <PageLoader label="Carregando painel…" />;
 
@@ -110,10 +107,11 @@ export function DashboardPage() {
   return (
     <div className="stagger-children min-w-0 space-y-6 overflow-x-hidden">
       <HeroSection data={data} />
+      {resume ? <ResumeHero course={resume} /> : null}
       <DailyGiftCard />
       <XPSection data={data} />
       <StatsRow data={data} progress={progress} />
-      <GoalsSection progress={progress} />
+      <GoalsSection progress={progress} goal={goal} />
       <CoursesSection enrolled={enrolled ?? []} loading={enrolledLoading} />
       <BottomGrid data={data} progress={progress} lb={lb} />
     </div>
@@ -263,39 +261,54 @@ function StatKpi({
 
 // ─── Goals ────────────────────────────────────────────────────────────────────
 
-function GoalsSection({ progress }: { progress?: UserProgress }) {
-  const todayLessons = progress?.lessons.filter((l) => l.completed && isToday(l.completedAt)).length ?? 0;
-  const todayEx = progress?.exercises.filter((e) => e.solved && isToday(e.solvedAt)).length ?? 0;
-  const weekLessons = progress?.lessons.filter((l) => l.completed && isThisWeek(l.completedAt)).length ?? 0;
-  const weekEx = progress?.exercises.filter((e) => e.solved && isThisWeek(e.solvedAt)).length ?? 0;
+function GoalsSection({ progress, goal }: { progress?: UserProgress; goal?: DailyGoal }) {
+  /* Fallback para pisos mínimos se o endpoint ainda não respondeu. Assim a
+   * seção nunca fica em branco e mantém o contrato visual. */
+  const lessonsTarget = goal?.lessons.target ?? 1;
+  const exercisesTarget = goal?.exercises.target ?? 3;
+  const todayLessons = goal?.lessons.current
+    ?? progress?.lessons.filter((l) => l.completed && isToday(l.completedAt)).length
+    ?? 0;
+  const todayEx = goal?.exercises.current
+    ?? progress?.exercises.filter((e) => e.solved && isToday(e.solvedAt)).length
+    ?? 0;
+
+  const adapted = !!goal && (goal.baseline.lessonsP50 > 0 || goal.baseline.exercisesP50 > 0);
+  const lessonsDone = todayLessons >= lessonsTarget;
+  const exercisesDone = todayEx >= exercisesTarget;
+  const allDone = lessonsDone && exercisesDone;
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
-      {/* Daily */}
-      <div className="rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-5 shadow-elevated">
-        <div className="flex items-center gap-2 mb-4">
-          <Target className="h-4 w-4 text-primary" />
-          <h2 className="text-sm font-bold uppercase tracking-wide text-slate-700">Meta do dia</h2>
-          {todayLessons >= 1 && todayEx >= 3 && (
-            <span className="ml-auto text-xs font-bold text-emerald-600">Concluída! 🎉</span>
-          )}
-        </div>
-        <ul className="space-y-3">
-          <GoalItem label="1 aula hoje" done={todayLessons >= 1} current={Math.min(todayLessons, 1)} total={1} />
-          <GoalItem label="3 exercícios hoje" done={todayEx >= 3} current={Math.min(todayEx, 3)} total={3} />
-        </ul>
+    <div className="rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-5 shadow-elevated">
+      <div className="mb-4 flex items-center gap-2">
+        <Target className="h-4 w-4 text-primary" />
+        <h2 className="text-sm font-bold uppercase tracking-wide text-slate-700">Meta do dia</h2>
+        {adapted && (
+          <span
+            className="ml-1 rounded-full bg-primary/10 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-primary"
+            title="Meta calibrada com base na sua média dos últimos 7 dias"
+          >
+            Adaptada
+          </span>
+        )}
+        {allDone && (
+          <span className="ml-auto text-xs font-bold text-emerald-600">Concluída! 🎉</span>
+        )}
       </div>
-      {/* Weekly challenge */}
-      <div className="rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-5 shadow-elevated">
-        <div className="flex items-center gap-2 mb-4">
-          <Trophy className="h-4 w-4 text-amber-500" />
-          <h2 className="text-sm font-bold uppercase tracking-wide text-slate-700">Desafio semanal</h2>
-        </div>
-        <ul className="space-y-3">
-          <GoalItem label="5 aulas esta semana" done={weekLessons >= 5} current={Math.min(weekLessons, 5)} total={5} />
-          <GoalItem label="10 exercícios esta semana" done={weekEx >= 10} current={Math.min(weekEx, 10)} total={10} />
-        </ul>
-      </div>
+      <ul className="space-y-3">
+        <GoalItem
+          label={`${lessonsTarget} ${lessonsTarget === 1 ? 'aula' : 'aulas'} hoje`}
+          done={lessonsDone}
+          current={Math.min(todayLessons, lessonsTarget)}
+          total={lessonsTarget}
+        />
+        <GoalItem
+          label={`${exercisesTarget} ${exercisesTarget === 1 ? 'exercício' : 'exercícios'} hoje`}
+          done={exercisesDone}
+          current={Math.min(todayEx, exercisesTarget)}
+          total={exercisesTarget}
+        />
+      </ul>
     </div>
   );
 }
@@ -420,7 +433,7 @@ function BottomGrid({
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <LeaderboardMini lb={lb} myId={data.id} />
-      <BadgesSection data={data} progress={progress} />
+      <RecentBadgesStrip data={data} progress={progress} />
     </div>
   );
 }
@@ -448,19 +461,12 @@ function LeaderboardMini({ lb, myId }: { lb?: LeaderboardData; myId: string }) {
   const myRank = lb.myRank;
   const inTop = myRank <= 5;
 
-  const rankStyle = (rank: number, isMe: boolean) => {
+  const rowStyle = (rank: number, isMe: boolean) => {
     if (isMe) return 'border-2 border-blue-500 bg-blue-50';
     if (rank === 1) return 'border border-amber-200 bg-amber-50';
     if (rank === 2) return 'border border-slate-200 bg-slate-50';
     if (rank === 3) return 'border border-orange-100 bg-orange-50';
     return 'border border-transparent';
-  };
-
-  const rankEmoji = (rank: number) => {
-    if (rank === 1) return '🥇';
-    if (rank === 2) return '🥈';
-    if (rank === 3) return '🥉';
-    return `#${rank}`;
   };
 
   return (
@@ -479,8 +485,8 @@ function LeaderboardMini({ lb, myId }: { lb?: LeaderboardData; myId: string }) {
           const rank = i + 1;
           const isMe = u.id === myId;
           return (
-            <li key={u.id} className={`flex items-center gap-3 rounded-xl px-3 py-2 ${rankStyle(rank, isMe)}`}>
-              <span className="w-7 shrink-0 text-center text-sm font-black">{rankEmoji(rank)}</span>
+            <li key={u.id} className={`flex items-center gap-3 rounded-xl px-3 py-2 ${rowStyle(rank, isMe)}`}>
+              <RankIndicator rank={rank} />
               <Avatar userId={u.id} displayName={u.displayName} colorKey={u.avatarColorKey} size="sm" />
               <span className={`flex-1 truncate text-sm font-semibold ${isMe ? 'text-blue-800' : 'text-slate-800'}`}>
                 {u.displayName}{isMe && ' (você)'}
@@ -508,47 +514,96 @@ function LeaderboardMini({ lb, myId }: { lb?: LeaderboardData; myId: string }) {
   );
 }
 
-// ─── Badges ───────────────────────────────────────────────────────────────────
+/**
+ * Indicador de posição no ranking. As 3 primeiras posições usam `lucide Medal`
+ * com tom próprio (ouro/prata/bronze), evitando dependência de emoji que
+ * renderiza com estilos diferentes em cada SO. Demais posições mostram #N.
+ */
+function RankIndicator({ rank }: { rank: number }) {
+  if (rank === 1) {
+    return (
+      <span className="inline-flex w-7 shrink-0 justify-center" aria-label="1º lugar">
+        <Medal className="h-5 w-5 text-amber-500" strokeWidth={2.25} aria-hidden />
+      </span>
+    );
+  }
+  if (rank === 2) {
+    return (
+      <span className="inline-flex w-7 shrink-0 justify-center" aria-label="2º lugar">
+        <Medal className="h-5 w-5 text-slate-400" strokeWidth={2.25} aria-hidden />
+      </span>
+    );
+  }
+  if (rank === 3) {
+    return (
+      <span className="inline-flex w-7 shrink-0 justify-center" aria-label="3º lugar">
+        <Medal className="h-5 w-5 text-orange-600" strokeWidth={2.25} aria-hidden />
+      </span>
+    );
+  }
+  return (
+    <span className="w-7 shrink-0 text-center text-sm font-black text-slate-600">
+      #{rank}
+    </span>
+  );
+}
 
-function BadgesSection({ data, progress }: { data: MeProfile; progress?: UserProgress }) {
+// ─── Recent badges strip ──────────────────────────────────────────────────────
+
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+
+function daysAgo(iso: string | null): number | null {
+  if (!iso) return null;
+  const t = new Date(iso).getTime();
+  if (!Number.isFinite(t)) return null;
+  return Math.max(0, Math.floor((Date.now() - t) / (24 * 60 * 60 * 1000)));
+}
+
+function RecentBadgesStrip({ data, progress }: { data: MeProfile; progress?: UserProgress }) {
   const safeProgress: UserProgress = progress ?? { lessons: [], exercises: [] };
   const badges = computeBadges(data, safeProgress);
-  const earned = badges.filter((b) => b.earned);
-  const notEarned = badges.filter((b) => !b.earned);
-  const shown = [...earned, ...notEarned].slice(0, 9);
+  const earnedCount = badges.filter((b) => b.earned).length;
+
+  const now = Date.now();
+  const recent = badges
+    .filter(
+      (b) => b.earned && b.unlockedAt && now - new Date(b.unlockedAt).getTime() <= SEVEN_DAYS_MS,
+    )
+    .sort(
+      (a, b) => new Date(b.unlockedAt!).getTime() - new Date(a.unlockedAt!).getTime(),
+    );
 
   return (
     <div className="rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-5 shadow-elevated">
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 flex items-center justify-between">
         <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-slate-700">
-          <Trophy className="h-4 w-4 text-amber-500" /> Conquistas
+          <Trophy className="h-4 w-4 text-amber-500" /> Conquistas recentes
         </h2>
         <span className="text-xs font-bold text-slate-500">
-          {earned.length}/{badges.length}
+          {earnedCount}/{badges.length}
         </span>
       </div>
-      <div className="grid grid-cols-3 gap-2">
-        {shown.map((badge) => (
-          <div
-            key={badge.id}
-            title={`${badge.name}: ${badge.description}`}
-            className={twMerge(
-              'flex flex-col items-center rounded-2xl border p-2.5 text-center transition duration-300 ease-ios-out',
-              badge.earned
-                ? `${RARITY_STYLE[badge.rarity]} hover-lift`
-                : 'border-slate-100 bg-slate-50 opacity-40 grayscale',
-            )}
-          >
-            <span className={twMerge('text-2xl', badge.earned && 'animate-pop')}>{badge.icon}</span>
-            <p className="mt-1 text-xs font-bold leading-tight text-slate-700">{badge.name}</p>
-            {badge.progress && !badge.earned && (
-              <p className="mt-0.5 text-xs tabular-nums text-slate-400">
-                {badge.progress.current}/{badge.progress.total}
-              </p>
-            )}
-          </div>
-        ))}
-      </div>
+
+      {recent.length > 0 ? (
+        <ul className="snap-shelf flex gap-3 overflow-x-auto pb-1">
+          {recent.map((badge) => (
+            <li key={badge.id} className="shrink-0 snap-start">
+              <RecentBadgeCard badge={badge} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/70 px-4 py-6 text-center">
+          <Trophy className="mx-auto mb-2 h-7 w-7 text-slate-300" aria-hidden />
+          <p className="text-sm font-semibold text-slate-600">
+            Nenhuma conquista nos últimos 7 dias.
+          </p>
+          <p className="mt-1 text-xs text-slate-500">
+            Conclua uma aula ou complete exercícios para desbloquear.
+          </p>
+        </div>
+      )}
+
       <Link
         to="/app/me"
         className="mt-4 flex items-center justify-center gap-1 text-xs font-semibold text-slate-500 hover:text-primary"
@@ -559,50 +614,28 @@ function BadgesSection({ data, progress }: { data: MeProfile; progress?: UserPro
   );
 }
 
-// ─── Quick actions bar ────────────────────────────────────────────────────────
+function RecentBadgeCard({ badge }: { badge: Badge }) {
+  const d = daysAgo(badge.unlockedAt);
+  const when =
+    d === null ? '' : d === 0 ? 'Hoje' : d === 1 ? 'Ontem' : `Há ${d} dias`;
 
-export function QuickActionsBar() {
   return (
-    <div className="grid gap-3 sm:grid-cols-3">
-      <Link
-        to="/app/courses"
-        className="group flex items-center justify-between rounded-2xl bg-primary p-4 font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary-dim"
-      >
-        <div className="flex items-center gap-3">
-          <ShoppingBag className="h-5 w-5" />
-          <div>
-            <p className="font-bold">Cursos</p>
-            <p className="text-xs text-white/80">Catálogo e matrícula</p>
-          </div>
-        </div>
-        <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-      </Link>
-      <Link
-        to="/app/my-courses"
-        className="group flex items-center justify-between rounded-2xl border-2 border-violet-200 bg-violet-50 p-4 font-semibold text-violet-800 transition hover:border-violet-300"
-      >
-        <div className="flex items-center gap-3">
-          <Map className="h-5 w-5" />
-          <div>
-            <p className="font-bold">Meus cursos</p>
-            <p className="text-xs text-violet-500">Onde estou estudando</p>
-          </div>
-        </div>
-        <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-      </Link>
-      <Link
-        to="/app/ranking"
-        className="group flex items-center justify-between rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 font-semibold text-amber-800 transition hover:border-amber-300"
-      >
-        <div className="flex items-center gap-3">
-          <Medal className="h-5 w-5" />
-          <div>
-            <p className="font-bold">Ranking</p>
-            <p className="text-xs text-amber-500">Sua posição global</p>
-          </div>
-        </div>
-        <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-      </Link>
+    <div
+      className={twMerge(
+        'hover-lift flex w-36 flex-col items-center rounded-2xl border p-3 text-center transition duration-300 ease-ios-out',
+        RARITY_STYLE[badge.rarity],
+      )}
+      title={`${badge.name}: ${badge.description}`}
+    >
+      <span className="animate-pop text-3xl" aria-hidden>
+        {badge.icon}
+      </span>
+      <p className="mt-2 line-clamp-2 text-xs font-bold leading-tight text-slate-800">
+        {badge.name}
+      </p>
+      <p className="mt-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-slate-500">
+        {when}
+      </p>
     </div>
   );
 }

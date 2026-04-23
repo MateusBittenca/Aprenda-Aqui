@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Flame,
@@ -12,6 +13,7 @@ import {
 import { ErrorState } from '../components/ui/ErrorState';
 import { PageLoader } from '../components/ui/PageLoader';
 import { Avatar } from '../components/Avatar';
+import { FollowListModal } from '../components/FollowListModal';
 import { useMe } from '../hooks/useMe';
 import { useProgress } from '../hooks/useProgress';
 import { useLeaderboard } from '../hooks/useLeaderboard';
@@ -19,6 +21,7 @@ import { computeBadges, RARITY_LABEL, RARITY_STYLE } from '../lib/badges';
 import type { MeProfile } from '../types/user';
 import { getRankForLevel, getNextRankThreshold } from '../lib/levelTitles';
 import type { UserProgress } from '../hooks/useProgress';
+import type { FollowListKind } from '../hooks/useFollowList';
 
 const cardShadow = 'shadow-card';
 
@@ -26,6 +29,7 @@ export function ProfilePage() {
   const { data, isLoading, isError, error, hydrated } = useMe({ syncStore: true });
   const { data: progress } = useProgress();
   const { data: lb } = useLeaderboard();
+  const [followModalKind, setFollowModalKind] = useState<FollowListKind | null>(null);
 
   if (!hydrated || isLoading) return <PageLoader label="Carregando perfil…" />;
 
@@ -83,7 +87,12 @@ export function ProfilePage() {
 
       <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
         <div className="space-y-8 lg:col-span-8">
-          <ProfileHeroCard data={data} completedLessons={completedLessons} xpCompact={xpCompact} />
+          <ProfileHeroCard
+            data={data}
+            completedLessons={completedLessons}
+            xpCompact={xpCompact}
+            onOpenFollowList={setFollowModalKind}
+          />
 
           <AchievementsGallery badges={showcaseBadges} total={badges.length} earnedCount={earned.length} />
 
@@ -144,6 +153,15 @@ export function ProfilePage() {
           Configurações
         </Link>
       </div>
+
+      <FollowListModal
+        open={followModalKind !== null}
+        userId={data.id}
+        initialKind={followModalKind ?? 'followers'}
+        followerCount={data.followerCount}
+        followingCount={data.followingCount}
+        onClose={() => setFollowModalKind(null)}
+      />
     </div>
   );
 }
@@ -152,10 +170,12 @@ function ProfileHeroCard({
   data,
   completedLessons,
   xpCompact,
+  onOpenFollowList,
 }: {
   data: MeProfile;
   completedLessons: number;
   xpCompact: string;
+  onOpenFollowList: (kind: FollowListKind) => void;
 }) {
   const rank = getRankForLevel(data.level);
   return (
@@ -192,10 +212,23 @@ function ProfileHeroCard({
           </span>
         </div>
         {data.bio ? <p className="mb-4 text-sm font-medium text-on-surface-variant">{data.bio}</p> : null}
-        <p className="mb-6 text-sm font-medium text-on-surface-variant">
+        <p className="mb-4 text-sm font-medium text-on-surface-variant">
           Membro desde {new Date(data.createdAt).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })} ·{' '}
           {completedLessons} aulas concluídas
         </p>
+
+        <div className="mb-6 flex flex-wrap justify-center gap-2 md:justify-start">
+          <FollowChip
+            count={data.followerCount}
+            label="seguidores"
+            onClick={() => onOpenFollowList('followers')}
+          />
+          <FollowChip
+            count={data.followingCount}
+            label="seguindo"
+            onClick={() => onOpenFollowList('following')}
+          />
+        </div>
 
         <div className="grid grid-cols-3 gap-3 sm:gap-4">
           <div className="flex flex-col items-center justify-center rounded-xl border-b-4 border-orange-200 bg-surface-container-low p-4">
@@ -218,6 +251,28 @@ function ProfileHeroCard({
         </div>
       </div>
     </section>
+  );
+}
+
+function FollowChip({
+  count,
+  label,
+  onClick,
+}: {
+  count: number;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="press-tactile focus-ring-primary inline-flex items-center gap-1.5 rounded-full border border-surface-container-high bg-surface-container-low px-3 py-1.5 text-sm font-medium text-on-surface-variant transition duration-300 ease-ios-out hover:border-primary/40 hover:bg-primary/10 hover:text-primary"
+      aria-label={`Ver ${label}`}
+    >
+      <span className="font-bold tabular-nums text-on-surface">{count}</span>
+      <span>{label}</span>
+    </button>
   );
 }
 

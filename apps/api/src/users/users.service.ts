@@ -152,13 +152,16 @@ export class UsersService {
       },
     });
     const band = xpToNextLevel(user.xpTotal);
-    const streakWeekDays = await this.gamification.getRollingWeekActivity(
-      userId,
-      user.timezone,
-    );
+    const [streakWeekDays, followerCount, followingCount] = await Promise.all([
+      this.gamification.getRollingWeekActivity(userId, user.timezone),
+      this.prisma.userFollow.count({ where: { followingId: userId } }),
+      this.prisma.userFollow.count({ where: { followerId: userId } }),
+    ]);
     return {
       ...user,
       streakWeekDays,
+      followerCount,
+      followingCount,
       xpProgress: {
         level: band.level,
         currentBandXp: band.currentBandXp,

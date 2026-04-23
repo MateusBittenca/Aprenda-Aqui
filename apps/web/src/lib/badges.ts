@@ -10,11 +10,35 @@ export type Badge = {
   /** Para badges com progresso, exibe uma mini-barra. */
   progress?: { current: number; total: number };
   rarity: 'common' | 'uncommon' | 'rare' | 'legendary';
+  /**
+   * Data estimada do desbloqueio (ISO string) quando derivável da trilha de
+   * atividades — aulas e exercícios. Badges de streak/level retornam null
+   * porque não mantemos snapshot histórico desses contadores.
+   */
+  unlockedAt: string | null;
 };
 
+function nthActivityDate(
+  timestamps: (string | null | undefined)[],
+  n: number,
+): string | null {
+  const valid = timestamps.filter((t): t is string => !!t);
+  if (valid.length < n) return null;
+  const sorted = [...valid].sort(
+    (a, b) => new Date(a).getTime() - new Date(b).getTime(),
+  );
+  return sorted[n - 1] ?? null;
+}
+
 export function computeBadges(profile: MeProfile, progress: UserProgress): Badge[] {
-  const completedLessons = progress.lessons.filter((l) => l.completed).length;
-  const solvedExercises = progress.exercises.filter((e) => e.solved).length;
+  const lessonDates = progress.lessons
+    .filter((l) => l.completed)
+    .map((l) => l.completedAt);
+  const exerciseDates = progress.exercises
+    .filter((e) => e.solved)
+    .map((e) => e.solvedAt);
+  const completedLessons = lessonDates.length;
+  const solvedExercises = exerciseDates.length;
   const streak = Math.max(profile.currentStreak, profile.longestStreak);
 
   return [
@@ -25,6 +49,7 @@ export function computeBadges(profile: MeProfile, progress: UserProgress): Badge
       description: 'Complete sua primeira aula',
       earned: completedLessons >= 1,
       rarity: 'common',
+      unlockedAt: completedLessons >= 1 ? nthActivityDate(lessonDates, 1) : null,
     },
     {
       id: 'apprentice',
@@ -34,6 +59,7 @@ export function computeBadges(profile: MeProfile, progress: UserProgress): Badge
       earned: completedLessons >= 5,
       progress: { current: Math.min(completedLessons, 5), total: 5 },
       rarity: 'common',
+      unlockedAt: completedLessons >= 5 ? nthActivityDate(lessonDates, 5) : null,
     },
     {
       id: 'student',
@@ -43,6 +69,7 @@ export function computeBadges(profile: MeProfile, progress: UserProgress): Badge
       earned: completedLessons >= 15,
       progress: { current: Math.min(completedLessons, 15), total: 15 },
       rarity: 'uncommon',
+      unlockedAt: completedLessons >= 15 ? nthActivityDate(lessonDates, 15) : null,
     },
     {
       id: 'scholar',
@@ -52,6 +79,7 @@ export function computeBadges(profile: MeProfile, progress: UserProgress): Badge
       earned: completedLessons >= 30,
       progress: { current: Math.min(completedLessons, 30), total: 30 },
       rarity: 'rare',
+      unlockedAt: completedLessons >= 30 ? nthActivityDate(lessonDates, 30) : null,
     },
     {
       id: 'on-fire',
@@ -61,6 +89,7 @@ export function computeBadges(profile: MeProfile, progress: UserProgress): Badge
       earned: streak >= 3,
       progress: { current: Math.min(streak, 3), total: 3 },
       rarity: 'common',
+      unlockedAt: null,
     },
     {
       id: 'unstoppable',
@@ -70,6 +99,7 @@ export function computeBadges(profile: MeProfile, progress: UserProgress): Badge
       earned: streak >= 7,
       progress: { current: Math.min(streak, 7), total: 7 },
       rarity: 'uncommon',
+      unlockedAt: null,
     },
     {
       id: 'legendary',
@@ -79,6 +109,7 @@ export function computeBadges(profile: MeProfile, progress: UserProgress): Badge
       earned: streak >= 30,
       progress: { current: Math.min(streak, 30), total: 30 },
       rarity: 'legendary',
+      unlockedAt: null,
     },
     {
       id: 'level5',
@@ -88,6 +119,7 @@ export function computeBadges(profile: MeProfile, progress: UserProgress): Badge
       earned: profile.level >= 5,
       progress: { current: Math.min(profile.level, 5), total: 5 },
       rarity: 'uncommon',
+      unlockedAt: null,
     },
     {
       id: 'level10',
@@ -97,6 +129,7 @@ export function computeBadges(profile: MeProfile, progress: UserProgress): Badge
       earned: profile.level >= 10,
       progress: { current: Math.min(profile.level, 10), total: 10 },
       rarity: 'rare',
+      unlockedAt: null,
     },
     {
       id: 'solver',
@@ -106,6 +139,8 @@ export function computeBadges(profile: MeProfile, progress: UserProgress): Badge
       earned: solvedExercises >= 50,
       progress: { current: Math.min(solvedExercises, 50), total: 50 },
       rarity: 'uncommon',
+      unlockedAt:
+        solvedExercises >= 50 ? nthActivityDate(exerciseDates, 50) : null,
     },
   ];
 }

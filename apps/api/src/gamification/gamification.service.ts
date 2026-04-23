@@ -70,6 +70,94 @@ export class GamificationService {
     });
   }
 
+  /**
+   * Meta adaptativa do dia baseada no p50 (mediana) das atividades dos últimos
+   * 7 dias civis **anteriores a hoje**, multiplicado por 0.8 para ficar
+   * convidativa. Pisos mínimos: 1 aula e 3 exercícios — evita meta zero para
+   * usuários novos ou inativos.
+   * Também retorna o `current` de hoje para o frontend desenhar o progresso.
+   */
+  async getDailyGoal(userId: string): Promise<{
+    lessons: { target: number; current: number };
+    exercises: { target: number; current: number };
+    baseline: { lessonsP50: number; exercisesP50: number };
+  }> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { timezone: true },
+    });
+    if (!user) throw new NotFoundException('Usuário não encontrado');
+
+    const tz = this.safeTimeZone(user.timezone);
+    const now = new Date();
+    const todayYmd = this.calendarDateInTimeZone(now, tz);
+    /* Últimos 7 dias civis anteriores a hoje (excluindo hoje) para estimar baseline. */
+    const baselineKeys = Array.from({ length: 7 }, (_, i) =>
+      this.addDaysYmd(todayYmd, i - 7),
+    );
+    /* Buffer de 10 dias para cobrir o dia civil completo em todos os fusos. */
+    const since = new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000);
+
+    const [lessons, exercises] = await Promise.all([
+      this.prisma.userLessonProgress.findMany({
+        where: {
+          userId,
+          completed: true,
+          completedAt: { not: null, gte: since },
+        },
+        select: { completedAt: true },
+      }),
+      this.prisma.userExerciseProgress.findMany({
+        where: { userId, solved: true, solvedAt: { not: null, gte: since } },
+        select: { solvedAt: true },
+      }),
+    ]);
+
+    const lessonsPerDay = new Map<string, number>();
+    const exercisesPerDay = new Map<string, number>();
+    for (const l of lessons) {
+      if (!l.completedAt) continue;
+      const k = this.calendarDateInTimeZone(l.completedAt, tz);
+      lessonsPerDay.set(k, (lessonsPerDay.get(k) ?? 0) + 1);
+    }
+    for (const e of exercises) {
+      if (!e.solvedAt) continue;
+      const k = this.calendarDateInTimeZone(e.solvedAt, tz);
+      exercisesPerDay.set(k, (exercisesPerDay.get(k) ?? 0) + 1);
+    }
+
+    const lessonsCounts = baselineKeys.map((k) => lessonsPerDay.get(k) ?? 0);
+    const exercisesCounts = baselineKeys.map((k) => exercisesPerDay.get(k) ?? 0);
+
+    const lessonsP50 = this.p50(lessonsCounts);
+    const exercisesP50 = this.p50(exercisesCounts);
+
+    const lessonsTarget = Math.max(1, Math.round(lessonsP50 * 0.8));
+    const exercisesTarget = Math.max(3, Math.round(exercisesP50 * 0.8));
+
+    return {
+      lessons: {
+        target: lessonsTarget,
+        current: lessonsPerDay.get(todayYmd) ?? 0,
+      },
+      exercises: {
+        target: exercisesTarget,
+        current: exercisesPerDay.get(todayYmd) ?? 0,
+      },
+      baseline: { lessonsP50, exercisesP50 },
+    };
+  }
+
+  private p50(values: number[]): number {
+    if (values.length === 0) return 0;
+    const sorted = [...values].sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    if (sorted.length % 2 === 0) {
+      return (sorted[mid - 1] + sorted[mid]) / 2;
+    }
+    return sorted[mid];
+  }
+
   /** Últimos 7 dias civis (do mais antigo ao hoje): true se houve atividade qualificante naquele dia. */
   async getRollingWeekActivity(
     userId: string,

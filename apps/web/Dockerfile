@@ -2,10 +2,11 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# VITE_API_BASE é obrigatório em produção.
-# Defina-o nas variáveis de ambiente do Railway antes do build.
-# Ex.: VITE_API_BASE=https://minha-api.railway.app/api/v1
-ARG VITE_API_BASE
+# VITE_API_BASE must be set as an environment variable in Railway so that
+# it is forwarded as a Docker build ARG and injected into the Vite bundle.
+# Railway passes env vars as build args when the ARG is declared here.
+# Default points to the production API; override via Railway's env var panel.
+ARG VITE_API_BASE=https://aprenda-aqui.up.railway.app/api/v1
 ENV VITE_API_BASE=$VITE_API_BASE
 
 # Copia manifestos do workspace (root + app)

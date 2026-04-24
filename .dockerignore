@@ -1,0 +1,11 @@
+node_modules
+**/node_modules
+**/dist
+**/.cache
+**/*.log
+**/.env
+**/.env.*
+!**/.env.example
+**/coverage
+apps/web/dist
+apps/api/dist

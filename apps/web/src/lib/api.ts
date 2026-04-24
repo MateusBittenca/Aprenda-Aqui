@@ -1,4 +1,12 @@
-const API_BASE = import.meta.env.VITE_API_BASE ?? '/api/v1';
+function normaliseApiBase(raw: string | undefined): string {
+  if (!raw) return '/api/v1';
+  // Prepend https:// when the value is a bare domain or path (no protocol).
+  const withProtocol = raw.startsWith('http') ? raw : `https://${raw}`;
+  // Remove any trailing slash so path concatenation is always clean.
+  return withProtocol.replace(/\/+$/, '');
+}
+
+const API_BASE = normaliseApiBase(import.meta.env.VITE_API_BASE);
 
 export type ApiErrorBody = { message?: string | string[]; statusCode?: number };
 

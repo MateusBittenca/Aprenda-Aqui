@@ -53,7 +53,7 @@ export function AdminDashboardPage() {
         <div className="pointer-events-none absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-blue-500/5 blur-3xl" />
         <div className="relative">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{today}</p>
-          <h1 className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">
+          <h1 className="font-headline mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">
             Painel de controle
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-400">
@@ -151,7 +151,7 @@ function Kpi({
     >
       <div className={`pointer-events-none absolute inset-0 opacity-50 ${accent}`} aria-hidden />
       <div className="relative text-amber-400/90">{icon}</div>
-      <p className="relative mt-3 text-3xl font-bold tabular-nums tracking-tight text-white">{value}</p>
+      <p className="font-headline relative mt-3 text-3xl font-bold tabular-nums tracking-tight text-white">{value}</p>
       <p className="relative text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
       <p className="relative mt-1 text-xs text-slate-600">{hint}</p>
     </div>

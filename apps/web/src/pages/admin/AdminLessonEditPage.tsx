@@ -72,7 +72,7 @@ function AdminLessonEditForm({ data, lessonId, token, queryClient }: EditFormPro
           <ArrowLeft className="h-3.5 w-3.5" />
           {data.module.course.title} / {data.module.title}
         </Link>
-        <h1 className="mt-3 text-2xl font-bold tracking-tight text-white">Editor de aula</h1>
+        <h1 className="font-headline mt-3 text-2xl font-bold tracking-tight text-white">Editor de aula</h1>
         <p className="mt-1 text-sm text-slate-500">
           Escreva o conteúdo em <strong className="text-slate-400">Markdown</strong>. As alterações só são aplicadas ao clicar em <em>Salvar</em>.
         </p>

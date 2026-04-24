@@ -8,6 +8,8 @@ import { ResumeHero } from '../components/ResumeHero';
 import { ErrorState } from '../components/ui/ErrorState';
 import { PageLoader } from '../components/ui/PageLoader';
 import { EmptyState } from '../components/ui/EmptyState';
+import { SectionHeading } from '../components/ui/SectionHeading';
+import { Button } from '../components/ui/Button';
 import { useAuthHydration, useAuthStore } from '../stores/authStore';
 import { useEnrolledCourses } from '../hooks/useEnrolledCourses';
 import { useProgress } from '../hooks/useProgress';
@@ -99,48 +101,38 @@ export function MyCoursesPage() {
   return (
     <div className="relative pb-4">
       <div
-        className="pointer-events-none absolute left-1/2 top-0 h-48 w-[min(100%,36rem)] -translate-x-1/2 rounded-full bg-indigo-400/15 blur-3xl"
+        className="pointer-events-none absolute left-1/2 top-0 h-48 w-[min(100%,36rem)] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl"
         aria-hidden
       />
 
-      <header className="relative mb-8 flex flex-col gap-6 md:mb-10 md:flex-row md:items-end md:justify-between">
-        <div className="max-w-2xl">
-          <h1 className="font-headline text-3xl font-extrabold tracking-tight text-indigo-950 sm:text-4xl md:text-[2.75rem] md:leading-tight">
-            Meus Cursos
-          </h1>
-          <p className="mt-3 text-base leading-relaxed text-slate-500 sm:text-lg">
+      <SectionHeading
+        level="page"
+        eyebrow="Sua trilha"
+        title="Meus Cursos"
+        description={
+          <>
             Continue sua jornada de aprendizado onde parou.
-            {count > 0 ? (
-              <>
-                {' '}
-                Você tem {count} curso{count !== 1 ? 's' : ''} na sua lista.
-              </>
-            ) : null}
-          </p>
-          <p className="mt-3 text-sm text-slate-500">
-            Quer incluir mais cursos?{' '}
-            <Link
-              to="/app/courses"
-              className="font-semibold text-indigo-600 underline decoration-indigo-300/70 underline-offset-4 transition hover:text-indigo-800"
-            >
+            {count > 0 ? <> Você tem {count} curso{count !== 1 ? 's' : ''} na sua lista. </> : ' '}
+            Quer incluir mais?{' '}
+            <Link to="/app/courses" className="font-semibold text-primary underline underline-offset-4 hover:text-primary-dim">
               Abrir catálogo
             </Link>
-          </p>
-        </div>
-      </header>
+            .
+          </>
+        }
+        className="relative mb-8 md:mb-10"
+      />
 
       {count === 0 ? (
         <EmptyState
-          icon={<BookOpen className="mx-auto h-12 w-12 text-slate-300" />}
+          icon={<BookOpen className="mx-auto h-12 w-12" />}
           title="Nada aqui ainda"
           description="Escolha um curso no catálogo e matricule-se — ele aparece aqui com progresso e próxima aula sugerida."
           action={
-            <Link
-              to="/app/courses"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary-dim"
-            >
-              Explorar catálogo
-              <ArrowRight className="h-4 w-4" aria-hidden />
+            <Link to="/app/courses" className="inline-flex">
+              <Button variant="brand" size="md" rightIcon={<ArrowRight className="h-4 w-4" />}>
+                Explorar catálogo
+              </Button>
             </Link>
           }
         />
@@ -166,9 +158,9 @@ export function MyCoursesPage() {
           </div>
 
           {visible.length === 0 ? (
-            <div className="rounded-[24px] border border-dashed border-slate-200 bg-white/70 py-16 text-center backdrop-blur-sm">
-              <p className="text-sm font-medium text-slate-700">Nenhum curso nessa combinação de filtros.</p>
-              <p className="mt-1 text-xs text-slate-500">Ajuste a aba ou a categoria.</p>
+            <div className="rounded-2xl border border-dashed border-surface-container-high bg-surface-container-lowest/70 py-16 text-center backdrop-blur-sm">
+              <p className="text-sm font-medium text-on-surface">Nenhum curso nessa combinação de filtros.</p>
+              <p className="mt-1 text-xs text-on-surface-variant">Ajuste a aba ou a categoria.</p>
             </div>
           ) : (
             <ul className="relative grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -239,9 +231,9 @@ function WeekStrip({
       label: 'Exercícios na semana',
       value: loading ? '—' : exercises,
       Icon: Target,
-      accent: 'text-indigo-700',
-      bg: 'bg-indigo-50',
-      ring: 'ring-indigo-200/70',
+      accent: 'text-primary',
+      bg: 'bg-primary/10',
+      ring: 'ring-primary/15',
     },
     {
       key: 'streak',
@@ -261,7 +253,7 @@ function WeekStrip({
         return (
           <div
             key={it.key}
-            className="hover-lift flex items-center gap-3 rounded-2xl border border-white/60 bg-white/85 px-4 py-3 shadow-[0_40px_40px_-10px_rgba(30,27,75,0.06)] backdrop-blur-xl"
+            className="hover-lift flex items-center gap-3 rounded-2xl border border-surface-container-high/70 bg-surface-container-lowest/90 px-4 py-3 shadow-card backdrop-blur-xl"
           >
             <span
               className={twMerge(
@@ -278,7 +270,7 @@ function WeekStrip({
               >
                 {it.value}
               </div>
-              <div className="mt-1 text-[0.68rem] font-semibold uppercase tracking-wide text-slate-500">
+              <div className="mt-1 text-[0.68rem] font-semibold uppercase tracking-wide text-on-surface-variant">
                 {it.label}
               </div>
             </div>
@@ -308,7 +300,7 @@ function StatusTabs({
     <div
       role="tablist"
       aria-label="Filtrar por status"
-      className="inline-flex w-full max-w-full gap-1 overflow-x-auto rounded-2xl border border-white/60 bg-white/80 p-1 shadow-sm backdrop-blur-xl sm:w-auto"
+      className="inline-flex w-full max-w-full gap-1 overflow-x-auto rounded-2xl border border-surface-container-high/70 bg-surface-container-lowest/90 p-1 shadow-sm backdrop-blur-xl sm:w-auto"
     >
       {tabs.map((t) => {
         const active = current === t.key;
@@ -376,8 +368,8 @@ function CategoryChips({
             className={twMerge(
               'press-tactile focus-ring-primary inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition duration-300 ease-ios-out',
               active
-                ? 'border-primary bg-primary text-white shadow-sm shadow-primary/25'
-                : 'border-surface-container-high bg-white text-on-surface-variant hover:border-primary/40 hover:text-primary',
+                ? 'border-primary bg-primary text-white shadow-sm'
+                : 'border-surface-container-high bg-surface-container-lowest text-on-surface-variant hover:border-primary/40 hover:text-primary',
             )}
           >
             {c.label}

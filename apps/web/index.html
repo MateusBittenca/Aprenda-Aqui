@@ -17,6 +17,21 @@
       href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
       rel="stylesheet"
     />
+    <!-- Anti-FOUC: aplica "dark" antes do React renderizar -->
+    <script>
+      (function () {
+        try {
+          var raw = localStorage.getItem('codepath-ui-prefs');
+          if (!raw) return;
+          var scheme = JSON.parse(raw).state && JSON.parse(raw).state.colorScheme;
+          if (scheme === 'dark') {
+            document.documentElement.classList.add('dark');
+          } else if (scheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

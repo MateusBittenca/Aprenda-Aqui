@@ -18,22 +18,22 @@ import {
 } from 'lucide-react';
 
 const cardClass =
-  'rounded-2xl border border-white/60 bg-white/85 p-5 shadow-[0_20px_50px_-24px_rgba(30,27,75,0.12)] backdrop-blur-xl transition hover:border-indigo-200/80';
+  'rounded-2xl border border-white/60 bg-white/85 p-5 shadow-card backdrop-blur-xl transition hover:border-primary/20/80';
 
 export function HelpPage() {
   return (
     <div
       className="space-y-10 pb-10 [background:radial-gradient(ellipse_at_top_right,rgba(99,102,241,0.1),transparent_52%),radial-gradient(ellipse_at_bottom_left,rgba(129,39,207,0.06),transparent_48%)]"
     >
-      <header className="relative overflow-hidden rounded-[28px] border border-white/60 bg-white/85 p-6 shadow-[0_25px_60px_-20px_rgba(30,27,75,0.14)] backdrop-blur-xl sm:p-10">
+      <header className="relative overflow-hidden rounded-[28px] border border-white/60 bg-white/85 p-6 shadow-soft backdrop-blur-xl sm:p-10">
         <div className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-indigo-400/20 blur-3xl" aria-hidden />
         <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-indigo-100 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-indigo-900">
+            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-primary">
               <CircleHelp className="h-4 w-4" aria-hidden />
               Central de ajuda
             </div>
-            <h1 className="mt-4 font-headline text-3xl font-extrabold tracking-tight text-indigo-950 sm:text-4xl">
+            <h1 className="mt-4 font-headline text-3xl font-extrabold tracking-tight text-on-surface sm:text-4xl">
               Como usar a plataforma
             </h1>
             <p className="mt-3 text-base leading-relaxed text-slate-600 sm:text-lg">
@@ -43,7 +43,7 @@ export function HelpPage() {
           </div>
           <Link
             to="/app/settings"
-            className="inline-flex shrink-0 items-center gap-2 self-start rounded-2xl border border-indigo-200 bg-white px-5 py-3 text-sm font-bold text-indigo-800 shadow-sm transition hover:bg-indigo-50"
+            className="inline-flex shrink-0 items-center gap-2 self-start rounded-2xl border border-primary/20 bg-white px-5 py-3 text-sm font-bold text-primary shadow-sm transition hover:bg-primary/5"
           >
             <Settings2 className="h-4 w-4" aria-hidden />
             Configurações
@@ -52,7 +52,7 @@ export function HelpPage() {
       </header>
 
       <section aria-labelledby="help-inicio">
-        <h2 id="help-inicio" className="font-headline text-xl font-bold text-indigo-950">
+        <h2 id="help-inicio" className="font-headline text-xl font-bold text-on-surface">
           Por onde começo?
         </h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-600">
@@ -96,16 +96,16 @@ export function HelpPage() {
                 to={item.to}
                 className={`group flex gap-4 ${cardClass} items-start p-5 sm:p-6`}
               >
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-indigo-100 text-lg font-black text-indigo-700">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-lg font-black text-primary">
                   {item.step}
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <item.icon className="h-4 w-4 text-indigo-500" aria-hidden />
-                    <h3 className="font-headline text-base font-bold text-indigo-950">{item.title}</h3>
+                    <item.icon className="h-4 w-4 text-primary/80" aria-hidden />
+                    <h3 className="font-headline text-base font-bold text-on-surface">{item.title}</h3>
                   </div>
                   <p className="mt-2 text-sm leading-relaxed text-slate-600">{item.desc}</p>
-                  <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-indigo-600 group-hover:underline">
+                  <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-primary group-hover:underline">
                     Ir para a área
                     <ChevronRight className="h-4 w-4 transition group-hover:translate-x-0.5" aria-hidden />
                   </span>
@@ -118,11 +118,11 @@ export function HelpPage() {
 
       <section aria-labelledby="help-conceitos" className="grid gap-6 lg:grid-cols-2">
         <div className={cardClass}>
-          <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-indigo-600">
+          <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-primary">
             <GraduationCap className="h-4 w-4" aria-hidden />
             Cursos e módulos
           </div>
-          <h2 id="help-conceitos" className="mt-3 font-headline text-lg font-bold text-indigo-950">
+          <h2 id="help-conceitos" className="mt-3 font-headline text-lg font-bold text-on-surface">
             O que é cada coisa?
           </h2>
           <ul className="mt-4 space-y-3 text-sm leading-relaxed text-slate-600">
@@ -150,7 +150,7 @@ export function HelpPage() {
             <Sparkles className="h-4 w-4" aria-hidden />
             Pontos, nível e sequência
           </div>
-          <h3 className="mt-3 font-headline text-lg font-bold text-indigo-950">Gamificação (resumo)</h3>
+          <h3 className="mt-3 font-headline text-lg font-bold text-on-surface">Gamificação (resumo)</h3>
           <ul className="mt-4 space-y-3 text-sm leading-relaxed text-slate-600">
             <li className="flex gap-2">
               <Zap className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" aria-hidden />
@@ -174,7 +174,7 @@ export function HelpPage() {
               </span>
             </li>
             <li className="flex gap-2">
-              <Medal className="mt-0.5 h-4 w-4 shrink-0 text-indigo-500" aria-hidden />
+              <Medal className="mt-0.5 h-4 w-4 shrink-0 text-primary/80" aria-hidden />
               <span>
                 <strong className="text-slate-800">Ranking:</strong> comparação com outros alunos — use com espírito de
                 diversão, não de pressão.
@@ -189,7 +189,7 @@ export function HelpPage() {
           <Rocket className="h-4 w-4" aria-hidden />
           Se estiver difícil
         </div>
-        <h2 id="help-dificuldade" className="mt-3 font-headline text-lg font-bold text-indigo-950">
+        <h2 id="help-dificuldade" className="mt-3 font-headline text-lg font-bold text-on-surface">
           Dicas práticas
         </h2>
         <ul className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -205,7 +205,7 @@ export function HelpPage() {
               key={tip}
               className="flex gap-3 rounded-xl border border-slate-100 bg-slate-50/80 p-4 text-sm leading-relaxed text-slate-700"
             >
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500" aria-hidden />
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/50" aria-hidden />
               {tip}
             </li>
           ))}
@@ -213,7 +213,7 @@ export function HelpPage() {
       </section>
 
       <section aria-labelledby="help-faq">
-        <h2 id="help-faq" className="font-headline text-xl font-bold text-indigo-950">
+        <h2 id="help-faq" className="font-headline text-xl font-bold text-on-surface">
           Perguntas frequentes
         </h2>
         <div className="mt-4 space-y-3">
@@ -241,9 +241,9 @@ export function HelpPage() {
           ].map((item) => (
             <details
               key={item.q}
-              className="group rounded-2xl border border-white/60 bg-white/80 shadow-sm backdrop-blur-xl open:border-indigo-200/80 open:shadow-md"
+              className="group rounded-2xl border border-white/60 bg-white/80 shadow-sm backdrop-blur-xl open:border-primary/20/80 open:shadow-md"
             >
-              <summary className="cursor-pointer list-none px-5 py-4 font-semibold text-indigo-950 marker:content-none [&::-webkit-details-marker]:hidden">
+              <summary className="cursor-pointer list-none px-5 py-4 font-semibold text-on-surface marker:content-none [&::-webkit-details-marker]:hidden">
                 <span className="flex items-center justify-between gap-3">
                   {item.q}
                   <ChevronRight className="h-5 w-5 shrink-0 text-slate-400 transition group-open:rotate-90" aria-hidden />
@@ -257,9 +257,9 @@ export function HelpPage() {
 
       <section className={`${cardClass} flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between`}>
         <div className="flex items-start gap-3">
-          <Users className="mt-0.5 h-10 w-10 shrink-0 rounded-xl bg-indigo-100 p-2 text-indigo-700" aria-hidden />
+          <Users className="mt-0.5 h-10 w-10 shrink-0 rounded-xl bg-primary/10 p-2 text-primary" aria-hidden />
           <div>
-            <h2 className="font-headline text-lg font-bold text-indigo-950">Ainda precisa de suporte?</h2>
+            <h2 className="font-headline text-lg font-bold text-on-surface">Ainda precisa de suporte?</h2>
             <p className="mt-1 text-sm text-slate-600">
               Quem mantém esta instalação pode oferecer canal de contato (e-mail, grupo ou ticket). Pergunte ao seu
               professor ou administrador qual é o canal oficial desta plataforma.

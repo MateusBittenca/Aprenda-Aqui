@@ -54,12 +54,12 @@ function FollowingRow({ u }: { u: FollowListUser }) {
       >
         <Avatar userId={u.id} displayName={u.displayName} colorKey={u.avatarColorKey} size="sm" />
         <div className="min-w-0 flex-1">
-          <p className="font-semibold text-slate-900 group-hover:text-indigo-900">{u.displayName}</p>
+          <p className="font-semibold text-slate-900 group-hover:text-primary">{u.displayName}</p>
           <p className="text-xs text-slate-500">
             Nv. {u.level} · {u.xpTotal.toLocaleString('pt-BR')} XP
           </p>
         </div>
-        <ChevronRight className="h-4 w-4 shrink-0 text-slate-400 transition group-hover:text-indigo-500" aria-hidden />
+        <ChevronRight className="h-4 w-4 shrink-0 text-slate-400 transition group-hover:text-primary" aria-hidden />
       </Link>
     </li>
   );
@@ -107,11 +107,11 @@ export function CommunityPage() {
       />
 
       <header className="relative mb-8 md:mb-10">
-        <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200/60 bg-indigo-50/80 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-indigo-800">
+        <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200/60 bg-indigo-50/80 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
           <Users className="h-3.5 w-3.5" aria-hidden />
           Comunidade
         </div>
-        <h1 className="font-headline mt-4 font-extrabold tracking-tight text-indigo-950 [font-size:clamp(1.75rem,1.1rem+2.8vw,2.75rem)]">
+        <h1 className="font-headline mt-4 font-extrabold tracking-tight text-on-surface [font-size:clamp(1.75rem,1.1rem+2.8vw,2.75rem)]">
           Pessoas e conexões
         </h1>
         <p className="mt-3 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg">
@@ -124,14 +124,14 @@ export function CommunityPage() {
             to="/app/me"
             className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-sm font-semibold text-slate-800 shadow-sm backdrop-blur transition hover:border-indigo-200 hover:bg-indigo-50/50"
           >
-            <UserCircle2 className="h-5 w-5 text-indigo-600" aria-hidden />
+            <UserCircle2 className="h-5 w-5 text-primary" aria-hidden />
             Meu perfil
           </Link>
         </div>
       </header>
 
       {/* Presença em tempo quase real (heartbeat no app) */}
-      <section className="relative mb-10 overflow-hidden rounded-[1.35rem] border border-emerald-200/80 bg-gradient-to-br from-emerald-50/50 via-white to-teal-50/40 p-5 shadow-[0_20px_40px_rgba(16,185,129,0.08)] sm:p-6">
+      <section className="relative mb-10 overflow-hidden rounded-[1.35rem] border border-emerald-200/80 bg-gradient-to-br from-emerald-50/50 via-white to-teal-50/40 p-5 shadow-card sm:p-6">
         <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-md">
@@ -169,11 +169,11 @@ export function CommunityPage() {
       {/* Busca */}
       <section className="relative mb-10">
         <h2 className="mb-3 flex items-center gap-2 font-headline text-lg font-bold text-slate-900">
-          <Search className="h-5 w-5 text-indigo-600" aria-hidden />
+          <Search className="h-5 w-5 text-primary" aria-hidden />
           Encontrar pessoas
         </h2>
-        <div className="relative rounded-2xl border border-slate-200/90 bg-white/85 p-1 shadow-[0_20px_40px_rgba(44,47,49,0.05)] backdrop-blur-md">
-          <Search className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-indigo-400" />
+        <div className="relative rounded-2xl border border-slate-200/90 bg-white/85 p-1 shadow-card backdrop-blur-md">
+          <Search className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-primary/70" />
           <input
             type="search"
             inputMode="search"
@@ -197,7 +197,7 @@ export function CommunityPage() {
           <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-md">
             <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
               <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500">Resultados</h3>
-              {search.isFetching && <span className="text-xs font-medium text-indigo-600">Buscando…</span>}
+              {search.isFetching && <span className="text-xs font-medium text-primary">Buscando…</span>}
             </div>
             {search.isError && (
               <div className="p-4">
@@ -217,12 +217,12 @@ export function CommunityPage() {
                     >
                       <Avatar userId={u.id} displayName={u.displayName} colorKey={u.avatarColorKey} size="md" />
                       <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-slate-900 group-hover:text-indigo-900">{u.displayName}</p>
+                        <p className="font-semibold text-slate-900 group-hover:text-primary">{u.displayName}</p>
                         <p className="text-xs text-slate-500">
                           Nv. {u.level} · {u.xpTotal.toLocaleString('pt-BR')} XP
                         </p>
                       </div>
-                      <div className="flex items-center gap-1 text-xs font-semibold text-indigo-600">
+                      <div className="flex items-center gap-1 text-xs font-semibold text-primary">
                         Perfil
                         <Zap className="h-3.5 w-3.5 opacity-70" aria-hidden />
                       </div>
@@ -236,7 +236,7 @@ export function CommunityPage() {
       </section>
 
       {/* Sua rede */}
-      <section className="relative overflow-hidden rounded-[1.35rem] border border-indigo-100/90 bg-gradient-to-br from-indigo-50/40 via-white to-violet-50/30 p-5 shadow-[0_20px_40px_rgba(76,29,149,0.06)] sm:p-6">
+      <section className="relative overflow-hidden rounded-[1.35rem] border border-indigo-100/90 bg-gradient-to-br from-indigo-50/40 via-white to-violet-50/30 p-5 shadow-card sm:p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-md">

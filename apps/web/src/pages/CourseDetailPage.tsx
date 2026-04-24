@@ -37,7 +37,7 @@ export function CourseDetailPage() {
           notFound ? (
             <p>
               Matricule-se no curso pelo catálogo em{' '}
-              <Link to="/app/courses" className="font-semibold text-indigo-600 underline-offset-4 hover:underline">
+              <Link to="/app/courses" className="font-semibold text-primary underline-offset-4 hover:underline">
                 Cursos
               </Link>{' '}
               para ver o conteúdo aqui.

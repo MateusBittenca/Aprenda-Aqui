@@ -69,7 +69,7 @@ export function AdminTeamPage() {
   return (
     <div className="space-y-10">
       <div>
-        <h1 className="text-2xl font-bold text-white">Equipe administrativa</h1>
+        <h1 className="font-headline text-2xl font-bold tracking-tight text-white">Equipe administrativa</h1>
         <p className="mt-1 text-sm text-slate-400">
           Contas com acesso total ao console. Novos admins recebem e-mail e senha definidos abaixo.
         </p>

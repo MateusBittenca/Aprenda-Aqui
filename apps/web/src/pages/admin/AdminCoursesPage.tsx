@@ -34,7 +34,7 @@ export function AdminCoursesPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-white">Catálogo</h1>
+        <h1 className="font-headline text-2xl font-bold tracking-tight text-white">Catálogo</h1>
         <p className="mt-1 text-sm text-slate-400">Gerencie cursos, módulos e aulas.</p>
       </div>
 

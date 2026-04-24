@@ -57,8 +57,8 @@ export function LearningPathCard({
       >
         <article
           className={twMerge(
-            'relative flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border bg-white transition duration-300 ease-out',
-            'border-slate-200/90 shadow-[0_1px_0_rgba(15,23,42,0.02),0_14px_44px_-18px_rgba(15,23,42,0.12)]',
+            'relative flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border bg-surface-container-lowest transition duration-300 ease-out',
+            'border-surface-container-high/90 shadow-[0_1px_0_rgba(15,23,42,0.02),0_14px_44px_-18px_rgba(15,23,42,0.12)]',
             'group-hover:-translate-y-1 group-hover:border-violet-200/70 group-hover:shadow-[0_28px_56px_-28px_rgba(91,33,182,0.18)]',
           )}
         >
@@ -87,22 +87,22 @@ export function LearningPathCard({
               )}
             </div>
 
-            <h2 className="mt-5 font-headline text-xl font-bold leading-snug tracking-tight text-slate-900">
+            <h2 className="mt-5 font-headline text-xl font-bold leading-snug tracking-tight text-on-surface">
               {title}
             </h2>
             {description && (
-              <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-slate-600">{description}</p>
+              <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-on-surface-variant">{description}</p>
             )}
 
             {progress && progress.total > 0 && (
               <div className="mt-5">
                 <div className="mb-1 flex items-baseline justify-between gap-2 text-xs font-semibold">
-                  <span className="tabular-nums text-violet-700">{progress.pct}%</span>
-                  <span className="tabular-nums text-slate-500">
+                  <span className="tabular-nums text-violet-700 dark:text-violet-400">{progress.pct}%</span>
+                  <span className="tabular-nums text-on-surface-variant">
                     {progress.completed}/{progress.total} aulas
                   </span>
                 </div>
-                <div className="h-1 overflow-hidden rounded-full bg-slate-100">
+                <div className="h-1 overflow-hidden rounded-full bg-surface-container-high">
                   <div
                     className="h-full rounded-full bg-violet-500 transition-[width] duration-500 ease-out"
                     style={{ width: `${Math.min(100, progress.pct)}%` }}
@@ -112,11 +112,11 @@ export function LearningPathCard({
             )}
 
             {showPremiumNext && (
-              <p className="mt-4 flex gap-2 text-sm leading-snug text-slate-700">
+              <p className="mt-4 flex gap-2 text-sm leading-snug text-on-surface-variant">
                 <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-violet-500" aria-hidden />
                 <span>
-                  <span className="font-semibold text-slate-800">Próxima aula:</span>{' '}
-                  <span className="text-slate-600">{nextLessonTitle}</span>
+                  <span className="font-semibold text-on-surface">Próxima aula:</span>{' '}
+                  <span>{nextLessonTitle}</span>
                 </span>
               </p>
             )}
@@ -126,8 +126,8 @@ export function LearningPathCard({
                 className={twMerge(
                   'inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold shadow-lg transition',
                   footer.completed
-                    ? 'bg-white text-indigo-950 ring-2 ring-indigo-950/15 ring-offset-0 group-hover:bg-violet-50'
-                    : 'bg-indigo-950 text-white shadow-indigo-950/25 group-hover:bg-indigo-900',
+                    ? 'bg-surface-container-high text-on-surface ring-2 ring-on-surface/10 ring-offset-0 group-hover:bg-surface-container-highest'
+                    : 'bg-primary text-white shadow-primary/25 group-hover:bg-primary-dim',
                 )}
               >
                 {footer.label}
@@ -147,9 +147,9 @@ export function LearningPathCard({
     >
       <article
         className={twMerge(
-          'relative flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border bg-white transition duration-300 ease-out',
-          'border-slate-200/80 shadow-[0_1px_0_rgba(15,23,42,0.03),0_12px_40px_-16px_rgba(15,23,42,0.14)]',
-          'group-hover:-translate-y-1 group-hover:border-slate-300/90 group-hover:shadow-[0_24px_48px_-24px_rgba(15,23,42,0.22)]',
+          'relative flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border bg-surface-container-lowest transition duration-300 ease-out',
+          'border-surface-container-high/80 shadow-[0_1px_0_rgba(15,23,42,0.03),0_12px_40px_-16px_rgba(15,23,42,0.14)]',
+          'group-hover:-translate-y-1 group-hover:border-surface-container-highest group-hover:shadow-[0_24px_48px_-24px_rgba(15,23,42,0.22)]',
         )}
       >
         <div className={twMerge('h-1 w-full shrink-0', visual.accentBar)} aria-hidden />
@@ -184,7 +184,7 @@ export function LearningPathCard({
                   {!catalog.canEnroll ? (
                     <span className="text-xs font-bold uppercase tracking-wide text-amber-800">Indisponível</span>
                   ) : (
-                    <span className="text-xs font-semibold tabular-nums text-slate-500">
+                    <span className="text-xs font-semibold tabular-nums text-on-surface-variant">
                       {catalog.moduleCount} módulo{catalog.moduleCount !== 1 ? 's' : ''}
                     </span>
                   )}
@@ -205,23 +205,23 @@ export function LearningPathCard({
             </div>
           </div>
 
-          <h2 className="mt-4 font-headline text-lg font-bold leading-snug tracking-tight text-slate-900 sm:text-[1.35rem] sm:leading-tight">
+          <h2 className="mt-4 font-headline text-lg font-bold leading-snug tracking-tight text-on-surface sm:text-[1.35rem] sm:leading-tight">
             {title}
           </h2>
           {tagline && (
-            <p className="mt-1.5 text-sm font-semibold leading-snug text-slate-600">{tagline}</p>
+            <p className="mt-1.5 text-sm font-semibold leading-snug text-on-surface-variant">{tagline}</p>
           )}
           {description && (
-            <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-slate-600">{description}</p>
+            <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-on-surface-variant">{description}</p>
           )}
 
           {!catalog && progress && progress.total > 0 && (
             <div className="mt-4">
               <div className="mb-1.5 flex items-center justify-between gap-2 text-xs font-semibold">
-                <span className="text-slate-500">Progresso</span>
-                <span className="tabular-nums text-slate-800">{progress.pct}%</span>
+                <span className="text-on-surface-variant">Progresso</span>
+                <span className="tabular-nums text-on-surface">{progress.pct}%</span>
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200/50">
+              <div className="h-2 overflow-hidden rounded-full bg-surface-container-high ring-1 ring-surface-container-high/50">
                 <div
                   className={twMerge('h-full rounded-full transition-[width] duration-500 ease-out', visual.accentBar)}
                   style={{ width: `${Math.min(100, progress.pct)}%` }}
@@ -231,9 +231,9 @@ export function LearningPathCard({
           )}
 
           {showLessonPreview && (
-            <ul className="mt-4 space-y-2.5 border-t border-slate-100 pt-4">
+            <ul className="mt-4 space-y-2.5 border-t border-surface-container-high/50 pt-4">
               {previewItems.map((text) => (
-                <li key={text} className="flex gap-2.5 text-sm leading-snug text-slate-700">
+                <li key={text} className="flex gap-2.5 text-sm leading-snug text-on-surface-variant">
                   <span
                     className={twMerge('mt-2 h-1 w-1 shrink-0 rounded-full', visual.hintDot)}
                     aria-hidden
@@ -249,8 +249,8 @@ export function LearningPathCard({
               className={twMerge(
                 'inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition sm:w-auto sm:justify-start',
                 footer.completed
-                  ? 'bg-emerald-50 text-emerald-900 ring-1 ring-emerald-100 group-hover:bg-emerald-100/80'
-                  : 'bg-slate-900 text-white shadow-md shadow-slate-900/10 group-hover:bg-slate-800',
+                  ? 'bg-emerald-50 text-emerald-900 ring-1 ring-emerald-100 group-hover:bg-emerald-100/80 dark:bg-emerald-900/30 dark:text-emerald-300 dark:ring-emerald-800/40'
+                  : 'bg-on-surface text-surface shadow-md shadow-on-surface/10 group-hover:bg-on-surface/90',
               )}
             >
               {footer.label}

@@ -19,8 +19,10 @@ import { DailyGiftCard } from '../components/DailyGiftCard';
 import { ResumeHero } from '../components/ResumeHero';
 import { XpTrajectoryModal } from '../components/XpTrajectoryModal';
 import { getNextRankThreshold, getRankForLevel } from '../lib/levelTitles';
+import { Card } from '../components/ui/Card';
 import { ErrorState } from '../components/ui/ErrorState';
 import { PageLoader } from '../components/ui/PageLoader';
+import { SectionHeading } from '../components/ui/SectionHeading';
 import { Avatar } from '../components/Avatar';
 import { useMe } from '../hooks/useMe';
 import { useProgress } from '../hooks/useProgress';
@@ -66,8 +68,8 @@ function StreakWeekStrip({ days }: { days: boolean[] }) {
             key={i}
             className={twMerge(
               'h-2.5 w-2.5 rounded-full',
-              on ? 'bg-orange-500' : 'bg-slate-200',
-              i === 6 && 'ring-2 ring-orange-400 ring-offset-1',
+              on ? 'bg-orange-500' : 'bg-surface-container-high',
+              i === 6 && 'ring-2 ring-orange-400 ring-offset-1 ring-offset-surface-container-lowest',
             )}
           />
         ))}
@@ -126,27 +128,26 @@ function HeroSection({ data }: { data: MeProfile }) {
   const greeting = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-6 shadow-elevated sm:p-8">
-      <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-primary-container/25 opacity-90" />
+    <Card variant="hero" className="relative overflow-hidden p-6 sm:p-8">
       <div className="relative flex items-center gap-4 sm:gap-5">
         <Avatar userId={data.id} displayName={data.displayName} colorKey={data.avatarColorKey} size="xl" />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-on-surface-variant">{greeting},</p>
-          <h1 className="font-headline mt-0.5 truncate text-2xl font-black tracking-tight text-on-surface sm:text-3xl">
+          <h1 className="font-headline mt-0.5 truncate text-2xl font-extrabold tracking-tight text-on-surface sm:text-3xl">
             {firstName}!
           </h1>
           <p className="mt-1 break-words text-sm text-on-surface-variant">{streakMessage(data.currentStreak)}</p>
           <StreakWeekStrip days={data.streakWeekDays} />
         </div>
         {data.currentStreak >= 3 && (
-          <div className="hidden flex-col items-center rounded-2xl border-2 border-amber-200 bg-amber-50 px-4 py-3 text-center shadow-sm sm:flex">
-            <Flame className={`h-6 w-6 text-amber-500 ${data.currentStreak >= 7 ? 'animate-pulse' : ''}`} />
-            <span className="mt-1 text-2xl font-black text-amber-700">{data.currentStreak}</span>
+          <div className="hidden flex-col items-center rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-center shadow-card sm:flex">
+            <Flame className={`h-6 w-6 text-amber-500 ${data.currentStreak >= 7 ? 'animate-pulse motion-reduce:animate-none' : ''}`} />
+            <span className="font-headline mt-1 text-2xl font-extrabold text-amber-700">{data.currentStreak}</span>
             <span className="text-xs font-bold uppercase tracking-wide text-amber-600">dias</span>
           </div>
         )}
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -166,38 +167,38 @@ function XPSection({ data }: { data: MeProfile }) {
       <button
         type="button"
         onClick={() => setTrajOpen(true)}
-        className="hover-lift press-tactile w-full rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-5 text-left shadow-elevated hover:border-primary/25 focus-ring-primary sm:p-6"
+        className="hover-lift press-tactile w-full rounded-2xl border border-surface-container-high/70 bg-surface-container-lowest p-5 text-left shadow-card hover:border-primary/25 focus-ring-primary sm:p-6"
       >
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-3">
           <div className="min-w-0">
             <p className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide text-primary">
               <Sparkles className="h-3.5 w-3.5 shrink-0" aria-hidden /> Nível {data.level}
             </p>
-            <p className="mt-1 text-sm font-semibold text-indigo-800">{rank.name}</p>
-            <p className="mt-1.5 text-2xl font-black tabular-nums text-slate-900 sm:text-3xl">
+            <p className="mt-1 text-sm font-semibold text-primary/90">{rank.name}</p>
+            <p className="font-headline mt-1.5 text-2xl font-extrabold tabular-nums text-on-surface sm:text-3xl">
               {data.xpProgress.currentBandXp}
-              <span className="ml-1 text-base font-bold text-slate-400 sm:text-lg">
+              <span className="ml-1 text-base font-bold text-on-surface-variant sm:text-lg">
                 / {data.xpProgress.bandSize} XP
               </span>
             </p>
           </div>
-          <p className="shrink-0 text-sm font-semibold text-slate-500 sm:text-right">
-            {pct}% para <span className="text-slate-900">nível {data.level + 1}</span>
+          <p className="shrink-0 text-sm font-semibold text-on-surface-variant sm:text-right">
+            {pct}% para <span className="text-on-surface">nível {data.level + 1}</span>
           </p>
         </div>
-        <div className="mt-4 h-3.5 overflow-hidden rounded-full bg-slate-100">
+        <div className="mt-4 h-3.5 overflow-hidden rounded-full bg-surface-container-high/60">
           <div
-            className="relative h-full overflow-hidden rounded-full bg-primary transition-all duration-700 ease-ios-out"
+            className="relative h-full overflow-hidden rounded-full brand-gradient transition-all duration-700 ease-ios-out"
             style={{ width: `${pct}%` }}
           >
             {pct > 0 && pct < 100 && <span className="absolute inset-0 shimmer-line" aria-hidden />}
           </div>
         </div>
-        <div className="mt-3 flex flex-col gap-1 border-t border-slate-100 pt-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-slate-400">{data.xpTotal.toLocaleString('pt-BR')} XP total acumulado</p>
+        <div className="mt-3 flex flex-col gap-1 border-t border-surface-container-high/70 pt-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs text-on-surface-variant">{data.xpTotal.toLocaleString('pt-BR')} XP total acumulado</p>
           {nextRank ? (
-            <p className="text-xs font-medium text-slate-500">
-              Próximo título em nv. {nextRank.level}: <span className="text-indigo-700">{nextRank.name}</span>
+            <p className="text-xs font-medium text-on-surface-variant">
+              Próximo título em nv. {nextRank.level}: <span className="text-primary">{nextRank.name}</span>
             </p>
           ) : (
             <p className="text-xs font-medium text-amber-700">Título máximo alcançado nesta escala</p>
@@ -251,11 +252,11 @@ function StatKpi({
     violet: 'bg-violet-50',
   };
   return (
-    <div className={`hover-lift rounded-2xl border border-slate-200/60 ${bg[accent] ?? 'bg-surface-container-lowest'} p-4 shadow-elevated`}>
-      <div className="flex items-center gap-1.5">{icon}<span className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</span></div>
-      <p className="mt-2 text-2xl font-black tabular-nums text-slate-900">{value}</p>
-      <p className="text-xs text-slate-500">{sub}</p>
-    </div>
+    <Card className={`hover-lift p-4 ${bg[accent] ?? ''}`}>
+      <div className="flex items-center gap-1.5">{icon}<span className="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{label}</span></div>
+      <p className="font-headline mt-2 text-2xl font-extrabold tabular-nums text-on-surface">{value}</p>
+      <p className="text-xs text-on-surface-variant">{sub}</p>
+    </Card>
   );
 }
 
@@ -279,10 +280,10 @@ function GoalsSection({ progress, goal }: { progress?: UserProgress; goal?: Dail
   const allDone = lessonsDone && exercisesDone;
 
   return (
-    <div className="rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-5 shadow-elevated">
+    <Card className="p-5">
       <div className="mb-4 flex items-center gap-2">
         <Target className="h-4 w-4 text-primary" />
-        <h2 className="text-sm font-bold uppercase tracking-wide text-slate-700">Meta do dia</h2>
+        <h2 className="text-sm font-bold uppercase tracking-wide text-on-surface">Meta do dia</h2>
         {adapted && (
           <span
             className="ml-1 rounded-full bg-primary/10 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-primary"
@@ -309,7 +310,7 @@ function GoalsSection({ progress, goal }: { progress?: UserProgress; goal?: Dail
           total={exercisesTarget}
         />
       </ul>
-    </div>
+    </Card>
   );
 }
 
@@ -320,14 +321,14 @@ function GoalItem({ label, done, current, total }: { label: string; done: boolea
       <div className="flex items-center gap-2">
         {done
           ? <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-500" />
-          : <Circle className="h-5 w-5 shrink-0 text-slate-300" />
+          : <Circle className="h-5 w-5 shrink-0 text-surface-container-high" />
         }
-        <span className={`text-sm font-medium ${done ? 'text-emerald-700 line-through' : 'text-slate-700'}`}>
+        <span className={`text-sm font-medium ${done ? 'text-emerald-700 line-through' : 'text-on-surface'}`}>
           {label}
         </span>
-        <span className="ml-auto text-xs font-semibold tabular-nums text-slate-400">{current}/{total}</span>
+        <span className="ml-auto text-xs font-semibold tabular-nums text-on-surface-variant">{current}/{total}</span>
       </div>
-      <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-100">
+      <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-surface-container-high/60">
         <div
           className={`h-full rounded-full transition-all duration-500 ${done ? 'bg-emerald-500' : 'bg-primary'}`}
           style={{ width: `${pct}%` }}
@@ -345,15 +346,16 @@ function CoursesSection({ enrolled, loading }: { enrolled: EnrolledCourse[]; loa
 
   return (
     <section>
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-slate-700">
-          <BookOpen className="h-4 w-4 text-primary" />
-          Cursos em andamento
-        </h2>
-        <Link to="/app/my-courses" className="text-xs font-semibold text-primary hover:underline">
-          Ver todos →
-        </Link>
-      </div>
+      <SectionHeading
+        icon={<BookOpen className="h-5 w-5" />}
+        title="Cursos em andamento"
+        action={
+          <Link to="/app/my-courses" className="text-xs font-semibold text-primary hover:underline">
+            Ver todos →
+          </Link>
+        }
+        className="mb-4"
+      />
 
       {loading ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -366,25 +368,25 @@ function CoursesSection({ enrolled, loading }: { enrolled: EnrolledCourse[]; loa
           ))}
         </div>
       ) : enrolled.length === 0 ? (
-        <div className="rounded-2xl border-2 border-dashed border-surface-container-high bg-surface-container-lowest py-8 text-center text-sm text-on-surface-variant shadow-elevated">
-          <BookOpen className="mx-auto mb-3 h-8 w-8 text-slate-300" />
+        <Card variant="flat" className="py-8 text-center text-sm text-on-surface-variant">
+          <BookOpen className="mx-auto mb-3 h-8 w-8 text-on-surface-variant/60" />
           <p className="font-medium">Você ainda não está matriculado em nenhum curso.</p>
           <Link to="/app/courses" className="mt-3 inline-flex items-center gap-1 font-semibold text-primary hover:underline">
             Explorar cursos <ArrowRight className="h-3.5 w-3.5" />
           </Link>
-        </div>
+        </Card>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {inProgress.slice(0, 3).map((c) => <CourseCard key={c.id} course={c} />)}
           {inProgress.length === 0 && completed.length > 0 && (
-            <div className="sm:col-span-2 xl:col-span-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-center text-sm shadow-elevated">
+            <Card className="sm:col-span-2 xl:col-span-3 border-emerald-200 bg-emerald-50 p-5 text-center text-sm">
               <p className="font-semibold text-emerald-800">Todos os cursos concluídos! 🎉 Explore mais no catálogo.</p>
-            </div>
+            </Card>
           )}
           {inProgress.length === 0 && completed.length === 0 && enrolled.length > 0 && (
-            <div className="sm:col-span-2 xl:col-span-3 rounded-2xl border border-surface-container-high bg-surface-container-lowest p-5 text-center text-sm text-on-surface-variant shadow-elevated">
+            <Card className="sm:col-span-2 xl:col-span-3 p-5 text-center text-sm text-on-surface-variant">
               <p>Matriculado em {enrolled.length} curso{enrolled.length !== 1 ? 's' : ''} sem aulas criadas ainda.</p>
-            </div>
+            </Card>
           )}
         </div>
       )}
@@ -396,19 +398,19 @@ function CourseCard({ course }: { course: EnrolledCourse }) {
   return (
     <Link
       to={`/app/my-courses/${course.slug}`}
-      className="hover-lift group flex flex-col rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-5 shadow-elevated"
+      className="hover-lift group flex flex-col rounded-2xl border border-surface-container-high/70 bg-surface-container-lowest p-5 shadow-card"
     >
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Curso</p>
-      <h3 className="mt-1 font-bold text-on-surface group-hover:text-primary">{course.title}</h3>
+      <p className="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">Curso</p>
+      <h3 className="font-headline mt-1 font-bold tracking-tight text-on-surface group-hover:text-primary">{course.title}</h3>
       {course.description && (
-        <p className="mt-1 line-clamp-2 text-xs text-slate-500">{course.description}</p>
+        <p className="mt-1 line-clamp-2 text-xs text-on-surface-variant">{course.description}</p>
       )}
       <div className="mt-4">
-        <div className="flex items-center justify-between text-xs font-medium text-slate-500">
+        <div className="flex items-center justify-between text-xs font-medium text-on-surface-variant">
           <span>{course.progress.completed}/{course.progress.total} aulas</span>
-          <span className="font-bold text-slate-700">{course.progress.pct}%</span>
+          <span className="font-bold text-on-surface">{course.progress.pct}%</span>
         </div>
-        <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-slate-100">
+        <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-surface-container-high/60">
           <div
             className="h-full rounded-full bg-primary transition-all duration-500"
             style={{ width: `${course.progress.pct}%` }}
@@ -443,16 +445,16 @@ function BottomGrid({
 function LeaderboardMini({ lb, myId }: { lb?: LeaderboardData; myId: string }) {
   if (!lb) {
     return (
-      <div className="rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-5 shadow-elevated">
-        <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-slate-700">
+      <Card className="p-5">
+        <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-on-surface">
           <Medal className="h-4 w-4 text-amber-500" /> Ranking Global
         </h2>
         <div className="mt-4 animate-pulse space-y-3">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-8 rounded-xl bg-slate-100" />
+            <div key={i} className="h-8 rounded-xl bg-surface-container-high/60" />
           ))}
         </div>
-      </div>
+      </Card>
     );
   }
 
@@ -462,17 +464,17 @@ function LeaderboardMini({ lb, myId }: { lb?: LeaderboardData; myId: string }) {
   const inTop = myRank <= 5;
 
   const rowStyle = (rank: number, isMe: boolean) => {
-    if (isMe) return 'border-2 border-blue-500 bg-blue-50';
+    if (isMe) return 'border-2 border-primary bg-primary/5';
     if (rank === 1) return 'border border-amber-200 bg-amber-50';
-    if (rank === 2) return 'border border-slate-200 bg-slate-50';
+    if (rank === 2) return 'border border-surface-container-high bg-surface-container-low';
     if (rank === 3) return 'border border-orange-100 bg-orange-50';
     return 'border border-transparent';
   };
 
   return (
-    <div className="rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-5 shadow-elevated">
+    <Card className="p-5">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-slate-700">
+        <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-on-surface">
           <Medal className="h-4 w-4 text-amber-500" /> Ranking Global
         </h2>
         <Link to="/app/ranking" className="text-xs font-semibold text-primary hover:underline">
@@ -488,10 +490,10 @@ function LeaderboardMini({ lb, myId }: { lb?: LeaderboardData; myId: string }) {
             <li key={u.id} className={`flex items-center gap-3 rounded-xl px-3 py-2 ${rowStyle(rank, isMe)}`}>
               <RankIndicator rank={rank} />
               <Avatar userId={u.id} displayName={u.displayName} colorKey={u.avatarColorKey} size="sm" />
-              <span className={`flex-1 truncate text-sm font-semibold ${isMe ? 'text-blue-800' : 'text-slate-800'}`}>
+              <span className={`flex-1 truncate text-sm font-semibold ${isMe ? 'text-primary' : 'text-on-surface'}`}>
                 {u.displayName}{isMe && ' (você)'}
               </span>
-              <span className="shrink-0 text-xs font-bold tabular-nums text-slate-500">
+              <span className="shrink-0 text-xs font-bold tabular-nums text-on-surface-variant">
                 {u.xpTotal} XP
               </span>
             </li>
@@ -500,17 +502,17 @@ function LeaderboardMini({ lb, myId }: { lb?: LeaderboardData; myId: string }) {
       </ul>
 
       {!inTop && myEntry && (
-        <div className="mt-3 flex items-center gap-3 rounded-xl border-2 border-blue-500 bg-blue-50 px-3 py-2">
-          <span className="w-7 shrink-0 text-center text-sm font-black text-blue-700">#{myRank}</span>
+        <div className="mt-3 flex items-center gap-3 rounded-xl border-2 border-primary bg-primary/5 px-3 py-2">
+          <span className="w-7 shrink-0 text-center text-sm font-extrabold text-primary">#{myRank}</span>
           <Avatar userId={myId} displayName={myEntry.displayName} colorKey={myEntry.avatarColorKey} size="sm" />
-          <span className="flex-1 truncate text-sm font-semibold text-blue-800">{myEntry.displayName} (você)</span>
-          <span className="shrink-0 text-xs font-bold tabular-nums text-slate-500">{myEntry.xpTotal} XP</span>
+          <span className="flex-1 truncate text-sm font-semibold text-primary">{myEntry.displayName} (você)</span>
+          <span className="shrink-0 text-xs font-bold tabular-nums text-on-surface-variant">{myEntry.xpTotal} XP</span>
         </div>
       )}
       {!inTop && !myEntry && (
-        <p className="mt-3 text-xs text-center text-slate-400">Você está em #{myRank} de {lb.total}</p>
+        <p className="mt-3 text-xs text-center text-on-surface-variant">Você está em #{myRank} de {lb.total}</p>
       )}
-    </div>
+    </Card>
   );
 }
 
@@ -530,7 +532,7 @@ function RankIndicator({ rank }: { rank: number }) {
   if (rank === 2) {
     return (
       <span className="inline-flex w-7 shrink-0 justify-center" aria-label="2º lugar">
-        <Medal className="h-5 w-5 text-slate-400" strokeWidth={2.25} aria-hidden />
+        <Medal className="h-5 w-5 text-on-surface-variant" strokeWidth={2.25} aria-hidden />
       </span>
     );
   }
@@ -542,7 +544,7 @@ function RankIndicator({ rank }: { rank: number }) {
     );
   }
   return (
-    <span className="w-7 shrink-0 text-center text-sm font-black text-slate-600">
+    <span className="w-7 shrink-0 text-center text-sm font-extrabold text-on-surface-variant">
       #{rank}
     </span>
   );
@@ -574,12 +576,12 @@ function RecentBadgesStrip({ data, progress }: { data: MeProfile; progress?: Use
     );
 
   return (
-    <div className="rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-5 shadow-elevated">
+    <Card className="p-5">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-slate-700">
+        <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-on-surface">
           <Trophy className="h-4 w-4 text-amber-500" /> Conquistas recentes
         </h2>
-        <span className="text-xs font-bold text-slate-500">
+        <span className="text-xs font-bold text-on-surface-variant">
           {earnedCount}/{badges.length}
         </span>
       </div>
@@ -593,12 +595,12 @@ function RecentBadgesStrip({ data, progress }: { data: MeProfile; progress?: Use
           ))}
         </ul>
       ) : (
-        <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/70 px-4 py-6 text-center">
-          <Trophy className="mx-auto mb-2 h-7 w-7 text-slate-300" aria-hidden />
-          <p className="text-sm font-semibold text-slate-600">
+        <div className="rounded-2xl border-2 border-dashed border-surface-container-high bg-surface-container-low/60 px-4 py-6 text-center">
+          <Trophy className="mx-auto mb-2 h-7 w-7 text-on-surface-variant/50" aria-hidden />
+          <p className="text-sm font-semibold text-on-surface">
             Nenhuma conquista nos últimos 7 dias.
           </p>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-on-surface-variant">
             Conclua uma aula ou complete exercícios para desbloquear.
           </p>
         </div>
@@ -606,11 +608,11 @@ function RecentBadgesStrip({ data, progress }: { data: MeProfile; progress?: Use
 
       <Link
         to="/app/me"
-        className="mt-4 flex items-center justify-center gap-1 text-xs font-semibold text-slate-500 hover:text-primary"
+        className="mt-4 flex items-center justify-center gap-1 text-xs font-semibold text-on-surface-variant hover:text-primary"
       >
         Ver todas as conquistas <ArrowRight className="h-3 w-3" />
       </Link>
-    </div>
+    </Card>
   );
 }
 
@@ -630,10 +632,10 @@ function RecentBadgeCard({ badge }: { badge: Badge }) {
       <span className="animate-pop text-3xl" aria-hidden>
         {badge.icon}
       </span>
-      <p className="mt-2 line-clamp-2 text-xs font-bold leading-tight text-slate-800">
+      <p className="mt-2 line-clamp-2 text-xs font-bold leading-tight text-on-surface">
         {badge.name}
       </p>
-      <p className="mt-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-slate-500">
+      <p className="mt-0.5 text-[0.65rem] font-semibold uppercase tracking-wide text-on-surface-variant">
         {when}
       </p>
     </div>

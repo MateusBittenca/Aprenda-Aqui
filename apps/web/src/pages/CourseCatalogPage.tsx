@@ -9,6 +9,8 @@ import type { UserCourseCatalogItem } from '../types/catalog';
 import { CatalogCourseCard } from '../components/CatalogCourseCard';
 import { ErrorState } from '../components/ui/ErrorState';
 import { PageLoader } from '../components/ui/PageLoader';
+import { Input } from '../components/ui/Input';
+import { SectionHeading } from '../components/ui/SectionHeading';
 import { useAuthHydration, useAuthStore } from '../stores/authStore';
 import {
   COURSE_CATEGORY_ORDER,
@@ -59,9 +61,9 @@ const CATEGORY_META: Record<CourseCategory, CategoryMeta> = {
     title: 'Fundamentos e Ferramentas',
     subtitle: 'Lógica, algoritmos, testes e Git — a base.',
     Icon: Wrench,
-    accentText: 'text-slate-700',
-    accentBg: 'bg-slate-100',
-    accentRing: 'ring-slate-200/70',
+    accentText: 'text-on-surface',
+    accentBg: 'bg-surface-container-low',
+    accentRing: 'ring-surface-container-high',
   },
 };
 
@@ -118,46 +120,40 @@ export function CourseCatalogPage() {
   return (
     <div className="relative pb-4">
       <div
-        className="pointer-events-none absolute left-1/2 top-0 h-48 w-[min(100%,36rem)] -translate-x-1/2 rounded-full bg-indigo-400/15 blur-3xl"
+        className="pointer-events-none absolute left-1/2 top-0 h-48 w-[min(100%,36rem)] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl"
         aria-hidden
       />
 
-      <header className="relative mb-8 flex min-w-0 flex-col gap-6 md:mb-10 md:flex-row md:items-end md:justify-between">
-        <div className="min-w-0 max-w-2xl">
-          <h1 className="font-headline font-extrabold tracking-tight text-indigo-950 [font-size:clamp(1.75rem,1.1rem+2.8vw,2.75rem)] md:leading-tight">
-            Cursos
-          </h1>
-          <p className="mt-3 text-base leading-relaxed text-slate-500 sm:text-lg">
+      <SectionHeading
+        level="page"
+        eyebrow="Catálogo"
+        title="Cursos"
+        description={
+          <>
             Explore o catálogo, veja o que cada curso cobre e matricule-se em um clique. Há {total} curso
-            {total !== 1 ? 's' : ''} disponíve{total !== 1 ? 'is' : 'l'}.
-          </p>
-          <p className="mt-3 text-sm text-slate-500">
-            Já matriculado?{' '}
-            <Link
-              to="/app/my-courses"
-              className="font-semibold text-indigo-600 underline decoration-indigo-300/70 underline-offset-4 transition hover:text-indigo-800"
-            >
+            {total !== 1 ? 's' : ''} disponíve{total !== 1 ? 'is' : 'l'}.{' '}
+            <Link to="/app/my-courses" className="font-semibold text-primary underline underline-offset-4 hover:text-primary-dim">
               Abrir Meus cursos
             </Link>
-          </p>
-        </div>
-        <div
-          className="flex min-h-11 shrink-0 items-center gap-2 rounded-2xl border border-white/60 bg-white/80 px-5 py-3 shadow-[0_40px_40px_-10px_rgba(30,27,75,0.06)] backdrop-blur-xl md:px-6"
-          aria-live="polite"
-        >
-          <span className="min-w-[2ch] text-2xl font-bold tabular-nums text-indigo-600">{enrolledCount}</span>
-          <span className="max-w-[10rem] text-xs font-semibold uppercase leading-tight tracking-wide text-slate-500">
-            Na sua lista
-          </span>
-        </div>
-      </header>
+            .
+          </>
+        }
+        action={
+          <div
+            className="flex min-h-11 items-center gap-2 rounded-2xl border border-surface-container-high/70 bg-surface-container-lowest/90 px-5 py-3 shadow-card backdrop-blur-xl"
+            aria-live="polite"
+          >
+            <span className="font-headline min-w-[2ch] text-2xl font-extrabold tabular-nums text-primary">{enrolledCount}</span>
+            <span className="max-w-[10rem] text-xs font-semibold uppercase leading-tight tracking-wide text-on-surface-variant">
+              Na sua lista
+            </span>
+          </div>
+        }
+        className="relative mb-8 md:mb-10"
+      />
 
       <div className="relative mb-8">
-        <label className="sr-only" htmlFor="catalog-search">
-          Buscar cursos
-        </label>
-        <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-        <input
+        <Input
           id="catalog-search"
           type="search"
           inputMode="search"
@@ -168,14 +164,16 @@ export function CourseCatalogPage() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Buscar por nome ou tema…"
-          className="min-h-11 w-full rounded-2xl border border-slate-200/90 bg-white/85 py-3 pl-12 pr-4 text-base font-medium text-slate-800 shadow-[0_40px_40px_-10px_rgba(30,27,75,0.06)] backdrop-blur-xl outline-none ring-0 transition placeholder:text-slate-400 focus:border-indigo-300 focus:ring-2 focus:ring-indigo-400/25 sm:text-sm"
+          leftIcon={<Search className="h-4 w-4" />}
+          aria-label="Buscar cursos"
+          className="bg-surface-container-lowest/90 shadow-card backdrop-blur-xl"
         />
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded-[24px] border border-dashed border-slate-200 bg-white/70 py-16 text-center backdrop-blur-sm">
-          <p className="text-sm font-medium text-slate-700">Nenhum curso combina com essa busca.</p>
-          <p className="mt-1 text-xs text-slate-500">Ajuste o termo ou limpe o campo.</p>
+        <div className="rounded-2xl border border-dashed border-surface-container-high bg-surface-container-lowest/70 py-16 text-center backdrop-blur-sm">
+          <p className="text-sm font-medium text-on-surface">Nenhum curso combina com essa busca.</p>
+          <p className="mt-1 text-xs text-on-surface-variant">Ajuste o termo ou limpe o campo.</p>
         </div>
       ) : isSearching ? (
         <ul className="relative grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 wide:gap-8">
@@ -221,14 +219,14 @@ export function CourseCatalogPage() {
                     <div className="min-w-0">
                       <h2
                         id={`shelf-${cat}`}
-                        className="font-headline truncate text-lg font-bold tracking-tight text-indigo-950 sm:text-xl"
+                        className="font-headline truncate text-lg font-bold tracking-tight text-on-surface sm:text-xl"
                       >
                         {meta.title}
                       </h2>
-                      <p className="truncate text-xs text-slate-500 sm:text-sm">{meta.subtitle}</p>
+                      <p className="truncate text-xs text-on-surface-variant sm:text-sm">{meta.subtitle}</p>
                     </div>
                   </div>
-                  <span className="shrink-0 whitespace-nowrap rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-slate-500 ring-1 ring-slate-200/80">
+                  <span className="shrink-0 whitespace-nowrap rounded-full bg-surface-container-lowest/90 px-3 py-1 text-xs font-semibold text-on-surface-variant ring-1 ring-surface-container-high/70">
                     {items.length} curso{items.length !== 1 ? 's' : ''}
                   </span>
                 </div>

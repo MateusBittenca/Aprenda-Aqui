@@ -71,7 +71,7 @@ export function AdminStudentsPage() {
     <div className="space-y-8">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Alunos</h1>
+          <h1 className="font-headline text-2xl font-bold tracking-tight text-white">Alunos</h1>
           <p className="mt-1 text-sm text-slate-400">
             {students.length} aluno{students.length !== 1 ? 's' : ''} cadastrado{students.length !== 1 ? 's' : ''}.
           </p>

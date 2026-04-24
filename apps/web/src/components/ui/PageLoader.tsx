@@ -3,7 +3,7 @@ import { Loader2 } from 'lucide-react';
 export function PageLoader({ label = 'Carregando…' }: { label?: string }) {
   return (
     <div
-      className="flex min-h-[40vh] flex-col items-center justify-center gap-4 text-slate-500 animate-fade-in"
+      className="flex min-h-[40vh] flex-col items-center justify-center gap-4 text-on-surface-variant animate-fade-in"
       role="status"
       aria-live="polite"
       aria-busy="true"

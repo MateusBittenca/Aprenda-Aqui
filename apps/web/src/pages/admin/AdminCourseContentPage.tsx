@@ -39,7 +39,7 @@ export function AdminCourseContentPage() {
         <Link to="/admin/courses" className="inline-flex items-center gap-1.5 text-sm font-medium text-amber-400 hover:underline">
           ← Catálogo
         </Link>
-        <h1 className="mt-3 text-3xl font-bold tracking-tight text-white">{data.title}</h1>
+        <h1 className="font-headline mt-3 text-3xl font-bold tracking-tight text-white">{data.title}</h1>
         {data.tagline && <p className="mt-1 text-slate-400">{data.tagline}</p>}
       </div>
 
@@ -60,7 +60,7 @@ export function AdminCourseContentPage() {
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Conteúdo</p>
-            <h2 className="mt-1 text-xl font-bold text-white">Módulos e aulas</h2>
+            <h2 className="font-headline mt-1 text-xl font-bold tracking-tight text-white">Módulos e aulas</h2>
             {data.description && <p className="mt-1 text-sm text-slate-400">{data.description}</p>}
           </div>
           <span className="shrink-0 rounded-lg border border-white/[0.06] bg-[#0b0f19] px-2.5 py-1 text-xs font-semibold text-slate-400">

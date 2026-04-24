@@ -113,95 +113,88 @@ export function LessonPage() {
   const moduleAnchor = `/app/my-courses/${lesson.course.slug}#module-${encodeURIComponent(lesson.module.id)}`;
 
   return (
-    <div className="relative min-w-0 space-y-8 overflow-x-hidden pb-6 [background:radial-gradient(ellipse_at_top_right,rgba(99,102,241,0.08),transparent_50%),radial-gradient(ellipse_at_bottom_left,rgba(129,39,207,0.05),transparent_45%)]">
-      <div
-        className="pointer-events-none absolute -right-24 top-0 h-72 w-72 rounded-full bg-violet-400/12 blur-3xl"
-        aria-hidden
-      />
-
+    <div className="relative min-w-0 space-y-8 overflow-x-hidden pb-6">
       <nav
-        className="flex flex-wrap items-center gap-1.5 text-xs font-semibold text-slate-600 sm:gap-2"
+        className="flex flex-wrap items-center gap-1.5 text-xs font-semibold text-on-surface-variant sm:gap-2"
         aria-label="Navegação da aula"
       >
         <Link
           to="/app/my-courses"
-          className="inline-flex min-h-11 min-w-0 max-w-full items-center rounded-full border border-white/60 bg-white/80 px-3 py-2 shadow-sm backdrop-blur-sm transition hover:border-indigo-200 hover:bg-white hover:text-indigo-900"
+          className="inline-flex min-h-11 min-w-0 max-w-full items-center rounded-full border border-surface-container-high/70 bg-surface-container-lowest/90 px-3 py-2 shadow-sm backdrop-blur-sm transition hover:border-primary/30 hover:text-primary"
         >
           Meus cursos
         </Link>
-        <ChevronRight className="h-3.5 w-3.5 shrink-0 self-center text-slate-400" aria-hidden />
+        <ChevronRight className="h-3.5 w-3.5 shrink-0 self-center text-on-surface-variant/60" aria-hidden />
         <Link
           to={`/app/my-courses/${lesson.course.slug}`}
-          className="inline-flex min-h-11 min-w-0 max-w-[10rem] items-center truncate rounded-full border border-white/60 bg-white/80 px-3 py-2 shadow-sm backdrop-blur-sm transition hover:border-indigo-200 hover:bg-white hover:text-indigo-900 sm:max-w-[14rem]"
+          className="inline-flex min-h-11 min-w-0 max-w-[10rem] items-center truncate rounded-full border border-surface-container-high/70 bg-surface-container-lowest/90 px-3 py-2 shadow-sm backdrop-blur-sm transition hover:border-primary/30 hover:text-primary sm:max-w-[14rem]"
           title={lesson.course.title}
         >
           {lesson.course.title}
         </Link>
-        <ChevronRight className="h-3.5 w-3.5 shrink-0 self-center text-slate-400" aria-hidden />
+        <ChevronRight className="h-3.5 w-3.5 shrink-0 self-center text-on-surface-variant/60" aria-hidden />
         <Link
           to={moduleAnchor}
-          className="inline-flex min-h-11 min-w-0 max-w-[10rem] items-center truncate rounded-full border border-indigo-100 bg-indigo-50/90 px-3 py-2 text-indigo-900 shadow-sm ring-1 ring-indigo-100/80 transition hover:bg-indigo-100 sm:max-w-[14rem]"
+          className="inline-flex min-h-11 min-w-0 max-w-[10rem] items-center truncate rounded-full border border-primary/20 bg-primary/10 px-3 py-2 text-primary shadow-sm transition hover:bg-primary/15 sm:max-w-[14rem]"
           title={lesson.module.title}
         >
           {lesson.module.title}
         </Link>
-        <ChevronRight className="h-3.5 w-3.5 shrink-0 self-center text-slate-400" aria-hidden />
+        <ChevronRight className="h-3.5 w-3.5 shrink-0 self-center text-on-surface-variant/60" aria-hidden />
         <span
-          className="inline-flex min-h-11 min-w-0 max-w-[12rem] items-center truncate rounded-full bg-slate-900 px-3 py-2 font-bold text-white shadow-md sm:max-w-[18rem]"
+          className="inline-flex min-h-11 min-w-0 max-w-[12rem] items-center truncate rounded-full bg-on-surface px-3 py-2 font-bold text-white shadow-card sm:max-w-[18rem]"
           title={lesson.title}
         >
           {lesson.title}
         </span>
       </nav>
 
-      <header className="relative overflow-hidden rounded-[28px] border border-white/70 bg-white/85 p-6 shadow-[0_24px_60px_-24px_rgba(30,27,75,0.15)] backdrop-blur-xl sm:p-9">
-        <div className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-indigo-400/15 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-8 left-1/4 h-32 w-32 rounded-full bg-violet-400/10 blur-2xl" />
+      <header className="hero-surface relative overflow-hidden rounded-3xl border border-surface-container-high/60 p-6 shadow-soft sm:p-9">
         <div className="relative">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-indigo-800">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-primary">
               <Layers className="h-3.5 w-3.5" aria-hidden />
               Módulo
             </span>
             <Link
               to={moduleAnchor}
-              className="inline-flex max-w-full items-center gap-1 text-sm font-bold text-indigo-700 underline decoration-indigo-300/60 underline-offset-4 transition hover:text-indigo-900"
+              className="inline-flex max-w-full items-center gap-1 text-sm font-bold text-primary underline decoration-primary/40 underline-offset-4 transition hover:text-primary-dim"
             >
               {lesson.module.title}
               <ListTree className="h-3.5 w-3.5 shrink-0 opacity-70" aria-hidden />
             </Link>
           </div>
-          <p className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-slate-500">
-            <BookOpen className="h-4 w-4 text-indigo-500" aria-hidden />
+          <p className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-on-surface-variant">
+            <BookOpen className="h-4 w-4 text-primary" aria-hidden />
             {lesson.course.title}
           </p>
-          <h1 className="mt-2 font-headline text-3xl font-extrabold tracking-tight text-indigo-950 sm:text-4xl md:text-[2.35rem] md:leading-tight">
+          <h1 className="font-headline text-balance mt-2 text-3xl font-extrabold tracking-tight text-on-surface sm:text-4xl md:text-[2.35rem] md:leading-tight">
             {lesson.title}
           </h1>
-          <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-500">
-            <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1 font-medium ring-1 ring-slate-200/80">
+          <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-on-surface-variant">
+            <span className="inline-flex items-center gap-1.5 rounded-lg bg-surface-container-low px-2.5 py-1 font-medium ring-1 ring-surface-container-high/80">
               ~{lesson.estimatedMinutes} min de leitura
             </span>
             {total > 0 ? (
-              <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-50 px-2.5 py-1 font-medium ring-1 ring-slate-200/80">
+              <span className="inline-flex items-center gap-1.5 rounded-lg bg-surface-container-low px-2.5 py-1 font-medium ring-1 ring-surface-container-high/80">
                 {total} desafio{total !== 1 ? 's' : ''}
               </span>
             ) : null}
           </div>
           {lesson.objective && (
-            <div className="mt-5 max-w-3xl space-y-2 border-l-4 border-indigo-300/80 pl-4">
-              <p className="text-xs font-bold uppercase tracking-wide text-indigo-800">Objetivo da aula</p>
-              <p className="text-base leading-relaxed text-slate-600">{lesson.objective}</p>
+            <div className="mt-5 max-w-3xl space-y-2 border-l-4 border-primary/40 pl-4">
+              <p className="text-xs font-bold uppercase tracking-wide text-primary">Objetivo da aula</p>
+              <p className="text-base leading-relaxed text-on-surface-variant">{lesson.objective}</p>
             </div>
           )}
           {total > 0 ? (
-            <div className="mt-6 max-w-3xl rounded-2xl border border-indigo-100 bg-indigo-50/60 px-4 py-4 text-left ring-1 ring-indigo-100/80">
-              <p className="text-xs font-bold uppercase tracking-wide text-indigo-900">O que você vai praticar</p>
-              <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-slate-700">
+            <div className="mt-6 max-w-3xl rounded-2xl border border-primary/20 bg-primary/5 px-4 py-4 text-left">
+              <p className="text-xs font-bold uppercase tracking-wide text-primary">O que você vai praticar</p>
+              <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-on-surface">
                 {lesson.exercises.map((ex) => (
                   <li key={ex.id}>
-                    <span className="font-medium text-slate-800">{ex.title}</span>
-                    <span className="text-slate-500">
+                    <span className="font-medium text-on-surface">{ex.title}</span>
+                    <span className="text-on-surface-variant">
                       {' '}
                       ({ex.type === 'MULTIPLE_CHOICE' ? 'quiz' : ex.type === 'CODE_FILL' ? 'lacunas' : 'editor de código'})
                     </span>
@@ -215,7 +208,7 @@ export function LessonPage() {
 
       {total > 0 && <SessionProgressBar current={solvedCount} total={total} />}
 
-      <article className="prose prose-slate prose-headings:font-bold prose-a:text-indigo-600 prose-pre:rounded-xl max-w-none overflow-x-auto rounded-[1.75rem] border border-slate-200/60 bg-white p-6 shadow-lg shadow-slate-200/30 ring-1 ring-slate-100 sm:p-8 md:p-10 prose-pre:bg-slate-900 prose-pre:text-slate-100">
+      <article className="prose prose-slate prose-headings:font-bold prose-a:text-primary prose-pre:rounded-xl max-w-none overflow-x-auto rounded-3xl border border-surface-container-high/70 bg-surface-container-lowest p-6 shadow-card sm:p-8 md:p-10 prose-pre:bg-slate-900 prose-pre:text-slate-100">
         <ReactMarkdown>{lesson.contentMd}</ReactMarkdown>
       </article>
 
@@ -242,11 +235,11 @@ export function LessonPage() {
       )}
 
       {total > 0 && (
-        <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <section className="min-w-0 rounded-2xl border border-surface-container-high/70 bg-surface-container-lowest p-6 shadow-card sm:p-8">
           <div className="mb-5 flex min-w-0 flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="text-lg font-semibold text-slate-900">Desafios</h2>
-              <p className="text-sm text-slate-500">Toque em um para abrir o editor</p>
+              <h2 className="font-headline text-lg font-bold tracking-tight text-on-surface">Desafios</h2>
+              <p className="text-sm text-on-surface-variant">Toque em um para abrir o editor</p>
             </div>
             {isComplete && (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 ring-1 ring-emerald-200/80">
@@ -263,25 +256,25 @@ export function LessonPage() {
                   onClick={() => setActiveId(activeId === ex.id ? null : ex.id)}
                   aria-expanded={activeId === ex.id}
                   className={[
-                    'group flex w-full items-center justify-between rounded-2xl border-2 px-4 py-4 text-left transition',
+                    'group flex w-full items-center justify-between rounded-2xl border-2 px-4 py-4 text-left transition hover-lift press-tactile focus-ring-primary',
                     ex.solved
                       ? 'border-emerald-200 bg-emerald-50/90 hover:border-emerald-300'
                       : activeId === ex.id
-                        ? 'border-indigo-400 bg-indigo-50 shadow-md shadow-indigo-500/10'
-                        : 'border-slate-200/80 bg-white shadow-sm hover:border-indigo-300 hover:shadow-md',
+                        ? 'border-primary bg-primary/5 shadow-card'
+                        : 'border-surface-container-high/70 bg-surface-container-lowest shadow-sm hover:border-primary/30',
                   ].join(' ')}
                 >
                   <span className="flex items-center gap-4">
                     {ex.solved ? (
                       <CheckCircle2 className="h-6 w-6 shrink-0 text-emerald-500" aria-hidden />
                     ) : (
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-800 text-sm font-black text-white shadow-md">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-on-surface text-sm font-extrabold text-white shadow-card">
                         {idx + 1}
                       </span>
                     )}
                     <span
                       className={
-                        ex.solved ? 'font-bold text-emerald-900' : 'font-bold text-slate-900'
+                        ex.solved ? 'font-bold text-emerald-900' : 'font-bold text-on-surface'
                       }
                     >
                       {ex.title}
@@ -291,7 +284,7 @@ export function LessonPage() {
                     className={
                       ex.solved
                         ? 'inline-flex items-center gap-1 text-xs font-bold text-emerald-700'
-                        : 'inline-flex items-center gap-2 text-xs font-bold text-indigo-600'
+                        : 'inline-flex items-center gap-2 text-xs font-bold text-primary'
                     }
                   >
                     {ex.solved ? (

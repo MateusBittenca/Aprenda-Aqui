@@ -9,11 +9,14 @@ import {
   Medal,
   Settings2,
   ShoppingBag,
+  Sparkles,
   Users,
 } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
 import { BrandLogo } from './BrandLogo';
 import { Avatar } from './Avatar';
+import { StatChip } from './ui/StatChip';
+import { PageTransition } from './ui/PageTransition';
 import { useAuth } from '../hooks/useAuth';
 import { useMe } from '../hooks/useMe';
 import { getRankForLevel } from '../lib/levelTitles';
@@ -22,14 +25,14 @@ import { usePresenceHeartbeat } from '../hooks/usePresenceHeartbeat';
 import { OnlineFriendsHeaderMenu } from './OnlineFriendsHeaderMenu';
 
 function StreakBadge({ streak, weekDays }: { streak: number; weekDays?: boolean[] }) {
-  const color =
+  const tone =
     streak === 0
-      ? 'bg-slate-100 text-slate-500'
+      ? 'bg-surface-container-low text-on-surface-variant'
       : streak < 3
-        ? 'bg-orange-50 text-orange-600'
+        ? 'bg-orange-50 text-orange-700'
         : streak < 7
-          ? 'bg-orange-100 text-orange-700'
-          : 'bg-amber-100 text-amber-700';
+          ? 'bg-orange-100 text-orange-800'
+          : 'bg-amber-100 text-amber-800';
 
   const title =
     streak === 0
@@ -42,8 +45,8 @@ function StreakBadge({ streak, weekDays }: { streak: number; weekDays?: boolean[
     <span
       title={title}
       className={twMerge(
-        'inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 font-medium transition',
-        color,
+        'inline-flex min-h-8 items-center gap-1.5 rounded-full px-2.5 py-0.5 text-sm font-semibold transition',
+        tone,
         streak >= 7 ? 'ring-1 ring-amber-300' : '',
       )}
     >
@@ -70,6 +73,7 @@ function StreakBadge({ streak, weekDays }: { streak: number; weekDays?: boolean[
     </span>
   );
 }
+
 
 export function AppLayout() {
   usePresenceHeartbeat();
@@ -108,7 +112,7 @@ export function AppLayout() {
                   {user.role === 'ADMIN' && (
                     <Link
                       to="/admin"
-                      className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 font-medium text-amber-900 transition hover:bg-amber-100 sm:min-h-0 sm:min-w-0 sm:px-3 sm:py-2"
+                      className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 font-semibold text-amber-900 transition hover:bg-amber-100 sm:min-h-8 sm:min-w-0 sm:px-3 sm:py-1"
                     >
                       <Settings2 className="h-4 w-4 shrink-0" aria-hidden />
                       <span className="sr-only sm:not-sr-only">Admin</span>
@@ -117,19 +121,20 @@ export function AppLayout() {
                   {!hideGlobalStats && (
                     <>
                       <StreakBadge streak={user.currentStreak} weekDays={me?.streakWeekDays} />
-                      <span
+                      <StatChip
+                        tone="sky"
+                        icon={<Gem className="h-4 w-4" />}
+                        value={user.gems}
                         title={`${user.gems} gemas`}
-                        className="inline-flex items-center gap-1 rounded-full bg-sky-50 px-2 py-0.5 font-medium text-sky-600"
-                      >
-                        <Gem className="h-4 w-4" aria-hidden />
-                        {user.gems}
-                      </span>
+                      />
                       <span
                         title={getRankForLevel(user.level).description}
-                        className="hidden min-h-11 flex-col justify-center rounded-full bg-blue-50 px-2.5 py-1 sm:flex"
+                        className="hidden min-h-8 flex-col justify-center rounded-full bg-primary/10 px-3 py-0.5 sm:flex"
                       >
-                        <span className="text-xs font-semibold leading-tight text-blue-700">Nv. {user.level}</span>
-                        <span className="max-w-[7rem] truncate text-xs font-medium leading-tight text-blue-600/90">
+                        <span className="inline-flex items-center gap-1 text-xs font-bold leading-tight text-primary">
+                          <Sparkles className="h-3 w-3" aria-hidden /> Nv. {user.level}
+                        </span>
+                        <span className="max-w-[7rem] truncate text-[0.65rem] font-semibold leading-tight text-primary/80">
                           {getRankForLevel(user.level).name}
                         </span>
                       </span>
@@ -150,7 +155,7 @@ export function AppLayout() {
                     displayName={user.displayName}
                     colorKey={user.avatarColorKey}
                     size="sm"
-                    className="ring-2 ring-white transition duration-300 ease-ios-out hover:ring-blue-400"
+                    className="ring-2 ring-surface-container-lowest transition duration-300 ease-ios-out hover:ring-primary/40"
                   />
                 </Link>
               </div>
@@ -158,7 +163,7 @@ export function AppLayout() {
           )}
         </div>
         <nav
-          className="nav-tabs-scroll mx-auto flex max-w-7xl flex-nowrap gap-3 overflow-x-auto border-t border-surface-container-high/80 px-3 py-1 sm:gap-4 sm:px-6 lg:flex-wrap lg:gap-3 lg:overflow-x-visible"
+          className="nav-tabs-scroll mx-auto flex max-w-7xl flex-nowrap gap-2 overflow-x-auto border-t border-surface-container-high/80 px-3 py-1 sm:gap-3 sm:px-6 lg:flex-wrap lg:gap-3 lg:overflow-x-visible"
           aria-label="Principal"
         >
           <AppNavLink to="/app" end icon={<LayoutDashboard className="h-4 w-4" />} label="Início" />
@@ -175,7 +180,9 @@ export function AppLayout() {
         className="mx-auto w-full min-w-0 max-w-7xl px-[max(1rem,env(safe-area-inset-left))] py-6 pr-[max(1rem,env(safe-area-inset-right))] sm:px-8 sm:py-8 lg:px-12 lg:py-10"
         tabIndex={-1}
       >
-        <Outlet />
+        <PageTransition>
+          <Outlet />
+        </PageTransition>
       </main>
     </div>
   );
@@ -201,16 +208,23 @@ function AppNavLink({
       className={({ isActive }) =>
         [
           /* Até lg: só ícone; texto só no nome acessível (aria-label) + a partir de lg na própria linha */
-          'press-tactile inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition duration-300 ease-ios-out max-lg:justify-center max-lg:px-3.5 lg:px-3',
+          'relative press-tactile inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition duration-300 ease-ios-out max-lg:justify-center max-lg:px-3.5 lg:px-3',
           'focus-ring-primary',
-          isActive ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface',
+          isActive
+            ? 'bg-primary/10 text-primary'
+            : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface',
         ].join(' ')
       }
     >
-      {icon}
-      <span className="hidden lg:inline" aria-hidden="true">
-        {label}
-      </span>
+      {({ isActive }) => (
+        <>
+          {icon}
+          <span className="hidden lg:inline" aria-hidden="true">
+            {label}
+          </span>
+          <span className={`nav-tab-indicator ${isActive ? 'is-active' : ''}`} aria-hidden />
+        </>
+      )}
     </NavLink>
   );
 }

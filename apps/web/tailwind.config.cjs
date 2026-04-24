@@ -9,6 +9,8 @@
  * @type {import('tailwindcss').Config}
  */
 module.exports = {
+  /** Tema escuro: class="dark" no <html> gerenciado pelo ThemeProvider. */
+  darkMode: 'class',
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
@@ -17,28 +19,40 @@ module.exports = {
         wide: '1440px',
       },
       colors: {
-        surface: '#f5f7f9',
-        background: '#f5f7f9',
-        'on-surface': '#2c2f31',
-        'on-surface-variant': '#595c5e',
-        primary: '#0055c5',
-        'primary-dim': '#004aad',
-        'primary-container': '#739eff',
-        secondary: '#2a6900',
-        'secondary-container': '#84fb42',
-        'on-secondary-container': '#245c00',
-        tertiary: '#8319da',
-        'tertiary-dim': '#7500c8',
-        'tertiary-container': '#cd9bff',
-        'on-tertiary': '#fbefff',
-        'surface-container-low': '#eef1f3',
-        'surface-container-lowest': '#ffffff',
-        'surface-container-high': '#dfe3e6',
-        'surface-container-highest': '#d9dde0',
-        'secondary-fixed': '#84fb42',
-        'tertiary-fixed': '#cd9bff',
-        outline: '#747779',
-        error: '#b31b25',
+        /**
+         * Tokens via CSS custom properties (index.css :root / html.dark).
+         * O padrão 'rgb(var(--x) / <alpha-value>)' é reconhecido pelo Tailwind v3
+         * e permite modificadores de opacidade: bg-surface/50, text-primary/80 etc.
+         */
+        surface: 'rgb(var(--c-surface) / <alpha-value>)',
+        background: 'rgb(var(--c-surface) / <alpha-value>)',
+        'on-surface': 'rgb(var(--c-on-surface) / <alpha-value>)',
+        'on-surface-variant': 'rgb(var(--c-on-surface-variant) / <alpha-value>)',
+        primary: 'rgb(var(--c-primary) / <alpha-value>)',
+        'primary-dim': 'rgb(var(--c-primary-dim) / <alpha-value>)',
+        'primary-container': 'rgb(var(--c-primary-container) / <alpha-value>)',
+        secondary: 'rgb(var(--c-secondary) / <alpha-value>)',
+        'secondary-container': 'rgb(var(--c-secondary-container) / <alpha-value>)',
+        'on-secondary-container': 'rgb(var(--c-on-secondary-container) / <alpha-value>)',
+        tertiary: 'rgb(var(--c-tertiary) / <alpha-value>)',
+        'tertiary-dim': 'rgb(var(--c-tertiary-dim) / <alpha-value>)',
+        'tertiary-container': 'rgb(var(--c-tertiary-container) / <alpha-value>)',
+        'on-tertiary': 'rgb(var(--c-on-tertiary) / <alpha-value>)',
+        'surface-container-low': 'rgb(var(--c-surface-low) / <alpha-value>)',
+        'surface-container-lowest': 'rgb(var(--c-surface-lowest) / <alpha-value>)',
+        'surface-container-high': 'rgb(var(--c-surface-high) / <alpha-value>)',
+        'surface-container-highest': 'rgb(var(--c-surface-highest) / <alpha-value>)',
+        'secondary-fixed': 'rgb(var(--c-secondary-fixed) / <alpha-value>)',
+        'tertiary-fixed': 'rgb(var(--c-tertiary-fixed) / <alpha-value>)',
+        outline: 'rgb(var(--c-outline) / <alpha-value>)',
+        error: 'rgb(var(--c-error) / <alpha-value>)',
+        brand: {
+          50: 'rgb(var(--c-brand-50) / <alpha-value>)',
+          100: 'rgb(var(--c-brand-100) / <alpha-value>)',
+          500: 'rgb(var(--c-brand-500) / <alpha-value>)',
+          600: 'rgb(var(--c-brand-600) / <alpha-value>)',
+          700: 'rgb(var(--c-brand-700) / <alpha-value>)',
+        },
       },
       fontFamily: {
         sans: ['"Be Vietnam Pro"', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
@@ -87,6 +101,11 @@ module.exports = {
           '70%': { boxShadow: '0 0 0 6px rgba(16,185,129,0)' },
           '100%': { boxShadow: '0 0 0 0 rgba(16,185,129,0)' },
         },
+        /** Gradiente panorâmico em fundos de marca (hero). */
+        'gradient-pan': {
+          '0%, 100%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+        },
       },
       animation: {
         float: 'float 6s ease-in-out infinite',
@@ -99,6 +118,7 @@ module.exports = {
         shimmer: 'shimmer 2.4s linear infinite',
         'sheet-up': 'sheet-up 320ms cubic-bezier(0.22, 1, 0.36, 1) both',
         'ring-pulse': 'ring-pulse 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'gradient-pan': 'gradient-pan 16s ease-in-out infinite',
       },
       /** Curvas de easing estilo Apple, reutilizáveis em transition-timing. */
       transitionTimingFunction: {
@@ -112,6 +132,8 @@ module.exports = {
         card: '0 20px 40px rgba(44, 47, 49, 0.04)',
         /** Elevação mais presente em hover (lift Apple). */
         lifted: '0 24px 48px -18px rgba(30, 27, 75, 0.25)',
+        /** Halo suave em torno de CTAs brand (primário em destaque). */
+        glow: '0 20px 60px -20px rgba(0, 85, 197, 0.55)',
       },
     },
   },

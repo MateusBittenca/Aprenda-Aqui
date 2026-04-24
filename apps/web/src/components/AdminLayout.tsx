@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { BrandLogo } from './BrandLogo';
+import { PageTransition } from './ui/PageTransition';
 import { useAuth } from '../hooks/useAuth';
 
 const nav = [
@@ -100,7 +101,7 @@ export function AdminLayout() {
               </button>
               <div className="min-w-0">
                 <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Console</p>
-                <p className="truncate text-sm font-semibold text-white lg:text-base">
+                <p className="font-headline truncate text-sm font-semibold text-white lg:text-base">
                   {titleForPath(location.pathname)}
                 </p>
               </div>
@@ -112,7 +113,9 @@ export function AdminLayout() {
 
           <main className="flex-1 px-4 py-6 lg:px-8 lg:py-8">
             <div className="mx-auto max-w-6xl">
-              <Outlet />
+              <PageTransition>
+                <Outlet />
+              </PageTransition>
             </div>
           </main>
         </div>

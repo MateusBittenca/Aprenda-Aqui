@@ -11,8 +11,10 @@ import {
   Lock,
   LogOut,
   Monitor,
+  Moon,
   Settings2,
   Shield,
+  Sun,
   UserRound,
   Volume2,
 } from 'lucide-react';
@@ -23,6 +25,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useMe } from '../hooks/useMe';
 import { useAuthStore } from '../stores/authStore';
 import { useUiPreferences } from '../stores/uiPreferencesStore';
+import { useTheme } from '../hooks/useThemeContext';
 import type { MeProfile } from '../types/user';
 import { ErrorState } from '../components/ui/ErrorState';
 import { PageLoader } from '../components/ui/PageLoader';
@@ -33,7 +36,7 @@ const fieldInput =
   'mt-1.5 w-full rounded-xl border border-surface-container-high bg-surface-container-lowest px-3 py-2.5 text-sm text-on-surface outline-none transition placeholder:text-on-surface-variant ring-primary/15 focus:border-primary/40 focus:ring-4';
 
 const cardInner =
-  'rounded-2xl border border-slate-200/70 bg-surface-container-lowest/80 p-5 sm:p-6';
+  'rounded-2xl border border-surface-container-high/70 bg-surface-container-lowest/80 p-5 sm:p-6';
 
 type SettingsTab = 'conta' | 'aplicativo' | 'sessao' | 'sobre';
 
@@ -75,6 +78,7 @@ export function SettingsPage() {
   const setReduceMotion = useUiPreferences((s) => s.setReduceMotion);
   const soundEnabled = useUiPreferences((s) => s.soundEnabled);
   const setSoundEnabled = useUiPreferences((s) => s.setSoundEnabled);
+  const { colorScheme, setColorScheme } = useTheme();
   const [tab, setTab] = useState<SettingsTab>('conta');
   const [avatarColorKey, setAvatarColorKey] = useState('auto');
 
@@ -119,11 +123,11 @@ export function SettingsPage() {
     <div className="mx-auto max-w-3xl pb-12">
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-indigo-900">
+          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-primary">
             <Settings2 className="h-3.5 w-3.5" aria-hidden />
             Ajustes
           </div>
-          <h1 className="mt-3 font-headline text-2xl font-bold tracking-tight text-indigo-950 sm:text-3xl">
+          <h1 className="mt-3 font-headline text-2xl font-bold tracking-tight text-on-surface sm:text-3xl">
             Configurações
           </h1>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-600">
@@ -133,13 +137,13 @@ export function SettingsPage() {
         <div className="flex flex-shrink-0 flex-wrap gap-2">
           <Link
             to="/app/me"
-            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-indigo-200 hover:text-indigo-900"
+            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-primary/20 hover:text-primary"
           >
             Meu perfil
           </Link>
           <Link
             to="/app/help"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-900 transition hover:bg-indigo-100"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-primary/20 bg-primary/10 px-3 py-2 text-sm font-semibold text-primary transition hover:bg-primary/10"
           >
             <CircleHelp className="h-4 w-4" aria-hidden />
             Ajuda
@@ -147,7 +151,7 @@ export function SettingsPage() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-slate-200/80 bg-white/90 shadow-[0_20px_50px_-28px_rgba(30,27,75,0.18)] backdrop-blur-sm">
+      <div className="rounded-2xl border border-slate-200/80 bg-white/90 shadow-card backdrop-blur-sm">
         <div className="border-b border-slate-200/80 px-3 pt-3 sm:px-4 sm:pt-4">
           <div
             className="flex gap-1 overflow-x-auto pb-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -213,9 +217,9 @@ export function SettingsPage() {
                   });
                 }}
               >
-                <div className={twMerge(cardInner, 'border-indigo-100/80 bg-indigo-50/20')}>
-                  <h2 className="flex items-center gap-2 text-base font-bold text-indigo-950">
-                    <UserRound className="h-5 w-5 text-indigo-600" aria-hidden />
+                <div className={twMerge(cardInner, 'border-primary/15 bg-primary/5')}>
+                  <h2 className="flex items-center gap-2 text-base font-bold text-on-surface">
+                    <UserRound className="h-5 w-5 text-primary" aria-hidden />
                     Identidade
                   </h2>
                   <p className="mt-1 text-sm text-slate-600">
@@ -308,8 +312,8 @@ export function SettingsPage() {
                 </div>
 
                 <div className={cardInner}>
-                  <h2 className="flex items-center gap-2 text-base font-bold text-indigo-950">
-                    <Globe2 className="h-5 w-5 text-indigo-600" aria-hidden />
+                  <h2 className="flex items-center gap-2 text-base font-bold text-on-surface">
+                    <Globe2 className="h-5 w-5 text-primary" aria-hidden />
                     Região e horários
                   </h2>
                   <p className="mt-1 text-sm text-slate-600">
@@ -330,7 +334,7 @@ export function SettingsPage() {
                           if (timezoneRef.current) timezoneRef.current.value = tz;
                           toast.info(`Fuso: ${tz}`);
                         }}
-                        className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-indigo-300 hover:text-indigo-800"
+                        className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-primary/40 hover:text-primary"
                       >
                         {label}
                       </button>
@@ -348,7 +352,7 @@ export function SettingsPage() {
                 </div>
 
                 <div className={cardInner}>
-                  <h2 className="flex items-center gap-2 text-base font-bold text-indigo-950">
+                  <h2 className="flex items-center gap-2 text-base font-bold text-on-surface">
                     <Shield className="h-5 w-5 text-emerald-600" aria-hidden />
                     Privacidade na comunidade
                   </h2>
@@ -399,19 +403,57 @@ export function SettingsPage() {
               aria-labelledby="settings-tab-aplicativo"
               className="space-y-6"
             >
+              {/* ── Aparência ─────────────────────────────────────────── */}
               <div className={cardInner}>
-                <h2 className="flex items-center gap-2 text-base font-bold text-indigo-950">
+                <h2 className="flex items-center gap-2 text-base font-bold text-on-surface">
+                  <Moon className="h-5 w-5 text-indigo-500" aria-hidden />
+                  Aparência
+                </h2>
+                <p className="mt-1 text-sm text-on-surface-variant">
+                  Escolha o tema visual preferido. A opção "Sistema" segue a preferência do seu dispositivo.
+                </p>
+                <div className="mt-4 flex gap-2 rounded-2xl border border-surface-container-high bg-surface-container-low p-1.5">
+                  {(
+                    [
+                      { id: 'light', label: 'Claro', icon: <Sun className="h-4 w-4" /> },
+                      { id: 'dark', label: 'Escuro', icon: <Moon className="h-4 w-4" /> },
+                      { id: 'system', label: 'Sistema', icon: <Monitor className="h-4 w-4" /> },
+                    ] as const
+                  ).map(({ id, label, icon }) => (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => {
+                        setColorScheme(id);
+                        toast.success(`Tema ${label.toLowerCase()} ativado.`);
+                      }}
+                      className={twMerge(
+                        'flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2 text-sm font-semibold transition',
+                        colorScheme === id
+                          ? 'bg-surface-container-lowest text-primary shadow-soft'
+                          : 'text-on-surface-variant hover:text-on-surface',
+                      )}
+                    >
+                      {icon}
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className={cardInner}>
+                <h2 className="flex items-center gap-2 text-base font-bold text-on-surface">
                   <Monitor className="h-5 w-5 text-violet-600" aria-hidden />
                   Conforto visual
                 </h2>
-                <p className="mt-1 text-sm text-slate-600">Vale só para este navegador — não precisa salvar com o botão da aba anterior.</p>
-                <label className="mt-5 flex cursor-pointer gap-4 rounded-xl border border-slate-200 bg-white p-4 transition hover:border-violet-200">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-700">
+                <p className="mt-1 text-sm text-on-surface-variant">Vale só para este navegador — não precisa salvar com o botão da aba anterior.</p>
+                <label className="mt-5 flex cursor-pointer gap-4 rounded-xl border border-surface-container-high bg-surface-container-lowest p-4 transition hover:border-violet-300">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300">
                     <Monitor className="h-5 w-5" aria-hidden />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-3">
-                      <span className="text-sm font-semibold text-slate-900">Reduzir animações</span>
+                      <span className="text-sm font-semibold text-on-surface">Reduzir animações</span>
                       <input
                         type="checkbox"
                         checked={reduceMotion}
@@ -419,22 +461,22 @@ export function SettingsPage() {
                           setReduceMotion(e.target.checked);
                           toast.success(e.target.checked ? 'Menos movimento na interface.' : 'Animações normais.');
                         }}
-                        className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-primary focus:ring-primary"
+                        className="mt-0.5 h-4 w-4 shrink-0 rounded border-surface-container-high text-primary focus:ring-primary"
                       />
                     </div>
-                    <p className="mt-2 text-sm text-slate-600">
+                    <p className="mt-2 text-sm text-on-surface-variant">
                       Menos transições e efeitos (além da configuração do sistema, se você já usa).
                     </p>
                   </div>
                 </label>
 
-                <label className="mt-3 flex cursor-pointer gap-4 rounded-xl border border-slate-200 bg-white p-4 transition hover:border-violet-200">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
+                <label className="mt-3 flex cursor-pointer gap-4 rounded-xl border border-surface-container-high bg-surface-container-lowest p-4 transition hover:border-sky-300">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300">
                     <Volume2 className="h-5 w-5" aria-hidden />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-3">
-                      <span className="text-sm font-semibold text-slate-900">Sons de gamificação</span>
+                      <span className="text-sm font-semibold text-on-surface">Sons de gamificação</span>
                       <input
                         type="checkbox"
                         checked={soundEnabled}
@@ -454,23 +496,23 @@ export function SettingsPage() {
                             toast.success('Sons desativados.');
                           }
                         }}
-                        className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-primary focus:ring-primary"
+                        className="mt-0.5 h-4 w-4 shrink-0 rounded border-surface-container-high text-primary focus:ring-primary"
                       />
                     </div>
-                    <p className="mt-2 text-sm text-slate-600">
+                    <p className="mt-2 text-sm text-on-surface-variant">
                       Tons curtos em acerto, erro e subida de nível. Gerados no navegador, sem baixar arquivos.
                     </p>
                   </div>
                 </label>
 
-                <p className="mt-4 text-sm text-slate-600">
-                  <span className="font-semibold text-slate-800">Idioma:</span> Português (Brasil). Outros idiomas podem
+                <p className="mt-4 text-sm text-on-surface-variant">
+                  <span className="font-semibold text-on-surface">Idioma:</span> Português (Brasil). Outros idiomas podem
                   ser adicionados no futuro.
                 </p>
               </div>
 
               <div className={cardInner}>
-                <h2 className="flex items-center gap-2 text-base font-bold text-indigo-950">
+                <h2 className="flex items-center gap-2 text-base font-bold text-on-surface">
                   <Bell className="h-5 w-5 text-amber-600" aria-hidden />
                   Avisos e lembretes
                 </h2>
@@ -484,16 +526,16 @@ export function SettingsPage() {
                 </div>
                 <ul className="mt-4 space-y-2 text-sm text-slate-600">
                   <li className="flex gap-2">
-                    <span className="text-indigo-500" aria-hidden>
+                    <span className="text-primary" aria-hidden>
                       •
                     </span>
                     Concluir desafios: feedback na hora e barra de progresso atualizada.
                   </li>
                   <li className="flex gap-2">
-                    <span className="text-indigo-500" aria-hidden>
+                    <span className="text-primary" aria-hidden>
                       •
                     </span>
-                    Metas semanais: veja no <Link to="/app" className="font-semibold text-indigo-700 hover:underline">Início</Link>.
+                    Metas semanais: veja no <Link to="/app" className="font-semibold text-primary hover:underline">Início</Link>.
                   </li>
                 </ul>
               </div>
@@ -508,7 +550,7 @@ export function SettingsPage() {
               className="space-y-4"
             >
               <div className={cardInner}>
-                <h2 className="text-base font-bold text-indigo-950">Encerrar sessão</h2>
+                <h2 className="text-base font-bold text-on-surface">Encerrar sessão</h2>
                 <p className="mt-2 text-sm leading-relaxed text-slate-600">
                   Você sai desta conta neste dispositivo. Para entrar de novo, use e-mail e senha na tela de login. Se
                   notar algo estranho, saia e troque a senha (ou fale com o administrador da plataforma).
@@ -528,7 +570,7 @@ export function SettingsPage() {
           {tab === 'sobre' && (
             <div role="tabpanel" id="settings-panel-sobre" aria-labelledby="settings-tab-sobre" className="space-y-4">
               <div className={cardInner}>
-                <h2 className="flex items-center gap-2 text-base font-bold text-indigo-950">
+                <h2 className="flex items-center gap-2 text-base font-bold text-on-surface">
                   <Info className="h-5 w-5 text-sky-600" aria-hidden />
                   Referência rápida
                 </h2>

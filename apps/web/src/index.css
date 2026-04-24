@@ -4,6 +4,41 @@
 
 @layer base {
   /**
+   * Tokens de cor (tema claro). Cada canal RGB separado por espaço para que o
+   * Tailwind possa injetar o modificador de opacidade: bg-surface/50 etc.
+   * A versão dark fica no final do arquivo, fora de @layer, para não confundir
+   * o postcss-selector-parser com seletores compostos (html.dark .xxx).
+   */
+  :root {
+    --c-surface: 234 238 245;
+    --c-on-surface: 44 47 49;
+    --c-on-surface-variant: 89 92 94;
+    --c-primary: 0 85 197;
+    --c-primary-dim: 0 74 173;
+    --c-primary-container: 115 158 255;
+    --c-secondary: 42 105 0;
+    --c-secondary-container: 132 251 66;
+    --c-on-secondary-container: 36 92 0;
+    --c-tertiary: 131 25 218;
+    --c-tertiary-dim: 117 0 200;
+    --c-tertiary-container: 205 155 255;
+    --c-on-tertiary: 251 239 255;
+    --c-surface-low: 223 228 238;
+    --c-surface-lowest: 255 255 255;
+    --c-surface-high: 206 213 226;
+    --c-surface-highest: 195 203 217;
+    --c-secondary-fixed: 132 251 66;
+    --c-tertiary-fixed: 205 155 255;
+    --c-outline: 116 119 121;
+    --c-error: 179 27 37;
+    --c-brand-50: 234 242 255;
+    --c-brand-100: 212 228 255;
+    --c-brand-500: 0 85 197;
+    --c-brand-600: 0 74 173;
+    --c-brand-700: 0 59 140;
+  }
+
+  /**
    * Escala fluida no root: modula todo rem do Tailwind entre ~14–16px conforme a viewport,
    * mantendo legibilidade em telefone sem saltos bruscos no tablet/desktop.
    */
@@ -37,6 +72,14 @@
   h3,
   .font-headline {
     font-family: theme('fontFamily.headline');
+  }
+
+  /**
+   * Scroll suave global; respeitado pelo `prefers-reduced-motion` mais abaixo.
+   * Melhora a sensação de navegação entre âncoras da landing.
+   */
+  html {
+    scroll-behavior: smooth;
   }
 }
 
@@ -76,10 +119,19 @@
     }
   }
 
-  /* Fundo neutro + grade discreta (tokens alinhados ao app shell) */
+  /**
+   * Fundo neutro tingido + grade discreta + vinheta radial leve de marca.
+   * A sobreposição de dois gradientes radiais (canto superior esquerdo e
+   * canto inferior direito) dá profundidade ao app shell e evita o efeito
+   * "branco chapado" sem concorrer com o conteúdo dos cards.
+   */
   .dot-grid {
     background-color: theme('colors.surface');
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22'%3E%3Ccircle cx='2' cy='2' r='1' fill='%23c5cdd6'/%3E%3C/svg%3E");
+    background-image:
+      radial-gradient(90% 55% at 0% 0%, rgba(115, 158, 255, 0.18) 0%, rgba(115, 158, 255, 0) 60%),
+      radial-gradient(80% 55% at 100% 100%, rgba(205, 155, 255, 0.14) 0%, rgba(205, 155, 255, 0) 65%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22'%3E%3Ccircle cx='2' cy='2' r='1' fill='%23a8b2c4'/%3E%3C/svg%3E");
+    background-attachment: fixed, fixed, scroll;
   }
 
   /**
@@ -213,10 +265,90 @@
   .stagger-children > *:nth-child(6) { animation-delay: 300ms; }
   .stagger-children > *:nth-child(7) { animation-delay: 360ms; }
   .stagger-children > *:nth-child(8) { animation-delay: 420ms; }
+
+  /**
+   * Gradiente de marca reutilizável — usado em heroes, CTAs em destaque e
+   * em headlines (via `bg-clip-text text-transparent`). O `background-size` maior
+   * combinado com `animate-gradient-pan` dá o leve movimento "respirando"
+   * no hero da landing sem custo de repaint (só `background-position`).
+   */
+  .brand-gradient {
+    background-image: linear-gradient(
+      120deg,
+      theme('colors.primary') 0%,
+      #3b5bd9 45%,
+      theme('colors.tertiary') 100%
+    );
+    background-size: 180% 180%;
+  }
+
+  /**
+   * Superfície "hero": fundo branco suavemente tingido pela marca com um
+   * brilho radial no canto superior direito. Base visual para heros do
+   * dashboard, landing final e cabeçalho de aula.
+   */
+  .hero-surface {
+    position: relative;
+    background-color: theme('colors.surface-container-lowest');
+    background-image:
+      radial-gradient(120% 80% at 100% 0%, rgba(115, 158, 255, 0.22) 0%, rgba(115, 158, 255, 0) 55%),
+      radial-gradient(90% 80% at 0% 100%, rgba(205, 155, 255, 0.18) 0%, rgba(205, 155, 255, 0) 60%);
+  }
+
+  /**
+   * Variante "glass": card translúcido com blur; usado no preview composto
+   * da landing e em chips flutuantes sobre fundos com gradiente.
+   */
+  .glass-card {
+    background-color: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(14px) saturate(1.1);
+    -webkit-backdrop-filter: blur(14px) saturate(1.1);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+  }
+
+  /**
+   * Títulos longos ficam naturalmente mais balanceados em pt-BR sem
+   * depender de `\n` manuais.
+   */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /**
+   * Transição de página: fade curto + leve subida, disparado ao entrar em
+   * cada rota (o wrapper é keyed por `pathname`). Respeita
+   * `reduce-interface-motion` abaixo via regra geral de transition/animation.
+   */
+  .page-transition {
+    animation: fade-up 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /**
+   * Indicador de aba ativo: barrinha inferior que aparece em `NavLink` marcado.
+   * Componente-layout aplica a classe; a transform-only mantém o custo baixo.
+   */
+  .nav-tab-indicator {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 0;
+    height: 2px;
+    border-radius: 9999px;
+    background-color: theme('colors.primary');
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .nav-tab-indicator.is-active {
+    transform: scaleX(1);
+  }
 }
 
 /* Menos movimento para quem prefere — melhora conforto sem quebrar layout */
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
   .animate-bounce,
   .animate-pulse,
   .animate-float,
@@ -224,7 +356,9 @@
   .animate-float-slow,
   .animate-shimmer,
   .animate-ring-pulse,
-  .shimmer-line {
+  .animate-gradient-pan,
+  .shimmer-line,
+  .page-transition {
     animation: none !important;
   }
   .shine-sweep::after {
@@ -263,4 +397,67 @@ body {
   min-width: 0;
   width: 100%;
   overflow-x: clip;
+}
+
+/* ─── Tema escuro ────────────────────────────────────────────────────────────
+ * Colocado aqui, FORA de qualquer @layer, para evitar que o
+ * postcss-selector-parser do Tailwind 3.4 trate "html.dark .xxx"
+ * como seletor de variant e gere erros de parse.
+ * O ThemeProvider (React) aplica/remove a class "dark" no <html>.
+ * ─────────────────────────────────────────────────────────────────────────── */
+html.dark {
+  color-scheme: dark;
+  --c-surface: 13 16 24;
+  --c-on-surface: 226 230 239;
+  --c-on-surface-variant: 150 157 170;
+  --c-primary: 130 180 255;
+  --c-primary-dim: 100 155 240;
+  --c-primary-container: 60 100 195;
+  --c-secondary: 100 200 55;
+  --c-secondary-container: 60 150 35;
+  --c-on-secondary-container: 200 255 160;
+  --c-tertiary: 210 160 255;
+  --c-tertiary-dim: 180 125 245;
+  --c-tertiary-container: 110 65 160;
+  --c-on-tertiary: 240 220 255;
+  --c-surface-low: 22 28 40;
+  --c-surface-lowest: 17 22 32;
+  --c-surface-high: 52 62 80;
+  --c-surface-highest: 65 76 96;
+  --c-secondary-fixed: 100 200 55;
+  --c-tertiary-fixed: 200 150 255;
+  --c-outline: 115 124 138;
+  --c-error: 255 110 118;
+  --c-brand-50: 18 28 48;
+  --c-brand-100: 32 48 78;
+  --c-brand-500: 130 180 255;
+  --c-brand-600: 100 155 240;
+  --c-brand-700: 78 128 215;
+}
+
+html.dark .dot-grid {
+  background-image:
+    radial-gradient(90% 55% at 0% 0%, rgba(100, 150, 255, 0.12) 0%, rgba(100, 150, 255, 0) 55%),
+    radial-gradient(80% 55% at 100% 100%, rgba(180, 120, 255, 0.10) 0%, rgba(180, 120, 255, 0) 65%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22'%3E%3Ccircle cx='2' cy='2' r='1' fill='%2344526a'/%3E%3C/svg%3E");
+}
+
+html.dark .hero-surface {
+  background-image:
+    radial-gradient(120% 80% at 100% 0%, rgba(100, 150, 255, 0.14) 0%, rgba(100, 150, 255, 0) 55%),
+    radial-gradient(90% 80% at 0% 100%, rgba(180, 120, 255, 0.10) 0%, rgba(180, 120, 255, 0) 60%);
+}
+
+html.dark .glass-card {
+  background-color: rgba(30, 38, 55, 0.80);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+html.dark .shimmer-line {
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
 }

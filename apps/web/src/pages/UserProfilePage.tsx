@@ -25,7 +25,7 @@ import { PageLoader } from '../components/ui/PageLoader';
 import { FollowListModal } from '../components/FollowListModal';
 import type { FollowListKind } from '../hooks/useFollowList';
 
-const cardShadow = 'shadow-[0_20px_40px_rgba(44,47,49,0.06)]';
+const cardShadow = 'shadow-card';
 
 export function UserProfilePage() {
   const { userId } = useParams<{ userId: string }>();
@@ -97,7 +97,7 @@ export function UserProfilePage() {
 
       <Link
         to="/app/community"
-        className="relative mb-6 inline-flex items-center gap-2 text-sm font-semibold text-indigo-700 transition hover:text-indigo-900"
+        className="relative mb-6 inline-flex items-center gap-2 text-sm font-semibold text-primary transition hover:text-primary"
       >
         <ArrowLeft className="h-4 w-4" aria-hidden />
         Voltar à comunidade
@@ -147,7 +147,7 @@ export function UserProfilePage() {
                     type="button"
                     onClick={() => setFollowModalKind('followers')}
                     aria-label="Ver seguidores"
-                    className="press-tactile focus-ring-primary inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-sm text-slate-700 transition duration-300 ease-ios-out hover:bg-indigo-50 hover:text-indigo-700"
+                    className="press-tactile focus-ring-primary inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-sm text-slate-700 transition duration-300 ease-ios-out hover:bg-primary/5 hover:text-primary"
                   >
                     <span className="font-bold tabular-nums text-slate-900">{data.followerCount}</span>
                     seguidores
@@ -156,7 +156,7 @@ export function UserProfilePage() {
                     type="button"
                     onClick={() => setFollowModalKind('following')}
                     aria-label="Ver seguindo"
-                    className="press-tactile focus-ring-primary inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-sm text-slate-700 transition duration-300 ease-ios-out hover:bg-indigo-50 hover:text-indigo-700"
+                    className="press-tactile focus-ring-primary inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-sm text-slate-700 transition duration-300 ease-ios-out hover:bg-primary/5 hover:text-primary"
                   >
                     <span className="font-bold tabular-nums text-slate-900">{data.followingCount}</span>
                     seguindo
@@ -168,7 +168,7 @@ export function UserProfilePage() {
                     <>
                       <Link
                         to={`/app/users/${userId}/compare`}
-                        className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-indigo-700 sm:flex-initial"
+                        className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-primary-dim sm:flex-initial"
                       >
                         <GitCompare className="h-4 w-4 shrink-0" aria-hidden />
                         Comparar comigo
@@ -193,7 +193,7 @@ export function UserProfilePage() {
                         type="button"
                         disabled={followMut.isPending}
                         onClick={() => followMut.mutate('follow')}
-                        className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-indigo-700 sm:flex-initial"
+                        className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-primary-dim sm:flex-initial"
                       >
                         {followMut.isPending ? (
                           <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
@@ -204,7 +204,7 @@ export function UserProfilePage() {
                       </button>
                       <Link
                         to={`/app/users/${userId}/compare`}
-                        className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-indigo-200 bg-indigo-50/80 px-4 py-3 text-sm font-semibold text-indigo-900 transition hover:border-indigo-300 hover:bg-indigo-100/80 sm:flex-initial"
+                        className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-primary/25 bg-primary/5 px-4 py-3 text-sm font-semibold text-primary transition hover:border-primary/40 hover:bg-primary/10 sm:flex-initial"
                       >
                         <GitCompare className="h-4 w-4 shrink-0" aria-hidden />
                         Comparar comigo
@@ -226,10 +226,10 @@ export function UserProfilePage() {
                   Nível &amp; XP
                 </p>
                 <p className="mt-2 font-headline text-3xl font-black tabular-nums text-slate-900">Nv. {data.level}</p>
-                <p className="mt-1 text-sm font-medium text-indigo-700">{rank.name}</p>
+                <p className="mt-1 text-sm font-medium text-primary">{rank.name}</p>
                 <p className="mt-0.5 max-w-md text-xs text-slate-500">{rank.description}</p>
               </div>
-              <div className="rounded-2xl border border-indigo-100 bg-white/80 px-4 py-3 text-right shadow-sm">
+              <div className="rounded-2xl border border-primary/20 bg-white/80 px-4 py-3 text-right shadow-sm">
                 <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">XP total</p>
                 <p className="text-lg font-black tabular-nums text-slate-900">{data.xpTotal.toLocaleString('pt-BR')}</p>
               </div>
@@ -241,7 +241,7 @@ export function UserProfilePage() {
               </div>
               <div className="h-3 overflow-hidden rounded-full bg-slate-200/80">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 transition-all"
+                  className="h-full rounded-full bg-gradient-to-r from-primary to-tertiary transition-all"
                   style={{ width: `${pct}%` }}
                 />
               </div>
@@ -286,10 +286,10 @@ export function UserProfilePage() {
           </div>
 
           <div
-            className={`rounded-[1.25rem] border border-indigo-100/90 bg-indigo-50/40 p-5 ${cardShadow}`}
+            className={`rounded-[1.25rem] border border-primary/20 bg-primary/5 p-5 ${cardShadow}`}
           >
             <div className="flex gap-3">
-              <Sparkles className="h-5 w-5 shrink-0 text-indigo-600" aria-hidden />
+              <Sparkles className="h-5 w-5 shrink-0 text-primary" aria-hidden />
               <div>
                 <p className="text-sm font-semibold text-slate-900">Dica</p>
                 <p className="mt-1 text-sm leading-relaxed text-slate-600">

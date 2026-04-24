@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+export type ColorScheme = 'light' | 'dark' | 'system';
+
 type UiPreferencesState = {
   /** Reduz animações e transições na interface (além da preferência do sistema). */
   reduceMotion: boolean;
@@ -8,6 +10,9 @@ type UiPreferencesState = {
   /** Toca sons curtos em ações de gamificação (acerto, erro, level up). Opt-in. */
   soundEnabled: boolean;
   setSoundEnabled: (value: boolean) => void;
+  /** Esquema de cor preferido: 'light' | 'dark' | 'system'. */
+  colorScheme: ColorScheme;
+  setColorScheme: (value: ColorScheme) => void;
 };
 
 export const useUiPreferences = create<UiPreferencesState>()(
@@ -17,6 +22,8 @@ export const useUiPreferences = create<UiPreferencesState>()(
       setReduceMotion: (reduceMotion) => set({ reduceMotion }),
       soundEnabled: false,
       setSoundEnabled: (soundEnabled) => set({ soundEnabled }),
+      colorScheme: 'system' as ColorScheme,
+      setColorScheme: (colorScheme) => set({ colorScheme }),
     }),
     { name: 'codepath-ui-prefs' },
   ),

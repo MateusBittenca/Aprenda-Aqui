@@ -16,7 +16,7 @@ import { PageLoader } from '../components/ui/PageLoader';
 import { ErrorState } from '../components/ui/ErrorState';
 import type { LeaderboardEntry } from '../hooks/useLeaderboard';
 
-const cardShadow = 'shadow-[0_20px_40px_rgba(44,47,49,0.04)]';
+const cardShadow = 'shadow-card';
 
 function useSeasonCountdown() {
   const [tick, setTick] = useState(0);

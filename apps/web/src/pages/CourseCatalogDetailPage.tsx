@@ -187,8 +187,8 @@ export function CourseCatalogDetailPage() {
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10">
             <div className="space-y-8 lg:col-span-8">
               <div className="rounded-[24px] border border-white/60 bg-white/80 p-6 shadow-[0_20px_50px_-24px_rgba(30,27,75,0.12)] backdrop-blur-xl sm:p-8">
-                <h2 className="font-headline text-2xl font-bold tracking-tight text-indigo-950">Visão geral</h2>
-                <div className="prose prose-slate mt-6 max-w-none prose-headings:scroll-mt-28 prose-headings:font-bold prose-h2:text-xl prose-h3:text-base prose-p:leading-relaxed prose-a:text-indigo-600 prose-blockquote:border-indigo-200 prose-blockquote:bg-indigo-50/50 prose-blockquote:py-0.5 prose-strong:text-slate-900 prose-code:rounded-md prose-code:bg-slate-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:text-sm prose-code:font-semibold prose-code:text-rose-700 prose-pre:rounded-2xl prose-pre:border prose-pre:border-slate-800 prose-pre:bg-slate-900 prose-pre:text-slate-100">
+                <h2 className="font-headline text-2xl font-bold tracking-tight text-on-surface">Visão geral</h2>
+                <div className="prose prose-slate mt-6 max-w-none prose-headings:scroll-mt-28 prose-headings:font-bold prose-h2:text-xl prose-h3:text-base prose-p:leading-relaxed prose-a:text-primary prose-blockquote:border-primary/30 prose-blockquote:bg-primary/5 prose-blockquote:py-0.5 prose-strong:text-on-surface prose-code:rounded-md prose-code:bg-surface-container-high prose-code:px-1.5 prose-code:py-0.5 prose-code:text-sm prose-code:font-semibold prose-code:text-rose-700 prose-pre:rounded-2xl prose-pre:border prose-pre:border-slate-800 prose-pre:bg-slate-900 prose-pre:text-slate-100">
                   <ReactMarkdown>{overviewMd}</ReactMarkdown>
                 </div>
               </div>
@@ -209,13 +209,13 @@ export function CourseCatalogDetailPage() {
                     />
                   ) : (
                     <div
-                      className="flex h-full min-h-[12rem] w-full items-center justify-center bg-gradient-to-br from-indigo-200 via-violet-100 to-slate-100"
+                      className="flex h-full min-h-[12rem] w-full items-center justify-center bg-gradient-to-br from-primary/20 via-tertiary/10 to-surface-container-high"
                       aria-hidden
                     />
                   )}
                   <div className="absolute inset-0 flex items-center justify-center bg-black/25 transition group-hover:bg-black/35">
                     <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/95 shadow-xl">
-                      <Play className="ml-1 h-8 w-8 text-indigo-600" aria-hidden />
+                      <Play className="ml-1 h-8 w-8 text-primary" aria-hidden />
                     </span>
                   </div>
                 </a>
@@ -223,24 +223,24 @@ export function CourseCatalogDetailPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="rounded-2xl border border-white/60 bg-white/80 p-4 text-center shadow-sm backdrop-blur-xl transition hover:-translate-y-1">
-                  <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-indigo-600">
+                  <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
                     <Users className="h-5 w-5" aria-hidden />
                   </div>
-                  <p className="font-headline text-xl font-bold tabular-nums text-indigo-950">{formatPeople(students)}</p>
+                  <p className="font-headline text-xl font-bold tabular-nums text-on-surface">{formatPeople(students)}</p>
                   <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Alunos</p>
                 </div>
                 <div className="rounded-2xl border border-white/60 bg-white/80 p-4 text-center shadow-sm backdrop-blur-xl transition hover:-translate-y-1">
                   <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-violet-100 text-violet-600">
                     <BookOpen className="h-5 w-5" aria-hidden />
                   </div>
-                  <p className="font-headline text-xl font-bold tabular-nums text-indigo-950">{stats.lessonCount}</p>
+                  <p className="font-headline text-xl font-bold tabular-nums text-on-surface">{stats.lessonCount}</p>
                   <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Aulas</p>
                 </div>
                 <div className="rounded-2xl border border-white/60 bg-white/80 p-4 text-center shadow-sm backdrop-blur-xl transition hover:-translate-y-1">
                   <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-700">
                     <Clock className="h-5 w-5" aria-hidden />
                   </div>
-                  <p className="font-headline text-lg font-bold leading-tight text-indigo-950">
+                  <p className="font-headline text-lg font-bold leading-tight text-on-surface">
                     {formatMinutes(stats.totalMinutes)}
                   </p>
                   <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Carga</p>
@@ -249,7 +249,7 @@ export function CourseCatalogDetailPage() {
                   <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-rose-50 text-rose-600">
                     <Code2 className="h-5 w-5" aria-hidden />
                   </div>
-                  <p className="font-headline text-xl font-bold tabular-nums text-indigo-950">{stats.exerciseCount}</p>
+                  <p className="font-headline text-xl font-bold tabular-nums text-on-surface">{stats.exerciseCount}</p>
                   <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Exercícios</p>
                 </div>
               </div>
@@ -269,7 +269,7 @@ export function CourseCatalogDetailPage() {
                 </ul>
                 <Link
                   to="/app/courses"
-                  className="mt-4 inline-flex items-center gap-1 text-sm font-bold text-indigo-600 hover:underline"
+                  className="mt-4 inline-flex items-center gap-1 text-sm font-bold text-primary hover:underline"
                 >
                   Voltar ao catálogo
                   <ChevronRight className="h-4 w-4" aria-hidden />
@@ -304,3 +304,4 @@ export function CourseCatalogDetailPage() {
     </div>
   );
 }
+

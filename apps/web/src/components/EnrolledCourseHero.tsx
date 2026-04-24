@@ -65,7 +65,7 @@ export function EnrolledCourseHero({
     <section className="relative">
       <div
         className={[
-          'relative overflow-hidden rounded-[32px] border border-white/60 bg-white/85 shadow-[0_25px_60px_-20px_rgba(30,27,75,0.14)] backdrop-blur-xl',
+          'relative overflow-hidden rounded-[32px] border border-surface-container-high/60 bg-surface-container-lowest/85 shadow-[0_25px_60px_-20px_rgba(30,27,75,0.14)] backdrop-blur-xl',
           'p-6 md:p-10 lg:p-12',
         ].join(' ')}
       >
@@ -97,14 +97,14 @@ export function EnrolledCourseHero({
                 <CourseIcon className="h-8 w-8 sm:h-10 sm:w-10" strokeWidth={2} aria-hidden />
               </div>
               <div className="min-w-0">
-                <h1 className="font-headline text-3xl font-extrabold tracking-tight text-indigo-950 sm:text-4xl md:text-[2.6rem] md:leading-tight">
+                <h1 className="font-headline text-3xl font-extrabold tracking-tight text-on-surface sm:text-4xl md:text-[2.6rem] md:leading-tight">
                   {data.title}
                 </h1>
                 {data.tagline ? (
-                  <p className="mt-2 text-lg font-semibold text-indigo-700 sm:text-xl">{data.tagline}</p>
+                  <p className="mt-2 text-lg font-semibold text-primary sm:text-xl">{data.tagline}</p>
                 ) : null}
                 {data.description ? (
-                  <p className="mt-3 max-w-2xl text-pretty text-base leading-relaxed text-slate-600 sm:text-lg">
+                  <p className="mt-3 max-w-2xl text-pretty text-base leading-relaxed text-on-surface-variant sm:text-lg">
                     {data.description}
                   </p>
                 ) : null}
@@ -115,14 +115,14 @@ export function EnrolledCourseHero({
               <div className="mt-8 max-w-xl">
                 <div className="mb-2 flex flex-wrap items-end justify-between gap-2">
                   <div>
-                    <p className="text-sm font-bold text-slate-800">Seu progresso</p>
-                    <p className="text-xs text-slate-500">Aulas concluídas neste curso.</p>
+                    <p className="text-sm font-bold text-on-surface">Seu progresso</p>
+                    <p className="text-xs text-on-surface-variant">Aulas concluídas neste curso.</p>
                   </div>
-                  <p className="text-sm font-bold tabular-nums text-indigo-950">
+                  <p className="text-sm font-bold tabular-nums text-on-surface">
                     {completedCount}/{totalLessons} · {coursePct}%
                   </p>
                 </div>
-                <div className="h-2.5 overflow-hidden rounded-full bg-slate-200/90 ring-1 ring-slate-200/60">
+                <div className="h-2.5 overflow-hidden rounded-full bg-surface-container-high ring-1 ring-surface-container-high/60">
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-indigo-600 to-violet-500 transition-all duration-700 ease-out"
                     style={{ width: `${coursePct}%` }}
@@ -148,7 +148,7 @@ export function EnrolledCourseHero({
               {secondaryAction ? (
                 <Link
                   to={secondaryAction.to}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-indigo-200/90 bg-white/90 px-6 py-4 text-sm font-bold text-indigo-800 shadow-sm transition hover:border-indigo-300 hover:bg-white"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-surface-container-high bg-surface-container-lowest/90 px-6 py-4 text-sm font-bold text-on-surface shadow-sm transition hover:bg-surface-container-low"
                 >
                   <Map className="h-4 w-4" aria-hidden />
                   {secondaryAction.label}
@@ -156,7 +156,7 @@ export function EnrolledCourseHero({
               ) : (
                 <Link
                   to="/app/courses"
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200/90 bg-white/90 px-6 py-4 text-sm font-bold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-white"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-surface-container-high bg-surface-container-lowest/90 px-6 py-4 text-sm font-bold text-on-surface shadow-sm transition hover:bg-surface-container-low"
                 >
                   Explorar catálogo
                 </Link>
@@ -165,35 +165,35 @@ export function EnrolledCourseHero({
           </div>
 
           <div className="grid w-full shrink-0 grid-cols-2 gap-3 sm:max-w-md lg:w-72">
-            <div className="rounded-2xl border border-white/60 bg-white/70 p-4 text-center shadow-sm backdrop-blur-md">
-              <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-full bg-violet-100 text-violet-600">
+            <div className="rounded-2xl border border-surface-container-high/60 bg-surface-container-low/70 p-4 text-center shadow-sm backdrop-blur-md">
+              <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-full bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-300">
                 <BookOpen className="h-4 w-4" aria-hidden />
               </div>
-              <p className="font-headline text-lg font-bold tabular-nums text-indigo-950">{stats.lessonCount}</p>
-              <p className="mt-0.5 text-xs font-semibold uppercase tracking-wide text-slate-500">Aulas</p>
+              <p className="font-headline text-lg font-bold tabular-nums text-on-surface">{stats.lessonCount}</p>
+              <p className="mt-0.5 text-xs font-semibold uppercase tracking-wide text-on-surface-variant">Aulas</p>
             </div>
-            <div className="rounded-2xl border border-white/60 bg-white/70 p-4 text-center shadow-sm backdrop-blur-md">
-              <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-700">
+            <div className="rounded-2xl border border-surface-container-high/60 bg-surface-container-low/70 p-4 text-center shadow-sm backdrop-blur-md">
+              <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-full bg-surface-container-high text-on-surface-variant">
                 <Clock className="h-4 w-4" aria-hidden />
               </div>
-              <p className="font-headline text-base font-bold leading-tight text-indigo-950">
+              <p className="font-headline text-base font-bold leading-tight text-on-surface">
                 {formatMinutes(stats.totalMinutes)}
               </p>
-              <p className="mt-0.5 text-xs font-semibold uppercase tracking-wide text-slate-500">Carga</p>
+              <p className="mt-0.5 text-xs font-semibold uppercase tracking-wide text-on-surface-variant">Carga</p>
             </div>
-            <div className="rounded-2xl border border-white/60 bg-white/70 p-4 text-center shadow-sm backdrop-blur-md">
-              <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-indigo-600">
+            <div className="rounded-2xl border border-surface-container-high/60 bg-surface-container-low/70 p-4 text-center shadow-sm backdrop-blur-md">
+              <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <Layers className="h-4 w-4" aria-hidden />
               </div>
-              <p className="font-headline text-lg font-bold tabular-nums text-indigo-950">{data.modules.length}</p>
-              <p className="mt-0.5 text-xs font-semibold uppercase tracking-wide text-slate-500">Módulos</p>
+              <p className="font-headline text-lg font-bold tabular-nums text-on-surface">{data.modules.length}</p>
+              <p className="mt-0.5 text-xs font-semibold uppercase tracking-wide text-on-surface-variant">Módulos</p>
             </div>
-            <div className="rounded-2xl border border-white/60 bg-white/70 p-4 text-center shadow-sm backdrop-blur-md">
-              <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-full bg-rose-50 text-rose-600">
+            <div className="rounded-2xl border border-surface-container-high/60 bg-surface-container-low/70 p-4 text-center shadow-sm backdrop-blur-md">
+              <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-full bg-rose-50 text-rose-600 dark:bg-rose-900/30 dark:text-rose-300">
                 <Code2 className="h-4 w-4" aria-hidden />
               </div>
-              <p className="font-headline text-lg font-bold tabular-nums text-indigo-950">{stats.exerciseCount}</p>
-              <p className="mt-0.5 text-xs font-semibold uppercase tracking-wide text-slate-500">Exercícios</p>
+              <p className="font-headline text-lg font-bold tabular-nums text-on-surface">{stats.exerciseCount}</p>
+              <p className="mt-0.5 text-xs font-semibold uppercase tracking-wide text-on-surface-variant">Exercícios</p>
             </div>
           </div>
         </div>

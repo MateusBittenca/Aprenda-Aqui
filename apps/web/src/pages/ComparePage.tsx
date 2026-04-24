@@ -19,7 +19,7 @@ import { Avatar } from '../components/Avatar';
 import { ErrorState } from '../components/ui/ErrorState';
 import { PageLoader } from '../components/ui/PageLoader';
 
-const cardShadow = 'shadow-[0_20px_40px_rgba(44,47,49,0.06)]';
+const cardShadow = 'shadow-card';
 
 type MetricDef = {
   key: string;
@@ -134,7 +134,7 @@ export function ComparePage() {
 
       <Link
         to={`/app/users/${userId}`}
-        className="relative mb-6 inline-flex items-center gap-2 text-sm font-semibold text-indigo-700 transition hover:text-indigo-900"
+        className="relative mb-6 inline-flex items-center gap-2 text-sm font-semibold text-primary transition hover:text-primary"
       >
         <ArrowLeft className="h-4 w-4" aria-hidden />
         Voltar ao perfil de {data.them.displayName}
@@ -142,7 +142,7 @@ export function ComparePage() {
 
       <header className="relative mb-6 space-y-2">
         <div className="flex items-center gap-3">
-          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-700 shadow-sm ring-1 ring-indigo-200/60">
+          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20">
             <GitCompare className="h-5 w-5" aria-hidden />
           </span>
           <div>
@@ -152,8 +152,8 @@ export function ComparePage() {
             </p>
           </div>
         </div>
-        <p className="rounded-xl border border-indigo-100 bg-indigo-50/80 px-4 py-3 text-sm text-indigo-950">
-          <span className="font-semibold text-indigo-900">Resumo:</span>{' '}
+        <p className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-on-surface">
+          <span className="font-semibold text-primary">Resumo:</span>{' '}
           Você lidera em <strong className="tabular-nums">{youLeadCount}</strong> de {metrics.length} métricas
           {themLeadCount > 0 ? (
             <>
@@ -174,7 +174,7 @@ export function ComparePage() {
       <div
         className={`relative overflow-hidden rounded-[1.35rem] border border-slate-200/90 bg-white/90 backdrop-blur-sm ${cardShadow}`}
       >
-        <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-indigo-500/10" aria-hidden />
+        <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary/10" aria-hidden />
 
         <div className="relative px-4 py-6 sm:px-6 sm:py-8">
           <div className="grid gap-8 lg:grid-cols-[1fr_auto_1fr] lg:items-start lg:gap-6">
@@ -209,7 +209,7 @@ export function ComparePage() {
                       <div
                         className={`rounded-xl px-3 py-2.5 ring-1 transition-colors ${
                           L === 'you'
-                            ? 'bg-indigo-50/90 ring-indigo-200/70'
+                            ? 'bg-primary/5 ring-primary/25'
                             : L === 'tie'
                               ? 'bg-slate-50/90 ring-slate-200/80'
                               : 'bg-white ring-slate-200/80'
@@ -224,14 +224,14 @@ export function ComparePage() {
                           </div>
                           <span
                             className={`shrink-0 tabular-nums text-base font-bold ${
-                              L === 'you' ? 'text-indigo-900' : 'text-slate-800'
+                              L === 'you' ? 'text-primary' : 'text-slate-800'
                             }`}
                           >
                             {m.format(m.you)}
                           </span>
                         </div>
                         <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-slate-200/90">
-                          <div className="h-full rounded-full bg-indigo-500" style={{ width: `${youBar}%` }} />
+                          <div className="h-full rounded-full bg-primary" style={{ width: `${youBar}%` }} />
                         </div>
                       </div>
                     </li>

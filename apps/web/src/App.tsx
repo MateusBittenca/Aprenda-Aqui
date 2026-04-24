@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { Toaster } from 'sonner';
+import { ThemeProvider, useTheme } from './hooks/useThemeContext';
 import { ScrollToTop } from './components/ScrollToTop';
 import { AppLayout } from './components/AppLayout';
 import { AdminLayout } from './components/AdminLayout';
@@ -41,18 +42,27 @@ const queryClient = new QueryClient({
   },
 });
 
+function ThemedToaster() {
+  const { isDark } = useTheme();
+  return (
+    <Toaster
+      richColors
+      theme={isDark ? 'dark' : 'light'}
+      position="top-center"
+      closeButton
+      duration={4500}
+      offset="max(1rem, env(safe-area-inset-top, 0px))"
+    />
+  );
+}
+
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
       <BrowserRouter>
         <ScrollToTop />
-        <Toaster
-          richColors
-          position="top-center"
-          closeButton
-          duration={4500}
-          offset="max(1rem, env(safe-area-inset-top, 0px))"
-        />
+        <ThemedToaster />
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
@@ -88,6 +98,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

@@ -28,6 +28,8 @@ storybook-static/
 .env.*
 !.env.example
 !.env*.example
+# .env.production do frontend contém apenas a URL pública da API (não é segredo)
+!apps/web/.env.production
 
 # ─── Logs ─────────────────────────────────────────────────────
 logs/

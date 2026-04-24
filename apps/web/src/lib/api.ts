@@ -1,8 +1,14 @@
+/**
+ * Base da API: em dev costuma ser relativo `/api/v1` (proxy do Vite).
+ * Em produção: URL absoluta com `VITE_API_BASE` (ex.: https://xxx.railway.app/api/v1).
+ */
 function normaliseApiBase(raw: string | undefined): string {
-  if (!raw) return '/api/v1';
-  // Prepend https:// when the value is a bare domain or path (no protocol).
-  const withProtocol = raw.startsWith('http') ? raw : `https://${raw}`;
-  // Remove any trailing slash so path concatenation is always clean.
+  if (raw == null || raw === '') return '/api/v1';
+  const b = String(raw).trim();
+  if (b.startsWith('/')) {
+    return b.replace(/\/+$/, '') || '/';
+  }
+  const withProtocol = /^https?:\/\//i.test(b) ? b : `https://${b}`;
   return withProtocol.replace(/\/+$/, '');
 }
 

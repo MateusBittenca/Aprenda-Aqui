@@ -28,8 +28,12 @@ ENV NODE_ENV=production
 COPY package.json package-lock.json ./
 COPY apps/api/package.json ./apps/api/
 
-# Instala somente dependências de produção
+# Instala dependências de produção
 RUN npm ci --workspace=apps/api --include-workspace-root --omit=dev
+
+# Copia o CLI do Prisma do builder (estava em devDeps, necessário para migrate deploy)
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
+COPY --from=builder /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
 
 # Copia binários compilados
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
@@ -44,4 +48,4 @@ COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 EXPOSE 3000
 
 # Executa as migrations pendentes e inicia o servidor
-CMD ["sh", "-c", "npx prisma migrate deploy --schema=apps/api/prisma/schema.prisma && node apps/api/dist/main"]
+CMD ["sh", "-c", "node_modules/.bin/prisma migrate deploy --schema=apps/api/prisma/schema.prisma && node apps/api/dist/main"]

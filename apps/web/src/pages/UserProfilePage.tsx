@@ -107,12 +107,12 @@ export function UserProfilePage() {
         {/* Coluna principal */}
         <div className="space-y-6 lg:col-span-7">
           <section
-            className={`relative overflow-hidden rounded-[1.35rem] border border-slate-200/90 bg-white/90 p-6 backdrop-blur-sm sm:p-8 ${cardShadow}`}
+            className={`relative overflow-hidden rounded-[1.35rem] border border-surface-container-high/90 bg-surface-container-lowest/90 p-6 backdrop-blur-sm sm:p-8 ${cardShadow}`}
           >
-            <div className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full bg-indigo-500/10" aria-hidden />
+            <div className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full bg-primary/10" aria-hidden />
             <div className="relative flex flex-col gap-6 sm:flex-row sm:items-start">
               <div className="relative mx-auto shrink-0 sm:mx-0">
-                <div className="h-28 w-28 overflow-hidden rounded-2xl border-4 border-white shadow-lg ring-2 ring-slate-100 sm:h-32 sm:w-32">
+                <div className="h-28 w-28 overflow-hidden rounded-2xl border-4 border-surface-container-lowest shadow-lg ring-2 ring-surface-container-high sm:h-32 sm:w-32">
                   <Avatar
                     userId={data.id}
                     displayName={data.displayName}
@@ -129,17 +129,17 @@ export function UserProfilePage() {
               </div>
 
               <div className="min-w-0 flex-1 text-center sm:text-left">
-                <h1 className="font-headline text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+                <h1 className="font-headline text-2xl font-extrabold tracking-tight text-on-surface sm:text-3xl">
                   {data.displayName}
                 </h1>
-                <p className="mt-1 text-xs font-medium uppercase tracking-wide text-slate-400">
+                <p className="mt-1 text-xs font-medium uppercase tracking-wide text-on-surface-variant">
                   Membro desde {memberSince}
                 </p>
 
                 {data.bio ? (
-                  <p className="mt-4 text-sm leading-relaxed text-slate-600">{data.bio}</p>
+                  <p className="mt-4 text-sm leading-relaxed text-on-surface-variant">{data.bio}</p>
                 ) : (
-                  <p className="mt-4 text-sm italic text-slate-400">Sem bio pública ainda.</p>
+                  <p className="mt-4 text-sm italic text-on-surface-variant">Sem bio pública ainda.</p>
                 )}
 
                 <div className="mt-5 flex flex-wrap justify-center gap-2 sm:justify-start">
@@ -147,18 +147,18 @@ export function UserProfilePage() {
                     type="button"
                     onClick={() => setFollowModalKind('followers')}
                     aria-label="Ver seguidores"
-                    className="press-tactile focus-ring-primary inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-sm text-slate-700 transition duration-300 ease-ios-out hover:bg-primary/5 hover:text-primary"
+                    className="press-tactile focus-ring-primary inline-flex items-center gap-1.5 rounded-full bg-surface-container-low px-3 py-1.5 text-sm text-on-surface transition duration-300 ease-ios-out hover:bg-primary/5 hover:text-primary"
                   >
-                    <span className="font-bold tabular-nums text-slate-900">{data.followerCount}</span>
+                    <span className="font-bold tabular-nums text-on-surface">{data.followerCount}</span>
                     seguidores
                   </button>
                   <button
                     type="button"
                     onClick={() => setFollowModalKind('following')}
                     aria-label="Ver seguindo"
-                    className="press-tactile focus-ring-primary inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-sm text-slate-700 transition duration-300 ease-ios-out hover:bg-primary/5 hover:text-primary"
+                    className="press-tactile focus-ring-primary inline-flex items-center gap-1.5 rounded-full bg-surface-container-low px-3 py-1.5 text-sm text-on-surface transition duration-300 ease-ios-out hover:bg-primary/5 hover:text-primary"
                   >
-                    <span className="font-bold tabular-nums text-slate-900">{data.followingCount}</span>
+                    <span className="font-bold tabular-nums text-on-surface">{data.followingCount}</span>
                     seguindo
                   </button>
                 </div>
@@ -177,7 +177,7 @@ export function UserProfilePage() {
                         type="button"
                         disabled={followMut.isPending}
                         onClick={() => followMut.mutate('unfollow')}
-                        className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 sm:flex-initial"
+                        className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-surface-container-high bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface transition hover:bg-surface-container-low sm:flex-initial"
                       >
                         {followMut.isPending ? (
                           <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
@@ -217,38 +217,38 @@ export function UserProfilePage() {
           </section>
 
           <section
-            className={`rounded-[1.35rem] border border-slate-200/90 bg-gradient-to-br from-white to-indigo-50/30 p-6 sm:p-7 ${cardShadow}`}
+            className={`rounded-[1.35rem] border border-surface-container-high/90 bg-gradient-to-br from-surface-container-lowest to-primary/5 p-6 sm:p-7 ${cardShadow}`}
           >
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+                <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-on-surface-variant">
                   <Trophy className="h-4 w-4 text-amber-500" aria-hidden />
                   Nível &amp; XP
                 </p>
-                <p className="mt-2 font-headline text-3xl font-black tabular-nums text-slate-900">Nv. {data.level}</p>
+                <p className="mt-2 font-headline text-3xl font-black tabular-nums text-on-surface">Nv. {data.level}</p>
                 <p className="mt-1 text-sm font-medium text-primary">{rank.name}</p>
-                <p className="mt-0.5 max-w-md text-xs text-slate-500">{rank.description}</p>
+                <p className="mt-0.5 max-w-md text-xs text-on-surface-variant">{rank.description}</p>
               </div>
-              <div className="rounded-2xl border border-primary/20 bg-white/80 px-4 py-3 text-right shadow-sm">
-                <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">XP total</p>
-                <p className="text-lg font-black tabular-nums text-slate-900">{data.xpTotal.toLocaleString('pt-BR')}</p>
+              <div className="rounded-2xl border border-primary/20 bg-surface-container-low/90 px-4 py-3 text-right shadow-sm">
+                <p className="text-[10px] font-bold uppercase tracking-wide text-on-surface-variant">XP total</p>
+                <p className="text-lg font-black tabular-nums text-on-surface">{data.xpTotal.toLocaleString('pt-BR')}</p>
               </div>
             </div>
             <div className="mt-5">
-              <div className="mb-1.5 flex justify-between text-xs font-medium text-slate-500">
+              <div className="mb-1.5 flex justify-between text-xs font-medium text-on-surface-variant">
                 <span>Progresso neste nível</span>
                 <span className="tabular-nums">{pct}%</span>
               </div>
-              <div className="h-3 overflow-hidden rounded-full bg-slate-200/80">
+              <div className="h-3 overflow-hidden rounded-full bg-surface-container-high/80">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-primary to-tertiary transition-all"
                   style={{ width: `${pct}%` }}
                 />
               </div>
-              <p className="mt-2 text-sm text-slate-600">
+              <p className="mt-2 text-sm text-on-surface-variant">
                 {xpToNext > 0 ? (
                   <>
-                    Faltam <strong className="text-slate-800">{xpToNext.toLocaleString('pt-BR')} XP</strong> para o
+                    Faltam <strong className="text-on-surface">{xpToNext.toLocaleString('pt-BR')} XP</strong> para o
                     próximo nível.
                   </>
                 ) : (
@@ -291,8 +291,8 @@ export function UserProfilePage() {
             <div className="flex gap-3">
               <Sparkles className="h-5 w-5 shrink-0 text-primary" aria-hidden />
               <div>
-                <p className="text-sm font-semibold text-slate-900">Dica</p>
-                <p className="mt-1 text-sm leading-relaxed text-slate-600">
+                <p className="text-sm font-semibold text-on-surface">Dica</p>
+                <p className="mt-1 text-sm leading-relaxed text-on-surface-variant">
                   Use <strong>Comparar comigo</strong> para ver lado a lado XP, ofensiva e atividade com este perfil.
                 </p>
               </div>
@@ -327,12 +327,12 @@ function StatTile({
 }) {
   return (
     <div
-      className={`flex min-h-[5.5rem] flex-col justify-center rounded-2xl border border-slate-200/90 bg-white/95 p-4 ${cardShadow}`}
+      className={`flex min-h-[5.5rem] flex-col justify-center rounded-2xl border border-surface-container-high/90 bg-surface-container-lowest/95 p-4 ${cardShadow}`}
     >
-      <div className="mb-2 flex items-center gap-2 text-slate-500">{icon}</div>
-      <p className="text-xl font-black tabular-nums tracking-tight text-slate-900 sm:text-2xl">{value}</p>
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
-      {hint && <p className="mt-1 text-[11px] text-slate-400">{hint}</p>}
+      <div className="mb-2 flex items-center gap-2 text-on-surface-variant">{icon}</div>
+      <p className="text-xl font-black tabular-nums tracking-tight text-on-surface sm:text-2xl">{value}</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">{label}</p>
+      {hint && <p className="mt-1 text-[11px] text-on-surface-variant">{hint}</p>}
     </div>
   );
 }

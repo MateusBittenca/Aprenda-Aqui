@@ -61,7 +61,7 @@
   }
 
   body {
-    @apply font-sans text-on-surface antialiased;
+    @apply min-h-dvh bg-surface font-sans text-on-surface antialiased;
     /* Evita faixa branca lateral quando algum filho estoura a largura (~320–428px) */
     overflow-x: clip;
     overflow-wrap: anywhere;
@@ -186,7 +186,7 @@
    * Usado em botões/ícones clicáveis no header.
    */
   .focus-ring-primary {
-    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface;
   }
 
   /**
@@ -460,4 +460,11 @@ html.dark .shimmer-line {
     rgba(255, 255, 255, 0.08) 50%,
     rgba(255, 255, 255, 0) 100%
   );
+}
+
+html.dark .snap-shelf::-webkit-scrollbar-thumb {
+  background-color: rgb(var(--c-surface-highest) / 0.55);
+}
+html.dark .snap-shelf::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(var(--c-outline) / 0.65);
 }

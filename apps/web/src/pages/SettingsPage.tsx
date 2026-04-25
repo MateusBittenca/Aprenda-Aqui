@@ -130,14 +130,14 @@ export function SettingsPage() {
           <h1 className="mt-3 font-headline text-2xl font-bold tracking-tight text-on-surface sm:text-3xl">
             Configurações
           </h1>
-          <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-600">
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-on-surface-variant">
             Escolha uma área abaixo. Cada aba agrupa um tipo de opção — assim fica mais fácil achar o que precisa.
           </p>
         </div>
         <div className="flex flex-shrink-0 flex-wrap gap-2">
           <Link
             to="/app/me"
-            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-primary/20 hover:text-primary"
+            className="rounded-xl border border-surface-container-high bg-surface-container-lowest px-3 py-2 text-sm font-medium text-on-surface shadow-sm transition hover:border-primary/30 hover:text-primary"
           >
             Meu perfil
           </Link>
@@ -151,8 +151,8 @@ export function SettingsPage() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-slate-200/80 bg-white/90 shadow-card backdrop-blur-sm">
-        <div className="border-b border-slate-200/80 px-3 pt-3 sm:px-4 sm:pt-4">
+      <div className="rounded-2xl border border-surface-container-high/80 bg-surface-container-lowest/90 shadow-card backdrop-blur-sm">
+        <div className="border-b border-surface-container-high/80 px-3 pt-3 sm:px-4 sm:pt-4">
           <div
             className="flex gap-1 overflow-x-auto pb-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             role="tablist"
@@ -170,8 +170,8 @@ export function SettingsPage() {
                 className={twMerge(
                   'shrink-0 rounded-xl px-3.5 py-2.5 text-left text-sm font-semibold transition sm:px-4',
                   tab === t.id
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/25'
-                    : 'bg-slate-100/90 text-slate-600 hover:bg-slate-200/90 hover:text-slate-900',
+                    ? 'bg-primary text-white shadow-md shadow-primary/25'
+                    : 'bg-surface-container-low/90 text-on-surface-variant hover:bg-surface-container-high/80 hover:text-on-surface',
                 )}
               >
                 {t.label}
@@ -180,9 +180,9 @@ export function SettingsPage() {
           </div>
         </div>
 
-        <div className="border-b border-slate-100 bg-slate-50/80 px-5 py-4 sm:px-6">
-          <p className="text-sm font-medium text-slate-800">{activeMeta.label}</p>
-          <p className="mt-1 text-sm leading-relaxed text-slate-500">{activeMeta.description}</p>
+        <div className="border-b border-surface-container-high/60 bg-surface-container-low/80 px-5 py-4 sm:px-6">
+          <p className="text-sm font-medium text-on-surface">{activeMeta.label}</p>
+          <p className="mt-1 text-sm leading-relaxed text-on-surface-variant">{activeMeta.description}</p>
         </div>
 
         <div className="p-5 sm:p-6">
@@ -222,7 +222,7 @@ export function SettingsPage() {
                     <UserRound className="h-5 w-5 text-primary" aria-hidden />
                     Identidade
                   </h2>
-                  <p className="mt-1 text-sm text-slate-600">
+                  <p className="mt-1 text-sm text-on-surface-variant">
                     Como você aparece para outros alunos no ranking, comunidade e perfil.
                   </p>
                   <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center">
@@ -231,16 +231,16 @@ export function SettingsPage() {
                       displayName={data.displayName}
                       colorKey={avatarColorKey}
                       size="lg"
-                      className="ring-2 ring-white shadow-sm"
+                      className="ring-2 ring-surface-container-lowest shadow-sm"
                     />
-                    <p className="text-sm text-slate-600">
-                      O avatar usa as iniciais do <strong className="text-slate-800">nome exibido</strong>. Depois de
+                    <p className="text-sm text-on-surface-variant">
+                      O avatar usa as iniciais do <strong className="text-on-surface">nome exibido</strong>. Depois de
                       salvar, o menu do topo atualiza o nome.
                     </p>
                   </div>
                   <div className="mt-5 space-y-3">
-                    <p className="text-sm font-semibold text-slate-800">Cor do avatar</p>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-sm font-semibold text-on-surface">Cor do avatar</p>
+                    <p className="text-xs text-on-surface-variant">
                       Automática escolhe uma cor estável a partir do seu id; ou fixe uma cor abaixo.
                     </p>
                     <div className="flex flex-wrap gap-2" role="group" aria-label="Cor do avatar">
@@ -248,7 +248,7 @@ export function SettingsPage() {
                         const selected = avatarColorKey === opt.key;
                         const preview =
                           opt.key === 'auto'
-                            ? 'bg-gradient-to-br from-slate-300 via-slate-400 to-slate-500'
+                            ? 'bg-gradient-to-br from-surface-container-high via-outline/80 to-on-surface-variant/50'
                             : getAvatarStyle(data.id, opt.key).bg;
                         return (
                           <button
@@ -260,7 +260,9 @@ export function SettingsPage() {
                             className={twMerge(
                               'flex h-10 w-10 items-center justify-center rounded-xl border-2 transition',
                               preview,
-                              selected ? 'border-indigo-600 ring-2 ring-indigo-300' : 'border-white/80 hover:border-slate-300',
+                              selected
+                                ? 'border-primary ring-2 ring-primary/40'
+                                : 'border-surface-container-high hover:border-primary/50',
                             )}
                           >
                             <span className="sr-only">{opt.label}</span>
@@ -269,18 +271,18 @@ export function SettingsPage() {
                       })}
                     </div>
                   </div>
-                  <p className="mt-4 rounded-xl bg-white/80 px-3 py-2 text-xs text-slate-600 ring-1 ring-slate-200/80">
+                  <p className="mt-4 rounded-xl bg-surface-container-low/80 px-3 py-2 text-xs text-on-surface-variant ring-1 ring-surface-container-high/80">
                     E-mail da conta:{' '}
-                    <span className="font-mono font-medium text-slate-800">{data.email}</span>
-                    <span className="text-slate-500"> — não pode ser alterado aqui.</span>
+                    <span className="font-mono font-medium text-on-surface">{data.email}</span>
+                    <span className="text-on-surface-variant"> — não pode ser alterado aqui.</span>
                   </p>
 
                   <div className="mt-6 space-y-5">
                     <div>
-                      <label htmlFor="displayName" className="text-sm font-semibold text-slate-800">
+                      <label htmlFor="displayName" className="text-sm font-semibold text-on-surface">
                         Nome exibido
                       </label>
-                      <p className="text-xs text-slate-500">Obrigatório, mínimo 2 caracteres.</p>
+                      <p className="text-xs text-on-surface-variant">Obrigatório, mínimo 2 caracteres.</p>
                       <input
                         id="displayName"
                         name="displayName"
@@ -294,10 +296,10 @@ export function SettingsPage() {
                       />
                     </div>
                     <div>
-                      <label htmlFor="bio" className="text-sm font-semibold text-slate-800">
-                        Bio <span className="font-normal text-slate-400">(opcional)</span>
+                      <label htmlFor="bio" className="text-sm font-semibold text-on-surface">
+                        Bio <span className="font-normal text-on-surface-variant">(opcional)</span>
                       </label>
-                      <p className="text-xs text-slate-500">Até 280 caracteres.</p>
+                      <p className="text-xs text-on-surface-variant">Até 280 caracteres.</p>
                       <textarea
                         id="bio"
                         name="bio"
@@ -316,7 +318,7 @@ export function SettingsPage() {
                     <Globe2 className="h-5 w-5 text-primary" aria-hidden />
                     Região e horários
                   </h2>
-                  <p className="mt-1 text-sm text-slate-600">
+                  <p className="mt-1 text-sm text-on-surface-variant">
                     Fuso IANA para datas e metas fazerem sentido no seu dia (ex.: lembretes e “esta semana”).
                   </p>
                   <div className="mt-4 flex flex-wrap gap-2">
@@ -334,7 +336,7 @@ export function SettingsPage() {
                           if (timezoneRef.current) timezoneRef.current.value = tz;
                           toast.info(`Fuso: ${tz}`);
                         }}
-                        className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-primary/40 hover:text-primary"
+                        className="rounded-lg border border-surface-container-high bg-surface-container-lowest px-3 py-1.5 text-xs font-semibold text-on-surface transition hover:border-primary/40 hover:text-primary"
                       >
                         {label}
                       </button>
@@ -356,37 +358,39 @@ export function SettingsPage() {
                     <Shield className="h-5 w-5 text-emerald-600" aria-hidden />
                     Privacidade na comunidade
                   </h2>
-                  <p className="mt-1 text-sm text-slate-600">Só afeta busca e listagens sociais — não o seu progresso nos cursos.</p>
-                  <label className="mt-5 flex cursor-pointer gap-4 rounded-xl border border-slate-200 bg-white p-4 transition hover:border-emerald-200/80 hover:bg-emerald-50/30">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+                  <p className="mt-1 text-sm text-on-surface-variant">
+                    Só afeta busca e listagens sociais — não o seu progresso nos cursos.
+                  </p>
+                  <label className="mt-5 flex cursor-pointer gap-4 rounded-xl border border-surface-container-high bg-surface-container-lowest p-4 transition hover:border-emerald-500/30 hover:bg-emerald-500/5 dark:hover:bg-emerald-500/10">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-container-low text-on-surface-variant">
                       <Lock className="h-5 w-5" aria-hidden />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-3">
-                        <span className="text-sm font-semibold text-slate-900">Aparecer na busca da comunidade</span>
+                        <span className="text-sm font-semibold text-on-surface">Aparecer na busca da comunidade</span>
                         <input
                           type="checkbox"
                           name="showInSearch"
                           defaultChecked={data.showInSearch !== false}
-                          className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-primary focus:ring-primary"
+                          className="mt-0.5 h-4 w-4 shrink-0 rounded border-surface-container-high text-primary focus:ring-primary"
                         />
                       </div>
-                      <p className="mt-2 text-sm text-slate-600">
+                      <p className="mt-2 text-sm text-on-surface-variant">
                         Desligado = seu nome não entra nos resultados de busca de alunos.
                       </p>
                     </div>
                   </label>
                 </div>
 
-                <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="text-xs text-slate-600">
+                <div className="flex flex-col gap-3 rounded-2xl border border-surface-container-high bg-surface-container-low p-4 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-xs text-on-surface-variant">
                     O botão abaixo envia <strong>identidade</strong>, <strong>bio</strong>, <strong>fuso</strong> e{' '}
                     <strong>privacidade</strong> para o servidor.
                   </p>
                   <button
                     type="submit"
                     disabled={save.isPending}
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-md transition hover:bg-indigo-700 disabled:opacity-60 sm:w-auto"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white shadow-md transition hover:bg-primary-dim disabled:opacity-60 sm:w-auto"
                   >
                     {save.isPending ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : null}
                     Salvar perfil e privacidade
@@ -406,7 +410,7 @@ export function SettingsPage() {
               {/* ── Aparência ─────────────────────────────────────────── */}
               <div className={cardInner}>
                 <h2 className="flex items-center gap-2 text-base font-bold text-on-surface">
-                  <Moon className="h-5 w-5 text-indigo-500" aria-hidden />
+                  <Moon className="h-5 w-5 text-primary" aria-hidden />
                   Aparência
                 </h2>
                 <p className="mt-1 text-sm text-on-surface-variant">
@@ -516,15 +520,15 @@ export function SettingsPage() {
                   <Bell className="h-5 w-5 text-amber-600" aria-hidden />
                   Avisos e lembretes
                 </h2>
-                <p className="mt-1 text-sm text-slate-600">Como a plataforma fala com você hoje.</p>
-                <div className="mt-4 rounded-xl border border-amber-200/90 bg-amber-50/90 p-4 text-sm text-amber-950">
+                <p className="mt-1 text-sm text-on-surface-variant">Como a plataforma fala com você hoje.</p>
+                <div className="mt-4 rounded-xl border border-amber-200/90 bg-amber-50/90 p-4 text-sm text-amber-950 dark:border-amber-800/50 dark:bg-amber-950/30 dark:text-amber-100">
                   <p className="font-semibold">Por enquanto, tudo na tela</p>
-                  <p className="mt-2 leading-relaxed text-amber-900/95">
+                  <p className="mt-2 leading-relaxed text-amber-900/95 dark:text-amber-100/90">
                     Mensagens de exercícios, toasts e o painel mostram seu progresso <strong>enquanto você usa o site</strong>.
                     Não há lista de e-mails ou push configurável nesta tela.
                   </p>
                 </div>
-                <ul className="mt-4 space-y-2 text-sm text-slate-600">
+                <ul className="mt-4 space-y-2 text-sm text-on-surface-variant">
                   <li className="flex gap-2">
                     <span className="text-primary" aria-hidden>
                       •
@@ -551,14 +555,14 @@ export function SettingsPage() {
             >
               <div className={cardInner}>
                 <h2 className="text-base font-bold text-on-surface">Encerrar sessão</h2>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                <p className="mt-2 text-sm leading-relaxed text-on-surface-variant">
                   Você sai desta conta neste dispositivo. Para entrar de novo, use e-mail e senha na tela de login. Se
                   notar algo estranho, saia e troque a senha (ou fale com o administrador da plataforma).
                 </p>
                 <button
                   type="button"
                   onClick={() => logout()}
-                  className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl border-2 border-rose-200 bg-rose-50 px-6 py-3.5 text-sm font-bold text-rose-900 transition hover:bg-rose-100 sm:w-auto"
+                  className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl border-2 border-rose-200 bg-rose-50 px-6 py-3.5 text-sm font-bold text-rose-900 transition hover:bg-rose-100 dark:border-rose-800/60 dark:bg-rose-950/40 dark:text-rose-100 dark:hover:bg-rose-950/60 sm:w-auto"
                 >
                   <LogOut className="h-4 w-4" aria-hidden />
                   Sair da conta
@@ -574,33 +578,33 @@ export function SettingsPage() {
                   <Info className="h-5 w-5 text-sky-600" aria-hidden />
                   Referência rápida
                 </h2>
-                <p className="mt-2 text-sm text-slate-600">
+                <p className="mt-2 text-sm text-on-surface-variant">
                   Plataforma de cursos com módulos, aulas e exercícios. O passo a passo completo está na central de
                   ajuda.
                 </p>
                 <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
                   <Link
                     to="/app/help"
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-indigo-700"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white transition hover:bg-primary-dim"
                   >
                     Abrir central de ajuda
                     <ChevronRight className="h-4 w-4" aria-hidden />
                   </Link>
                   <Link
                     to="/"
-                    className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-center text-sm font-medium text-slate-700 transition hover:border-slate-300"
+                    className="rounded-xl border border-surface-container-high bg-surface-container-lowest px-4 py-2.5 text-center text-sm font-medium text-on-surface transition hover:border-surface-container-highest"
                   >
                     Site público
                   </Link>
                   <Link
                     to="/app"
-                    className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-center text-sm font-medium text-slate-700 transition hover:border-slate-300"
+                    className="rounded-xl border border-surface-container-high bg-surface-container-lowest px-4 py-2.5 text-center text-sm font-medium text-on-surface transition hover:border-surface-container-highest"
                   >
                     Painel (início)
                   </Link>
                   <Link
                     to="/app/community"
-                    className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-center text-sm font-medium text-slate-700 transition hover:border-slate-300"
+                    className="rounded-xl border border-surface-container-high bg-surface-container-lowest px-4 py-2.5 text-center text-sm font-medium text-on-surface transition hover:border-surface-container-highest"
                   >
                     Comunidade
                   </Link>

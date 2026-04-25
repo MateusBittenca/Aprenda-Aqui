@@ -29,10 +29,10 @@ function StreakBadge({ streak, weekDays }: { streak: number; weekDays?: boolean[
     streak === 0
       ? 'bg-surface-container-low text-on-surface-variant'
       : streak < 3
-        ? 'bg-orange-50 text-orange-700'
+        ? 'bg-orange-500/10 text-orange-800 dark:bg-orange-950/50 dark:text-orange-200'
         : streak < 7
-          ? 'bg-orange-100 text-orange-800'
-          : 'bg-amber-100 text-amber-800';
+          ? 'bg-orange-500/15 text-orange-800 dark:bg-orange-950/45 dark:text-orange-200'
+          : 'bg-amber-500/15 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200';
 
   const title =
     streak === 0
@@ -47,7 +47,7 @@ function StreakBadge({ streak, weekDays }: { streak: number; weekDays?: boolean[
       className={twMerge(
         'inline-flex min-h-8 items-center gap-1.5 rounded-full px-2.5 py-0.5 text-sm font-semibold transition',
         tone,
-        streak >= 7 ? 'ring-1 ring-amber-300' : '',
+        streak >= 7 ? 'ring-1 ring-amber-400/50 dark:ring-amber-600/50' : '',
       )}
     >
       {weekDays && weekDays.length === 7 ? (
@@ -58,8 +58,8 @@ function StreakBadge({ streak, weekDays }: { streak: number; weekDays?: boolean[
               title={on ? 'Estudou neste dia' : 'Sem estudo'}
               className={twMerge(
                 'h-2 w-2 rounded-full transition-colors',
-                on ? 'bg-orange-500 shadow-[0_0_0_1px_rgba(251,146,60,0.35)]' : 'bg-slate-300/80',
-                i === 6 && 'ring-1 ring-orange-600 ring-offset-1 ring-offset-white',
+                on ? 'bg-orange-500 shadow-[0_0_0_1px_rgba(251,146,60,0.35)]' : 'bg-surface-container-highest/80',
+                i === 6 && 'ring-1 ring-orange-500 ring-offset-1 ring-offset-surface',
               )}
             />
           ))}

@@ -38,7 +38,7 @@ export function ProfilePage() {
       <ErrorState
         title="Não foi possível carregar o perfil."
         error={error}
-        hint={<p>Verifique a API em <code className="rounded bg-white px-1 text-on-surface">localhost:3000</code>.</p>}
+        hint={<p>Verifique a API em <code className="rounded bg-surface-container-high px-1 text-on-surface">localhost:3000</code>.</p>}
       />
     );
   }
@@ -413,18 +413,20 @@ function FullBadge({ badge, locked }: { badge: ReturnType<typeof computeBadges>[
     <div
       title={`${badge.name}: ${badge.description}`}
       className={`flex flex-col items-center rounded-xl border p-3 text-center ${
-        locked ? 'border-slate-100 bg-slate-50 opacity-70 grayscale' : RARITY_STYLE[badge.rarity]
+        locked
+          ? 'border-surface-container-high bg-surface-container-low opacity-70 grayscale'
+          : RARITY_STYLE[badge.rarity]
       }`}
     >
       <span className="text-2xl">{locked ? '🔒' : badge.icon}</span>
-      <p className="mt-1 text-xs font-bold leading-tight text-slate-800">{badge.name}</p>
+      <p className="mt-1 text-xs font-bold leading-tight text-on-surface">{badge.name}</p>
       {!locked && (
-        <span className="mt-1 rounded-full bg-white/70 px-1.5 py-0.5 text-xs font-bold uppercase text-slate-500">
+        <span className="mt-1 rounded-full bg-surface-container-low px-1.5 py-0.5 text-xs font-bold uppercase text-on-surface-variant">
           {RARITY_LABEL[badge.rarity]}
         </span>
       )}
       {locked && badge.progress && (
-        <p className="mt-1 text-xs text-slate-400">
+        <p className="mt-1 text-xs text-on-surface-variant">
           {badge.progress.current}/{badge.progress.total}
         </p>
       )}
@@ -508,12 +510,12 @@ function WeekendSprintCard() {
         </p>
         <Link
           to="/app/my-courses"
-          className="inline-flex items-center justify-center rounded-xl bg-white px-6 py-2.5 text-xs font-black uppercase tracking-widest text-tertiary shadow-md transition hover:scale-105 active:scale-95"
+          className="inline-flex items-center justify-center rounded-xl bg-surface-container-lowest px-6 py-2.5 text-xs font-black uppercase tracking-widest text-tertiary shadow-md transition hover:scale-105 active:scale-95"
         >
           Meus cursos
         </Link>
       </div>
-      <div className="pointer-events-none absolute -bottom-8 -right-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
+      <div className="pointer-events-none absolute -bottom-8 -right-8 h-32 w-32 rounded-full bg-surface/10 blur-2xl" />
       <div className="pointer-events-none absolute -left-4 -top-4 h-20 w-20 rounded-full bg-tertiary-dim/50 blur-xl" />
     </section>
   );

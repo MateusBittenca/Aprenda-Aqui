@@ -123,7 +123,7 @@ export function CourseCatalogDetailPage() {
 
   const enrollBlock =
     !token ? (
-      <p className="rounded-2xl border border-slate-200 bg-slate-50/90 px-4 py-3 text-center text-sm leading-relaxed text-slate-600">
+      <p className="rounded-2xl border border-surface-container-high bg-surface-container-low/90 px-4 py-3 text-center text-sm leading-relaxed text-on-surface-variant">
         Entre na sua conta para se matricular e acompanhar o progresso.
       </p>
     ) : enrolled ? (
@@ -147,7 +147,7 @@ export function CourseCatalogDetailPage() {
             },
           })
         }
-        className="group inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-slate-900 px-6 py-4 text-sm font-bold text-white shadow-xl shadow-slate-900/25 transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60 sm:w-auto"
+        className="group inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-surface-container-highest px-6 py-4 text-sm font-bold text-on-surface shadow-xl transition hover:bg-surface-container-high active:scale-[0.98] disabled:opacity-60 sm:w-auto"
       >
         {enroll.isPending ? (
           <>
@@ -186,9 +186,9 @@ export function CourseCatalogDetailPage() {
         <section className="pb-2">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10">
             <div className="space-y-8 lg:col-span-8">
-              <div className="rounded-[24px] border border-white/60 bg-white/80 p-6 shadow-[0_20px_50px_-24px_rgba(30,27,75,0.12)] backdrop-blur-xl sm:p-8">
+              <div className="rounded-[24px] border border-surface-container-high/70 bg-surface-container-lowest/80 p-6 shadow-[0_20px_50px_-24px_rgba(30,27,75,0.12)] backdrop-blur-xl sm:p-8">
                 <h2 className="font-headline text-2xl font-bold tracking-tight text-on-surface">Visão geral</h2>
-                <div className="prose prose-slate mt-6 max-w-none prose-headings:scroll-mt-28 prose-headings:font-bold prose-h2:text-xl prose-h3:text-base prose-p:leading-relaxed prose-a:text-primary prose-blockquote:border-primary/30 prose-blockquote:bg-primary/5 prose-blockquote:py-0.5 prose-strong:text-on-surface prose-code:rounded-md prose-code:bg-surface-container-high prose-code:px-1.5 prose-code:py-0.5 prose-code:text-sm prose-code:font-semibold prose-code:text-rose-700 prose-pre:rounded-2xl prose-pre:border prose-pre:border-slate-800 prose-pre:bg-slate-900 prose-pre:text-slate-100">
+                <div className="prose prose-slate dark:prose-invert mt-6 max-w-none prose-headings:scroll-mt-28 prose-headings:font-bold prose-h2:text-xl prose-h3:text-base prose-p:leading-relaxed prose-a:text-primary prose-blockquote:border-primary/30 prose-blockquote:bg-primary/5 prose-blockquote:py-0.5 prose-strong:text-on-surface prose-code:rounded-md prose-code:bg-surface-container-high prose-code:px-1.5 prose-code:py-0.5 prose-code:text-sm prose-code:font-semibold prose-code:text-rose-700 dark:prose-code:text-rose-300 prose-pre:rounded-2xl prose-pre:border prose-pre:border-slate-800 prose-pre:bg-slate-900 prose-pre:text-slate-100">
                   <ReactMarkdown>{overviewMd}</ReactMarkdown>
                 </div>
               </div>
@@ -214,7 +214,7 @@ export function CourseCatalogDetailPage() {
                     />
                   )}
                   <div className="absolute inset-0 flex items-center justify-center bg-black/25 transition group-hover:bg-black/35">
-                    <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/95 shadow-xl">
+                    <span className="flex h-16 w-16 items-center justify-center rounded-full bg-surface-container-lowest/95 shadow-xl">
                       <Play className="ml-1 h-8 w-8 text-primary" aria-hidden />
                     </span>
                   </div>
@@ -222,44 +222,44 @@ export function CourseCatalogDetailPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="rounded-2xl border border-white/60 bg-white/80 p-4 text-center shadow-sm backdrop-blur-xl transition hover:-translate-y-1">
+                <div className="rounded-2xl border border-surface-container-high/70 bg-surface-container-lowest/80 p-4 text-center shadow-sm backdrop-blur-xl transition hover:-translate-y-1">
                   <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
                     <Users className="h-5 w-5" aria-hidden />
                   </div>
                   <p className="font-headline text-xl font-bold tabular-nums text-on-surface">{formatPeople(students)}</p>
-                  <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Alunos</p>
+                  <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-on-surface-variant">Alunos</p>
                 </div>
-                <div className="rounded-2xl border border-white/60 bg-white/80 p-4 text-center shadow-sm backdrop-blur-xl transition hover:-translate-y-1">
-                  <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-violet-100 text-violet-600">
+                <div className="rounded-2xl border border-surface-container-high/70 bg-surface-container-lowest/80 p-4 text-center shadow-sm backdrop-blur-xl transition hover:-translate-y-1">
+                  <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-300">
                     <BookOpen className="h-5 w-5" aria-hidden />
                   </div>
                   <p className="font-headline text-xl font-bold tabular-nums text-on-surface">{stats.lessonCount}</p>
-                  <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Aulas</p>
+                  <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-on-surface-variant">Aulas</p>
                 </div>
-                <div className="rounded-2xl border border-white/60 bg-white/80 p-4 text-center shadow-sm backdrop-blur-xl transition hover:-translate-y-1">
-                  <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-700">
+                <div className="rounded-2xl border border-surface-container-high/70 bg-surface-container-lowest/80 p-4 text-center shadow-sm backdrop-blur-xl transition hover:-translate-y-1">
+                  <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-surface-container-low text-on-surface-variant">
                     <Clock className="h-5 w-5" aria-hidden />
                   </div>
                   <p className="font-headline text-lg font-bold leading-tight text-on-surface">
                     {formatMinutes(stats.totalMinutes)}
                   </p>
-                  <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Carga</p>
+                  <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-on-surface-variant">Carga</p>
                 </div>
-                <div className="rounded-2xl border border-white/60 bg-white/80 p-4 text-center shadow-sm backdrop-blur-xl transition hover:-translate-y-1">
-                  <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-rose-50 text-rose-600">
+                <div className="rounded-2xl border border-surface-container-high/70 bg-surface-container-lowest/80 p-4 text-center shadow-sm backdrop-blur-xl transition hover:-translate-y-1">
+                  <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-rose-50 text-rose-600 dark:bg-rose-950/50 dark:text-rose-300">
                     <Code2 className="h-5 w-5" aria-hidden />
                   </div>
                   <p className="font-headline text-xl font-bold tabular-nums text-on-surface">{stats.exerciseCount}</p>
-                  <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Exercícios</p>
+                  <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-on-surface-variant">Exercícios</p>
                 </div>
               </div>
 
-              <div className="rounded-[24px] border border-white/60 bg-white/80 p-5 shadow-sm backdrop-blur-xl">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">Instrução</h4>
-                <p className="mt-3 text-sm leading-relaxed text-slate-600">
+              <div className="rounded-[24px] border border-surface-container-high/70 bg-surface-container-lowest/80 p-5 shadow-sm backdrop-blur-xl">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Instrução</h4>
+                <p className="mt-3 text-sm leading-relaxed text-on-surface-variant">
                   Conteúdo produzido e revisado pela equipe pedagógica da plataforma.
                 </p>
-                <ul className="mt-4 space-y-2.5 text-sm text-slate-700">
+                <ul className="mt-4 space-y-2.5 text-sm text-on-surface">
                   {visual.hints.map((hint) => (
                     <li key={hint} className="flex gap-2">
                       <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" aria-hidden />

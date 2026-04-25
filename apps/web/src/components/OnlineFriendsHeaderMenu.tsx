@@ -45,7 +45,7 @@ export function OnlineFriendsHeaderMenu() {
             ? `${friends.length} ${friends.length === 1 ? 'amigo online' : 'amigos online'}. Abrir lista`
             : 'Amigos online. Abrir lista'
         }
-        className="relative inline-flex h-11 w-11 items-center justify-center p-0 text-indigo-600 transition-colors hover:text-indigo-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+        className="focus-ring-primary relative inline-flex h-11 w-11 items-center justify-center p-0 text-primary transition-colors hover:text-primary-dim"
       >
         <UsersRound className="h-5 w-5 shrink-0" strokeWidth={2.25} aria-hidden />
         {hasOnline ? (
@@ -61,19 +61,19 @@ export function OnlineFriendsHeaderMenu() {
         <div
           role="menu"
           aria-label="Amigos online"
-          className="absolute right-0 top-[calc(100%+0.35rem)] z-[55] w-[min(calc(100vw-2rem),18rem)] overflow-hidden rounded-2xl border border-slate-200/90 bg-surface-container-lowest py-2 shadow-elevated origin-top-right animate-scale-in"
+          className="absolute right-0 top-[calc(100%+0.35rem)] z-[55] w-[min(calc(100vw-2rem),18rem)] overflow-hidden rounded-2xl border border-surface-container-high/90 bg-surface-container-lowest py-2 shadow-elevated origin-top-right animate-scale-in"
         >
-          <div className="border-b border-slate-100 px-4 pb-2 pt-1">
-            <p className="text-sm font-bold text-slate-900">Amigos online</p>
-            <p className="text-xs text-slate-500">
+          <div className="border-b border-surface-container-high/80 px-4 pb-2 pt-1">
+            <p className="text-sm font-bold text-on-surface">Amigos online</p>
+            <p className="text-xs text-on-surface-variant">
               Quem você segue, com o app aberto nos últimos {windowM} min.
             </p>
           </div>
 
           <div className="max-h-[min(70vh,20rem)] overflow-y-auto px-1 py-1">
-            {isLoading && <p className="px-3 py-4 text-center text-sm text-slate-500">Carregando…</p>}
+            {isLoading && <p className="px-3 py-4 text-center text-sm text-on-surface-variant">Carregando…</p>}
             {!isLoading && friends.length === 0 && (
-              <p className="px-3 py-4 text-center text-sm leading-relaxed text-slate-600">
+              <p className="px-3 py-4 text-center text-sm leading-relaxed text-on-surface-variant">
                 Ninguém que você segue está online agora. Quando estiverem com o app aberto, aparecem aqui com o
                 indicador verde.
               </p>
@@ -85,27 +85,27 @@ export function OnlineFriendsHeaderMenu() {
                   role="menuitem"
                   to={`/app/users/${u.id}`}
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition hover:bg-emerald-50/80"
+                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition hover:bg-emerald-500/10 dark:hover:bg-emerald-500/15"
                 >
                   <span className="relative shrink-0">
                     <Avatar userId={u.id} displayName={u.displayName} colorKey={u.avatarColorKey} size="sm" />
                     <span
-                      className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500"
+                      className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-surface-container-lowest bg-emerald-500"
                       aria-hidden
                     />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate font-semibold text-slate-900">{u.displayName}</span>
-                    <span className="text-xs text-slate-500">
+                    <span className="block truncate font-semibold text-on-surface">{u.displayName}</span>
+                    <span className="text-xs text-on-surface-variant">
                       Nv. {u.level} · {u.xpTotal.toLocaleString('pt-BR')} XP
                     </span>
                   </span>
-                  <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" aria-hidden />
+                  <ChevronRight className="h-4 w-4 shrink-0 text-on-surface-variant" aria-hidden />
                 </Link>
               ))}
           </div>
 
-          <div className="border-t border-slate-100 px-2 pb-1 pt-2">
+          <div className="border-t border-surface-container-high/80 px-2 pb-1 pt-2">
             <Link
               role="menuitem"
               to="/app/community"

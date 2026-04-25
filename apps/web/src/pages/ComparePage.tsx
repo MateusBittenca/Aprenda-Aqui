@@ -146,8 +146,8 @@ export function ComparePage() {
             <GitCompare className="h-5 w-5" aria-hidden />
           </span>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Comparar progresso</h1>
-            <p className="text-sm text-slate-600">
+            <h1 className="text-2xl font-bold tracking-tight text-on-surface">Comparar progresso</h1>
+            <p className="text-sm text-on-surface-variant">
               Suas estatísticas ficam abaixo do seu avatar e as do amigo abaixo do avatar dele.
             </p>
           </div>
@@ -172,7 +172,7 @@ export function ComparePage() {
       </header>
 
       <div
-        className={`relative overflow-hidden rounded-[1.35rem] border border-slate-200/90 bg-white/90 backdrop-blur-sm ${cardShadow}`}
+        className={`relative overflow-hidden rounded-[1.35rem] border border-surface-container-high/90 bg-surface-container-lowest/90 backdrop-blur-sm ${cardShadow}`}
       >
         <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary/10" aria-hidden />
 
@@ -180,21 +180,21 @@ export function ComparePage() {
           <div className="grid gap-8 lg:grid-cols-[1fr_auto_1fr] lg:items-start lg:gap-6">
             {/* Coluna: Você */}
             <section aria-labelledby="compare-you-heading" className="flex min-w-0 flex-col">
-              <div className="flex flex-col items-center border-b border-slate-100 pb-5 text-center lg:border-b-0 lg:pb-4">
+              <div className="flex flex-col items-center border-b border-surface-container-high/60 pb-5 text-center lg:border-b-0 lg:pb-4">
                 <div className="relative">
-                  <div className="rounded-2xl border-2 border-white p-0.5 shadow-md ring-2 ring-indigo-100">
+                  <div className="rounded-2xl border-2 border-surface-container-lowest p-0.5 shadow-md ring-2 ring-primary/25">
                     <Avatar userId={data.you.id} displayName={data.you.displayName} colorKey={data.you.avatarColorKey} size="lg" />
                   </div>
                   {youLeadCount > themLeadCount ? (
                     <span
-                      className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-[10px] font-black text-amber-950 shadow-md ring-2 ring-white"
+                      className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-[10px] font-black text-amber-950 shadow-md ring-2 ring-surface-container-lowest"
                       title="À frente no placar geral"
                     >
                       1º
                     </span>
                   ) : null}
                 </div>
-                <h2 id="compare-you-heading" className="mt-3 text-xs font-bold uppercase tracking-wide text-slate-500">
+                <h2 id="compare-you-heading" className="mt-3 text-xs font-bold uppercase tracking-wide text-on-surface-variant">
                   Você
                 </h2>
               </div>
@@ -211,26 +211,26 @@ export function ComparePage() {
                           L === 'you'
                             ? 'bg-primary/5 ring-primary/25'
                             : L === 'tie'
-                              ? 'bg-slate-50/90 ring-slate-200/80'
-                              : 'bg-white ring-slate-200/80'
+                              ? 'bg-surface-container-low/90 ring-surface-container-high/80'
+                              : 'bg-surface-container-lowest ring-surface-container-high/80'
                         }`}
                       >
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex min-w-0 items-center gap-2">
-                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100/90 text-slate-600 ring-1 ring-slate-200/70">
+                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-container-low text-on-surface-variant ring-1 ring-surface-container-high/70">
                               <m.Icon className="h-3.5 w-3.5" aria-hidden />
                             </span>
-                            <span className="text-sm font-medium leading-snug text-slate-700">{m.label}</span>
+                            <span className="text-sm font-medium leading-snug text-on-surface">{m.label}</span>
                           </div>
                           <span
                             className={`shrink-0 tabular-nums text-base font-bold ${
-                              L === 'you' ? 'text-primary' : 'text-slate-800'
+                              L === 'you' ? 'text-primary' : 'text-on-surface'
                             }`}
                           >
                             {m.format(m.you)}
                           </span>
                         </div>
-                        <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-slate-200/90">
+                        <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-surface-container-high/90">
                           <div className="h-full rounded-full bg-primary" style={{ width: `${youBar}%` }} />
                         </div>
                       </div>
@@ -241,31 +241,34 @@ export function ComparePage() {
             </section>
 
             <div
-              className="flex flex-col items-center justify-center gap-0 border-y border-slate-100 py-5 lg:min-h-[4rem] lg:border-y-0 lg:py-2"
+              className="flex flex-col items-center justify-center gap-0 border-y border-surface-container-high/60 py-5 lg:min-h-[4rem] lg:border-y-0 lg:py-2"
               aria-hidden
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-500 shadow-inner ring-1 ring-slate-200/80 lg:sticky lg:top-4 lg:h-12 lg:w-12 lg:text-xs">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-container-low text-[10px] font-black uppercase tracking-widest text-on-surface-variant shadow-inner ring-1 ring-surface-container-high/80 lg:sticky lg:top-4 lg:h-12 lg:w-12 lg:text-xs">
                 vs
               </div>
             </div>
 
             {/* Coluna: Amigo */}
             <section aria-labelledby="compare-them-heading" className="flex min-w-0 flex-col">
-              <div className="flex flex-col items-center border-b border-slate-100 pb-5 text-center lg:border-b-0 lg:pb-4">
+              <div className="flex flex-col items-center border-b border-surface-container-high/60 pb-5 text-center lg:border-b-0 lg:pb-4">
                 <div className="relative">
-                  <div className="rounded-2xl border-2 border-white p-0.5 shadow-md ring-2 ring-violet-100">
+                  <div className="rounded-2xl border-2 border-surface-container-lowest p-0.5 shadow-md ring-2 ring-tertiary/30">
                     <Avatar userId={data.them.id} displayName={data.them.displayName} colorKey={data.them.avatarColorKey} size="lg" />
                   </div>
                   {themLeadCount > youLeadCount ? (
                     <span
-                      className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-[10px] font-black text-amber-950 shadow-md ring-2 ring-white"
+                      className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-[10px] font-black text-amber-950 shadow-md ring-2 ring-surface-container-lowest"
                       title="À frente no placar geral"
                     >
                       1º
                     </span>
                   ) : null}
                 </div>
-                <h2 id="compare-them-heading" className="mt-3 line-clamp-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+                <h2
+                  id="compare-them-heading"
+                  className="mt-3 line-clamp-2 text-xs font-bold uppercase tracking-wide text-on-surface-variant"
+                >
                   {data.them.displayName}
                 </h2>
               </div>
@@ -280,29 +283,29 @@ export function ComparePage() {
                       <div
                         className={`rounded-xl px-3 py-2.5 ring-1 transition-colors ${
                           L === 'them'
-                            ? 'bg-violet-50/90 ring-violet-200/70'
+                            ? 'bg-tertiary/10 ring-tertiary/30'
                             : L === 'tie'
-                              ? 'bg-slate-50/90 ring-slate-200/80'
-                              : 'bg-white ring-slate-200/80'
+                              ? 'bg-surface-container-low/90 ring-surface-container-high/80'
+                              : 'bg-surface-container-lowest ring-surface-container-high/80'
                         }`}
                       >
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex min-w-0 items-center gap-2">
-                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100/90 text-slate-600 ring-1 ring-slate-200/70">
+                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-container-low text-on-surface-variant ring-1 ring-surface-container-high/70">
                               <m.Icon className="h-3.5 w-3.5" aria-hidden />
                             </span>
-                            <span className="text-sm font-medium leading-snug text-slate-700">{m.label}</span>
+                            <span className="text-sm font-medium leading-snug text-on-surface">{m.label}</span>
                           </div>
                           <span
                             className={`shrink-0 tabular-nums text-base font-bold ${
-                              L === 'them' ? 'text-violet-900' : 'text-slate-800'
+                              L === 'them' ? 'text-tertiary' : 'text-on-surface'
                             }`}
                           >
                             {m.format(m.them)}
                           </span>
                         </div>
-                        <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-slate-200/90">
-                          <div className="h-full rounded-full bg-violet-500" style={{ width: `${themBar}%` }} />
+                        <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-surface-container-high/90">
+                          <div className="h-full rounded-full bg-tertiary" style={{ width: `${themBar}%` }} />
                         </div>
                       </div>
                     </li>

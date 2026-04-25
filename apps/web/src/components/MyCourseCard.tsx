@@ -116,8 +116,8 @@ export function MyCourseCard({
     >
       <article
         className={twMerge(
-          'shine-sweep relative flex h-full min-h-[300px] flex-1 flex-col overflow-hidden rounded-[24px] border border-white/60 bg-white/85 p-6 shadow-[0_40px_40px_-10px_rgba(30,27,75,0.06)] backdrop-blur-xl transition duration-500 ease-out',
-          'hover:-translate-y-2 hover:border-indigo-200/80 hover:bg-white/95 hover:shadow-[0_28px_56px_-24px_rgba(79,70,229,0.22)]',
+          'shine-sweep relative flex h-full min-h-[300px] flex-1 flex-col overflow-hidden rounded-[24px] border border-surface-container-high/70 bg-surface-container-lowest/90 p-6 shadow-[0_40px_40px_-10px_rgba(30,27,75,0.06)] backdrop-blur-xl transition duration-500 ease-out',
+          'hover:-translate-y-2 hover:border-primary/30 hover:bg-surface-container-lowest hover:shadow-[0_28px_56px_-24px_rgba(79,70,229,0.22)]',
         )}
       >
         {badge ? (
@@ -177,50 +177,50 @@ export function MyCourseCard({
           </h2>
           <div className="mt-2 min-h-[2.875rem] flex-1">
             {nextLessonTitle && pct < 100 ? (
-              <p className="line-clamp-2 text-sm leading-relaxed text-slate-500">
-                <span className="font-semibold text-slate-700">Próxima aula:</span> {nextLessonTitle}
+              <p className="line-clamp-2 text-sm leading-relaxed text-on-surface-variant">
+                <span className="font-semibold text-on-surface">Próxima aula:</span> {nextLessonTitle}
               </p>
             ) : description ? (
-              <p className="line-clamp-2 text-sm leading-relaxed text-slate-500">{description}</p>
+              <p className="line-clamp-2 text-sm leading-relaxed text-on-surface-variant">{description}</p>
             ) : (
-              <p className="line-clamp-2 text-sm leading-relaxed text-slate-400">Sem descrição breve ainda.</p>
+              <p className="line-clamp-2 text-sm leading-relaxed text-on-surface-variant">Sem descrição breve ainda.</p>
             )}
           </div>
         </div>
 
         <dl
-          className="mt-5 flex shrink-0 flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-slate-100 pt-3 text-xs font-medium text-slate-500"
+          className="mt-5 flex shrink-0 flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-surface-container-high/60 pt-3 text-xs font-medium text-on-surface-variant"
           aria-label="Metadados do curso"
         >
           {hasDuration ? (
             <div className="flex items-center gap-1">
-              <Clock className="h-3.5 w-3.5 text-slate-400" aria-hidden />
+              <Clock className="h-3.5 w-3.5 text-on-surface-variant" aria-hidden />
               <dt className="sr-only">Duração total</dt>
               <dd>{formatCourseDuration(totalMinutes)}</dd>
             </div>
           ) : null}
           <div className="flex items-center gap-1">
-            <BookOpen className="h-3.5 w-3.5 text-slate-400" aria-hidden />
+            <BookOpen className="h-3.5 w-3.5 text-on-surface-variant" aria-hidden />
             <dt className="sr-only">Aulas</dt>
             <dd>{lessonCount} aulas</dd>
           </div>
           <div className="flex items-center gap-1">
-            <Users className="h-3.5 w-3.5 text-slate-400" aria-hidden />
+            <Users className="h-3.5 w-3.5 text-on-surface-variant" aria-hidden />
             <dt className="sr-only">Alunos matriculados</dt>
             <dd>{formatEnrollmentCount(enrollmentCount)} alunos</dd>
           </div>
         </dl>
 
         <div className="mt-4 shrink-0 space-y-2">
-          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
             <span>Progresso</span>
-            <span className={twMerge('tabular-nums', empty ? 'text-slate-400' : a.pctClass)}>{pct}%</span>
+            <span className={twMerge('tabular-nums', empty ? 'text-on-surface-variant' : a.pctClass)}>{pct}%</span>
           </div>
-          <div className={twMerge('h-1 overflow-hidden rounded-full', empty ? 'bg-slate-100' : a.trackClass)}>
+          <div className={twMerge('h-1 overflow-hidden rounded-full', empty ? 'bg-surface-container-high' : a.trackClass)}>
             <div
               className={twMerge(
                 'relative h-full overflow-hidden rounded-full transition-[width] duration-700 ease-out',
-                empty ? 'bg-slate-200' : a.fillClass,
+                empty ? 'bg-surface-container-highest' : a.fillClass,
               )}
               style={{ width: `${pct}%` }}
             >

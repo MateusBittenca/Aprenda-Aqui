@@ -18,15 +18,15 @@ import {
 } from 'lucide-react';
 
 const cardClass =
-  'rounded-2xl border border-white/60 bg-white/85 p-5 shadow-card backdrop-blur-xl transition hover:border-primary/20/80';
+  'rounded-2xl border border-surface-container-high/70 bg-surface-container-lowest/90 p-5 shadow-card backdrop-blur-xl transition hover:border-primary/30';
 
 export function HelpPage() {
   return (
     <div
       className="space-y-10 pb-10 [background:radial-gradient(ellipse_at_top_right,rgba(99,102,241,0.1),transparent_52%),radial-gradient(ellipse_at_bottom_left,rgba(129,39,207,0.06),transparent_48%)]"
     >
-      <header className="relative overflow-hidden rounded-[28px] border border-white/60 bg-white/85 p-6 shadow-soft backdrop-blur-xl sm:p-10">
-        <div className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-indigo-400/20 blur-3xl" aria-hidden />
+      <header className="relative overflow-hidden rounded-[28px] border border-surface-container-high/70 bg-surface-container-lowest/90 p-6 shadow-soft backdrop-blur-xl sm:p-10">
+        <div className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-primary/15 blur-3xl" aria-hidden />
         <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-primary">
@@ -36,14 +36,14 @@ export function HelpPage() {
             <h1 className="mt-4 font-headline text-3xl font-extrabold tracking-tight text-on-surface sm:text-4xl">
               Como usar a plataforma
             </h1>
-            <p className="mt-3 text-base leading-relaxed text-slate-600 sm:text-lg">
+            <p className="mt-3 text-base leading-relaxed text-on-surface-variant sm:text-lg">
               Guia em linguagem simples: do primeiro acesso até exercícios, progresso e comunidade. Se algo não estiver
               claro, use este texto como referência ou fale com quem administra o ambiente.
             </p>
           </div>
           <Link
             to="/app/settings"
-            className="inline-flex shrink-0 items-center gap-2 self-start rounded-2xl border border-primary/20 bg-white px-5 py-3 text-sm font-bold text-primary shadow-sm transition hover:bg-primary/5"
+            className="inline-flex shrink-0 items-center gap-2 self-start rounded-2xl border border-primary/20 bg-surface-container-lowest px-5 py-3 text-sm font-bold text-primary shadow-sm transition hover:bg-primary/5"
           >
             <Settings2 className="h-4 w-4" aria-hidden />
             Configurações
@@ -104,7 +104,7 @@ export function HelpPage() {
                     <item.icon className="h-4 w-4 text-primary/80" aria-hidden />
                     <h3 className="font-headline text-base font-bold text-on-surface">{item.title}</h3>
                   </div>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-600">{item.desc}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-on-surface-variant">{item.desc}</p>
                   <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-primary group-hover:underline">
                     Ir para a área
                     <ChevronRight className="h-4 w-4 transition group-hover:translate-x-0.5" aria-hidden />
@@ -125,21 +125,21 @@ export function HelpPage() {
           <h2 id="help-conceitos" className="mt-3 font-headline text-lg font-bold text-on-surface">
             O que é cada coisa?
           </h2>
-          <ul className="mt-4 space-y-3 text-sm leading-relaxed text-slate-600">
+          <ul className="mt-4 space-y-3 text-sm leading-relaxed text-on-surface-variant">
             <li>
-              <strong className="text-slate-800">Curso:</strong> um pacote de módulos e aulas sobre um tema (ex.: uma
+              <strong className="text-on-surface">Curso:</strong> um pacote de módulos e aulas sobre um tema (ex.: uma
               trilha de TypeScript).
             </li>
             <li>
-              <strong className="text-slate-800">Módulo:</strong> um bloco dentro do curso que agrupa aulas relacionadas.
+              <strong className="text-on-surface">Módulo:</strong> um bloco dentro do curso que agrupa aulas relacionadas.
               Abra o módulo para ver a lista de aulas e seu progresso naquele bloco.
             </li>
             <li>
-              <strong className="text-slate-800">Aula:</strong> texto de estudo (e às vezes exercícios) que você abre
+              <strong className="text-on-surface">Aula:</strong> texto de estudo (e às vezes exercícios) que você abre
               pela lista do curso. Use o menu no topo da aula para voltar ao curso ou ao módulo.
             </li>
             <li>
-              <strong className="text-slate-800">Matrícula:</strong> inscrição gratuita (ou conforme regras do curso) que
+              <strong className="text-on-surface">Matrícula:</strong> inscrição gratuita (ou conforme regras do curso) que
               libera o conteúdo para você. Sem matrícula, você só vê a prévia no catálogo.
             </li>
           </ul>
@@ -151,32 +151,32 @@ export function HelpPage() {
             Pontos, nível e sequência
           </div>
           <h3 className="mt-3 font-headline text-lg font-bold text-on-surface">Gamificação (resumo)</h3>
-          <ul className="mt-4 space-y-3 text-sm leading-relaxed text-slate-600">
+          <ul className="mt-4 space-y-3 text-sm leading-relaxed text-on-surface-variant">
             <li className="flex gap-2">
               <Zap className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" aria-hidden />
               <span>
-                <strong className="text-slate-800">XP e nível:</strong> ao resolver desafios e avançar, você ganha
+                <strong className="text-on-surface">XP e nível:</strong> ao resolver desafios e avançar, você ganha
                 experiência e sobe de nível — aparece no topo da página quando você está logado.
               </span>
             </li>
             <li className="flex gap-2">
               <Trophy className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" aria-hidden />
               <span>
-                <strong className="text-slate-800">Gemas:</strong> recompensas extras exibidas ao lado da chama de
+                <strong className="text-on-surface">Gemas:</strong> recompensas extras exibidas ao lado da chama de
                 sequência; fazem parte do incentivo do app.
               </span>
             </li>
             <li className="flex gap-2">
               <Target className="mt-0.5 h-4 w-4 shrink-0 text-orange-500" aria-hidden />
               <span>
-                <strong className="text-slate-800">Sequência (dias):</strong> dias seguidos com atividade. Ajuda a criar
+                <strong className="text-on-surface">Sequência (dias):</strong> dias seguidos com atividade. Ajuda a criar
                 hábito; confira no painel e no topo do layout.
               </span>
             </li>
             <li className="flex gap-2">
               <Medal className="mt-0.5 h-4 w-4 shrink-0 text-primary/80" aria-hidden />
               <span>
-                <strong className="text-slate-800">Ranking:</strong> comparação com outros alunos — use com espírito de
+                <strong className="text-on-surface">Ranking:</strong> comparação com outros alunos — use com espírito de
                 diversão, não de pressão.
               </span>
             </li>
@@ -203,7 +203,7 @@ export function HelpPage() {
           ].map((tip) => (
             <li
               key={tip}
-              className="flex gap-3 rounded-xl border border-slate-100 bg-slate-50/80 p-4 text-sm leading-relaxed text-slate-700"
+              className="flex gap-3 rounded-xl border border-surface-container-high/80 bg-surface-container-low/80 p-4 text-sm leading-relaxed text-on-surface"
             >
               <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/50" aria-hidden />
               {tip}
@@ -241,15 +241,20 @@ export function HelpPage() {
           ].map((item) => (
             <details
               key={item.q}
-              className="group rounded-2xl border border-white/60 bg-white/80 shadow-sm backdrop-blur-xl open:border-primary/20/80 open:shadow-md"
+              className="group rounded-2xl border border-surface-container-high/70 bg-surface-container-lowest/80 shadow-sm backdrop-blur-xl open:border-primary/30 open:shadow-md"
             >
               <summary className="cursor-pointer list-none px-5 py-4 font-semibold text-on-surface marker:content-none [&::-webkit-details-marker]:hidden">
                 <span className="flex items-center justify-between gap-3">
                   {item.q}
-                  <ChevronRight className="h-5 w-5 shrink-0 text-slate-400 transition group-open:rotate-90" aria-hidden />
+                  <ChevronRight
+                    className="h-5 w-5 shrink-0 text-on-surface-variant transition group-open:rotate-90"
+                    aria-hidden
+                  />
                 </span>
               </summary>
-              <p className="border-t border-slate-100 px-5 pb-4 pt-3 text-sm leading-relaxed text-slate-600">{item.a}</p>
+              <p className="border-t border-surface-container-high/80 px-5 pb-4 pt-3 text-sm leading-relaxed text-on-surface-variant">
+                {item.a}
+              </p>
             </details>
           ))}
         </div>
@@ -260,7 +265,7 @@ export function HelpPage() {
           <Users className="mt-0.5 h-10 w-10 shrink-0 rounded-xl bg-primary/10 p-2 text-primary" aria-hidden />
           <div>
             <h2 className="font-headline text-lg font-bold text-on-surface">Ainda precisa de suporte?</h2>
-            <p className="mt-1 text-sm text-slate-600">
+            <p className="mt-1 text-sm text-on-surface-variant">
               Quem mantém esta instalação pode oferecer canal de contato (e-mail, grupo ou ticket). Pergunte ao seu
               professor ou administrador qual é o canal oficial desta plataforma.
             </p>
@@ -269,7 +274,7 @@ export function HelpPage() {
         <div className="flex flex-wrap gap-2">
           <Link
             to="/app/community"
-            className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-bold text-white shadow-md transition hover:bg-slate-800"
+            className="inline-flex items-center gap-2 rounded-xl bg-surface-container-highest px-5 py-3 text-sm font-bold text-on-surface shadow-md transition hover:bg-surface-container-high"
           >
             Comunidade
             <ChevronRight className="h-4 w-4" aria-hidden />

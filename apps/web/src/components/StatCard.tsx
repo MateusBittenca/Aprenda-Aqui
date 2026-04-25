@@ -12,13 +12,13 @@ export function StatCard({
   sub: string;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200/60 bg-surface-container-lowest p-4 shadow-elevated">
-      <div className="flex items-center gap-2 text-slate-500">
+    <div className="rounded-2xl border border-surface-container-high/60 bg-surface-container-lowest p-4 shadow-elevated">
+      <div className="flex items-center gap-2 text-on-surface-variant">
         {icon}
         <span className="text-xs font-semibold uppercase tracking-wide">{label}</span>
       </div>
-      <p className="mt-2 text-2xl font-bold text-slate-900">{value}</p>
-      <p className="text-sm text-slate-500">{sub}</p>
+      <p className="mt-2 text-2xl font-bold text-on-surface">{value}</p>
+      <p className="text-sm text-on-surface-variant">{sub}</p>
     </div>
   );
 }

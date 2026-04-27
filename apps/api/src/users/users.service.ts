@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { GamificationService } from '../gamification/gamification.service';
 import { xpToNextLevel } from '../gamification/level.util';
@@ -12,7 +13,11 @@ export class UsersService {
   ) {}
 
   async getLeaderboard(requestingUserId: string) {
-    const [top, requestingUser, total] = await Promise.all([
+    // All three queries run in parallel — no sequential round-trips.
+    // The rank is computed with a single COUNT in the same Promise.all,
+    // avoiding the previous sequential await that caused connection-pool
+    // exhaustion under concurrent load.
+    const [top, rankRows, total] = await Promise.all([
       this.prisma.user.findMany({
         where: { role: 'USER' },
         take: 20,
@@ -26,18 +31,25 @@ export class UsersService {
           currentStreak: true,
         },
       }),
-      this.prisma.user.findUnique({
-        where: { id: requestingUserId },
-        select: { xpTotal: true },
-      }),
+      // Count how many USER-role accounts have strictly more XP than the
+      // requesting user; rank = that count + 1.  A single SQL COUNT with a
+      // correlated sub-select keeps this to one round-trip.
+      this.prisma.$queryRaw<{ rank: bigint }[]>(
+        Prisma.sql`
+          SELECT COUNT(*) AS \`rank\`
+          FROM \`User\` AS u2
+          WHERE u2.role = 'USER'
+            AND u2.xpTotal > COALESCE(
+              (SELECT xpTotal FROM \`User\` WHERE id = ${requestingUserId}),
+              0
+            )
+        `,
+      ),
       this.prisma.user.count({ where: { role: 'USER' } }),
     ]);
 
-    const myXp = requestingUser?.xpTotal ?? 0;
-    const myRank =
-      (await this.prisma.user.count({
-        where: { role: 'USER', xpTotal: { gt: myXp } },
-      })) + 1;
+    // $queryRaw returns BigInt for COUNT — convert to a plain number.
+    const myRank = Number(rankRows[0]?.rank ?? 0) + 1;
 
     return { top, myRank, total };
   }
